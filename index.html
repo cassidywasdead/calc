@@ -13,41 +13,49 @@
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body { font-family: -apple-system, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 0; overflow: hidden; height: 100dvh; }
         .container { max-width: 500px; margin: auto; height: 100%; display: flex; flex-direction: column; position: relative; background: #000; }
-        .hidden { display: none !important; }
-        .flex-col { display: flex; flex-direction: column; }
+        
+        /* Screens Setup */
+        #login-screen, #inbox-screen, #chat-screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: #000; display: none; flex-direction: column; }
+        #login-screen { display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; box-sizing: border-box; }
 
         /* Login */
-        #login-screen { position: absolute; inset: 0; background: #000; z-index: 10000; align-items: center; justify-content: center; padding: 20px; display: flex; }
         .login-input { width: 85%; padding: 14px; background: #121212; border: 1px solid #262626; border-radius: 8px; color: #fff; margin-bottom: 12px; outline: none; }
         .login-btn { width: 85%; padding: 14px; background: #333; color: #fff; border: none; border-radius: 8px; font-weight: 600; }
 
-        /* Inbox Entry Page */
-        #inbox-screen { flex: 1; padding-top: var(--safe-top); overflow-y: auto; }
+        /* SOS Button */
+        #sos-btn {
+            position: absolute; top: calc(var(--safe-top) + 20px); right: 20px; width: 42px; height: 42px;
+            background: #ff3b30; color: white; border-radius: 50%; justify-content: center; align-items: center;
+            font-size: 11px; font-weight: bold; z-index: 999; box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: none;
+        }
+
+        /* Inbox Screen */
+        #inbox-screen { padding-top: var(--safe-top); z-index: 50; }
         .inbox-header { padding: 15px 20px; font-size: 20px; font-weight: 700; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; }
-        .chat-row { display: flex; align-items: center; padding: 12px 20px; cursor: pointer; }
+        .chat-row { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #111; }
         .inbox-pfp-wrapper { width: 56px; height: 56px; border-radius: 50%; margin-right: 15px; overflow: hidden; background: #262626; border: 1px solid #333; }
         .inbox-pfp-wrapper img { width: 100%; height: 100%; object-fit: cover; }
         .inbox-details { flex: 1; display: flex; flex-direction: column; }
-        .inbox-name { font-weight: 500; font-size: 15px; }
-        .inbox-status { font-size: 13px; color: #8e8e8e; margin-top: 2px; }
-        .status-unread { color: #fff; font-weight: 600; }
-        .unread-dot { width: 8px; height: 8px; background: #0095f6; border-radius: 50%; margin-left: auto; }
+        .inbox-name { font-weight: 600; font-size: 15px; }
+        .inbox-status { font-size: 13px; color: #8e8e8e; margin-top: 3px; }
+        .status-unread { color: #fff; font-weight: 700; }
+        .unread-dot { width: 8px; height: 8px; background: #0095f6; border-radius: 50%; margin-left: 10px; display: none; }
 
         /* Chat Screen */
-        #header { padding: calc(var(--safe-top) + 10px) 15px 10px; border-bottom: 1px solid #262626; display: flex; align-items: center; background: #000; z-index: 10; }
-        .back-btn { font-size: 30px; margin-right: 15px; cursor: pointer; }
-        .profile-area { width: 34px; height: 34px; margin-right: 12px; border-radius: 50%; overflow: hidden; }
+        #chat-screen { z-index: 60; }
+        #header { padding: calc(var(--safe-top) + 10px) 15px 10px; border-bottom: 1px solid #262626; display: flex; align-items: center; background: #000; }
+        .back-btn { font-size: 32px; margin-right: 15px; cursor: pointer; color: #fff; line-height: 1; padding-bottom: 4px; }
+        .profile-area { width: 36px; height: 36px; margin-right: 12px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 1px solid #333; }
         .profile-pic { width: 100%; height: 100%; object-fit: cover; }
+        .user-name { font-weight: 600; font-size: 16px; }
 
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 5px; }
-        .sys-msg { align-self: center; color: #8e8e8e; font-size: 11px; margin: 15px 0; text-align: center; }
         
-        /* Message Bubbles */
         .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; position: relative; margin-bottom: 15px; }
         .my-wrapper { align-self: flex-end; align-items: flex-end; }
         .their-wrapper { align-self: flex-start; align-items: flex-start; }
         
-        .msg { padding: 10px 16px; border-radius: 22px; font-size: 15px; line-height: 1.4; position: relative; }
+        .msg { padding: 10px 16px; border-radius: 22px; font-size: 15px; line-height: 1.4; position: relative; cursor: pointer; word-wrap: break-word; }
         .my-msg { background: linear-gradient(135deg, #b026ff, #0d6efd); border-bottom-right-radius: 4px; }
         .their-msg { background-color: #262626; border-bottom-left-radius: 4px; }
         
@@ -59,22 +67,26 @@
 
         .time { font-size: 10px; color: #555; margin: 4px 5px 0; }
         .seen-status { font-size: 11px; color: #8e8e8e; align-self: flex-end; margin-top: -10px; margin-bottom: 5px; }
+        .date-sep { align-self: center; font-size: 11px; color: #8e8e8e; margin: 15px 0 8px; font-weight: 500; }
         
-        /* Input */
+        /* Input Area */
         #input-area { padding: 10px 15px calc(var(--safe-bottom) + 15px); background: #000; display: flex; gap: 12px; align-items: center; border-top: 1px solid #262626; }
         #msg-input { flex: 1; padding: 12px 18px; background: #121212; border: 1px solid #333; border-radius: 25px; color: #fff; outline: none; font-size: 15px; }
-        .media-label { font-size: 30px; color: #0095f6; cursor: pointer; }
-        #send-btn { color: #0095f6; font-weight: 600; font-size: 16px; background: none; border: none; }
+        .media-label { font-size: 32px; color: #0095f6; cursor: pointer; margin-bottom: 4px; font-weight: 300; width: 30px; text-align: center; }
+        #send-btn { color: #0095f6; font-weight: 600; font-size: 16px; background: none; border: none; cursor: pointer; }
 
-        /* Popups */
+        #file-input { display: none; }
+        .typing-bubble { font-size: 12px; color: #8e8e8e; padding: 0 20px 8px; display: none; font-style: italic; }
+        
+        /* Reaction Picker */
         #reaction-picker { display: none; position: fixed; background: #262626; border-radius: 30px; padding: 10px 18px; z-index: 2000; box-shadow: 0 5px 20px rgba(0,0,0,0.7); gap: 15px; }
         .emoji-opt { font-size: 26px; cursor: pointer; }
-        #file-input { display: none; }
-        .typing-bubble { font-size: 12px; color: #8e8e8e; padding: 0 20px 5px; display: none; }
     </style>
 </head>
 <body>
     <div class="container">
+        <div id="sos-btn" onclick="triggerSOS()">SOS</div>
+        
         <div id="reaction-picker">
             <span class="emoji-opt" onclick="addReaction('❤️')">❤️</span>
             <span class="emoji-opt" onclick="addReaction('😂')">😂</span>
@@ -84,38 +96,43 @@
         </div>
 
         <div id="login-screen">
-            <div class="flex-col" style="width:100%; align-items:center;">
-                <h1>Scientific Calculator</h1>
-                <input type="email" id="email" class="login-input" placeholder="User ID" autocapitalize="none">
-                <input type="password" id="password" class="login-input" placeholder="Access Code">
-                <button class="login-btn" onclick="login()">Sync Database</button>
-            </div>
+            <h1 style="font-weight: 300; margin-bottom: 30px;">Calculator Pro</h1>
+            <input type="email" id="email" class="login-input" placeholder="User ID" autocapitalize="none">
+            <input type="password" id="password" class="login-input" placeholder="Access Code">
+            <button class="login-btn" onclick="login()">Open Database</button>
         </div>
 
-        <div id="inbox-screen" class="hidden flex-col">
+        <div id="inbox-screen">
             <div class="inbox-header">
-                <div onclick="setMyPFP()" style="cursor:pointer;"><span id="my-name-display">Me</span> ✏️</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span id="my-name-display">Me</span> 
+                    <span onclick="setMyPFP()" style="font-size:12px; color:#8e8e8e; cursor:pointer; background:#111; padding:4px 8px; border-radius:10px;">Set DP</span>
+                </div>
                 <div style="font-size: 22px;">📝</div>
             </div>
-            <div style="padding: 15px 20px 5px; font-weight:700;">Messages</div>
+            <div style="padding: 15px 20px 5px; font-weight:700; font-size:16px;">Messages</div>
+            
             <div class="chat-row" onclick="openChat()">
-                <div class="inbox-pfp-wrapper"><img id="inbox-partner-pfp" src=""></div>
+                <div class="inbox-pfp-wrapper"><img id="inbox-partner-pfp" src="https://cdn-icons-png.flaticon.com/512/149/149071.png"></div>
                 <div class="inbox-details">
-                    <div class="inbox-name" id="inbox-partner-name">Partner</div>
-                    <div class="inbox-status" id="inbox-status-text">No messages yet</div>
+                    <div class="inbox-name" id="inbox-partner-name">Loading...</div>
+                    <div class="inbox-status" id="inbox-status-text">No messages</div>
                 </div>
-                <div id="unread-dot" class="unread-dot hidden"></div>
+                <div id="unread-dot" class="unread-dot"></div>
+                <div style="font-size: 20px; color: #8e8e8e; margin-left: 15px;">📷</div>
             </div>
         </div>
 
-        <div id="chat-screen" class="hidden flex-col">
+        <div id="chat-screen">
             <div id="header">
                 <div class="back-btn" onclick="closeChat()">‹</div>
-                <div class="profile-area" onclick="setPartnerPFP()"><img id="chat-partner-pfp" class="profile-pic" src=""></div>
-                <div class="user-name" onclick="setPartnerNickname()"><span id="chat-partner-name">Partner</span> ✏️</div>
+                <div class="profile-area" onclick="setPartnerPFP()"><img id="chat-partner-pfp" class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png"></div>
+                <div class="user-name" id="chat-partner-name">Loading...</div>
             </div>
+            
             <div id="messages" onclick="hidePicker()"></div>
             <div id="typing-bubble" class="typing-bubble">typing...</div>
+            
             <div id="input-area">
                 <label for="file-input" class="media-label" id="media-label">+</label>
                 <input type="file" id="file-input" accept="image/*,video/*" onchange="handleMediaUpload(this)">
@@ -126,7 +143,8 @@
     </div>
 
     <script>
-    const firebaseConfig = {
+        // --- ⚠️ API KEYS YAHAN DAALO ⚠️ ---
+        const firebaseConfig = {
     apiKey: "AIzaSyBCrx5hqoBFAR9VDNJ4opUBp3hTuL3bGJ4",
     authDomain: "secretspace-ca604.firebaseapp.com",
     projectId: "secretspace-ca604",
@@ -135,6 +153,7 @@
     appId: "1:440793813496:web:405615f2dc570b296b460d",
     measurementId: "G-2N4RWH4VK0"
   };
+        
         const ARNAV_EMAIL = "ak5940962@gmail.com"; 
         const LOVLEEN_EMAIL = "pcw69@secret.com";
 
@@ -144,61 +163,75 @@
         let activeMsgId = null; let isChatOpen = false; let globalMsgs = [];
         let myReadTime = null; let partnerReadTime = null;
 
+        // AUTH LOGIC
         auth.onAuthStateChanged(user => {
             if (user) {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('inbox-screen').classList.remove('hidden');
-                document.getElementById('my-name-display').innerText = user.email === ARNAV_EMAIL ? "ahrnavsharma" : "lovleenx";
+                // Set Fixed Names
+                const amIArnav = user.email === ARNAV_EMAIL;
+                document.getElementById('my-name-display').innerText = amIArnav ? "ahrnavsharma" : "lovleenx";
+                const pName = amIArnav ? "lovleenx" : "ahrnavsharma";
+                document.getElementById('inbox-partner-name').innerText = pName;
+                document.getElementById('chat-partner-name').innerText = pName;
+
+                // Screen Switch
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('inbox-screen').style.display = 'flex';
+                document.getElementById('sos-btn').style.display = 'flex';
+                
                 loadProfiles(); listenToReadReceipts(); listenToTyping(); loadMessages();
             }
         });
 
         function login() { auth.signInWithEmailAndPassword(document.getElementById('email').value.trim().toLowerCase(), document.getElementById('password').value).catch(e => alert("Access Denied")); }
-        function openChat() { isChatOpen = true; document.getElementById('inbox-screen').classList.add('hidden'); document.getElementById('chat-screen').classList.remove('hidden'); markAsRead(); renderMessages(); }
-        function closeChat() { isChatOpen = false; document.getElementById('chat-screen').classList.add('hidden'); document.getElementById('inbox-screen').classList.remove('hidden'); }
+        function triggerSOS() { auth.signOut().then(() => { window.location.replace("https://www.google.com/search?q=calculator"); }); }
+        
+        // SCREEN SWITCHING
+        function openChat() { isChatOpen = true; document.getElementById('inbox-screen').style.display = 'none'; document.getElementById('chat-screen').style.display = 'flex'; markAsRead(); renderMessages(); }
+        function closeChat() { isChatOpen = false; document.getElementById('chat-screen').style.display = 'none'; document.getElementById('inbox-screen').style.display = 'flex'; updateInbox(); }
 
-        // --- Profile Management ---
-        function setMyPFP() { const url = prompt("Your DP URL:"); if(url) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavPfp' : 'lovleenPfp'; db.collection('settings').doc('profiles').set({ [k]: url.trim() }, {merge: true}); } }
-        function setPartnerPFP() { const url = prompt("Partner DP URL:"); if(url) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenPfp' : 'arnavPfp'; db.collection('settings').doc('profiles').set({ [k]: url.trim() }, {merge: true}); } }
-        function setPartnerNickname() { const n = prompt("Nickname for partner:"); if(n) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavsView' : 'lovleensView'; db.collection('settings').doc('profiles').set({ [k]: n.trim() }, {merge: true}); db.collection('chats').add({ text: `${auth.currentUser.email === ARNAV_EMAIL ? 'ahrnavsharma' : 'lovleenx'} set nickname to ${n}`, type: "system", timestamp: firebase.firestore.FieldValue.serverTimestamp() }); } }
+        // PROFILE PICTURES (Names are fixed, only DP changes)
+        function setMyPFP() { const url = prompt("Paste your DP Image URL:"); if(url) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavPfp' : 'lovleenPfp'; db.collection('settings').doc('profiles').set({ [k]: url.trim() }, {merge: true}); } }
+        function setPartnerPFP() { const url = prompt("Paste partner's DP Image URL:"); if(url) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenPfp' : 'arnavPfp'; db.collection('settings').doc('profiles').set({ [k]: url.trim() }, {merge: true}); } }
 
         function loadProfiles() {
             db.collection('settings').doc('profiles').onSnapshot(doc => {
                 if(doc.exists) {
-                    const d = doc.data(); const amIArnav = auth.currentUser.email === ARNAV_EMAIL;
-                    const pName = amIArnav ? d.arnavsView : d.lovleensView;
-                    const pPfp = amIArnav ? d.lovleenPfp : d.arnavPfp;
-                    document.getElementById('inbox-partner-name').innerText = pName || "Partner";
-                    document.getElementById('chat-partner-name').innerText = pName || "Partner";
-                    document.getElementById('inbox-partner-pfp').src = pPfp || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-                    document.getElementById('chat-partner-pfp').src = pPfp || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                    const amIArnav = auth.currentUser.email === ARNAV_EMAIL;
+                    const pPfp = amIArnav ? doc.data().lovleenPfp : doc.data().arnavPfp;
+                    const finalPfp = pPfp || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                    document.getElementById('inbox-partner-pfp').src = finalPfp;
+                    document.getElementById('chat-partner-pfp').src = finalPfp;
                 }
             });
         }
 
-        // --- Media Upload (With Progress) ---
+        // MEDIA UPLOAD (+ BUTTON)
         function handleMediaUpload(input) {
             const file = input.files[0]; if (!file) return;
             const label = document.getElementById('media-label');
             const isVideo = file.type.startsWith('video/');
             
             label.innerText = "0%";
+            label.style.fontSize = "16px";
+            
             const ref = storage.ref('media/' + Date.now() + "_" + file.name);
             const task = ref.put(file);
 
             task.on('state_changed', 
                 (snap) => { label.innerText = Math.round((snap.bytesTransferred/snap.totalBytes)*100) + "%"; },
-                (err) => { alert("Upload Failed!"); label.innerText = "+"; },
+                (err) => { alert("Upload Failed! Check Storage Rules."); label.innerText = "+"; label.style.fontSize = "32px"; },
                 () => { task.snapshot.ref.getDownloadURL().then(url => {
                     db.collection('chats').add({ text: url, type: isVideo ? "video" : "image", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                    label.innerText = "+";
+                    label.innerText = "+"; label.style.fontSize = "32px";
                 }); }
             );
             input.value = "";
         }
 
-        // --- Real-time Logic ---
+        // SEEN & TYPING LOGIC
         function markAsRead() { if(isChatOpen) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavRead' : 'lovleenRead'; db.collection('settings').doc('receipts').set({ [k]: firebase.firestore.FieldValue.serverTimestamp() }, {merge: true}); } }
+        document.addEventListener('visibilitychange', () => { if (!document.hidden && isChatOpen) markAsRead(); });
+        
         function listenToReadReceipts() {
             db.collection('settings').doc('receipts').onSnapshot(doc => {
                 if(doc.exists) {
@@ -210,11 +243,21 @@
                 }
             });
         }
+
         function setTyping(s) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavIsTyping' : 'lovleenIsTyping'; db.collection('settings').doc('typing').set({ [k]: s }, {merge: true}); }
         document.getElementById('msg-input').addEventListener('input', () => { setTyping(true); clearTimeout(window.tT); window.tT = setTimeout(()=>setTyping(false), 2000); });
         function listenToTyping() { const o = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenIsTyping' : 'arnavIsTyping'; db.collection('settings').doc('typing').onSnapshot(doc => { document.getElementById('typing-bubble').style.display = (doc.exists && doc.data()[o]) ? 'block' : 'none'; }); }
 
+        // MESSAGES & INBOX
         function loadMessages() { db.collection('chats').orderBy('timestamp').onSnapshot(snap => { globalMsgs = []; snap.forEach(doc => { if(doc.data().timestamp) globalMsgs.push({id: doc.id, ...doc.data()}); }); updateInbox(); if(isChatOpen) renderMessages(); }); }
+
+        function timeAgo(date) {
+            const sec = Math.floor((new Date() - date) / 1000);
+            if (sec < 60) return "just now";
+            const min = Math.floor(sec / 60); if (min < 60) return `${min}m ago`;
+            const h = Math.floor(min / 60); if (h < 24) return `${h}h ago`;
+            return `${Math.floor(h / 24)}d ago`;
+        }
 
         function updateInbox() {
             if(globalMsgs.length === 0) return;
@@ -225,10 +268,19 @@
                     if(!myReadTime || globalMsgs[i].timestamp.toDate() > myReadTime) unread++; else break;
                 } else if(globalMsgs[i].sender === auth.currentUser.email) break;
             }
+            
             const status = document.getElementById('inbox-status-text');
             const dot = document.getElementById('unread-dot');
-            if(unread > 0) { status.innerText = `${unread} new message${unread>1?'s':''}`; status.className = "inbox-status status-unread"; dot.classList.remove('hidden'); }
-            else { status.innerText = last.sender === auth.currentUser.email ? "Sent just now" : "Active now"; status.className = "inbox-status"; dot.classList.add('hidden'); }
+            
+            if(unread > 0) { 
+                status.innerText = `${unread} new message${unread>1?'s':''}`; 
+                status.className = "inbox-status status-unread"; 
+                dot.style.display = 'block'; 
+            } else { 
+                status.innerText = last.sender === auth.currentUser.email ? `Sent ${timeAgo(last.timestamp.toDate())}` : `Active ${timeAgo(last.timestamp.toDate())}`; 
+                status.className = "inbox-status"; 
+                dot.style.display = 'none'; 
+            }
         }
 
         function renderMessages() {
@@ -237,11 +289,11 @@
                 const d = m.timestamp.toDate(); const dS = d.toDateString();
                 if(dS !== lastD) { const s = document.createElement('div'); s.className = 'date-sep'; s.innerText = dS === new Date().toDateString() ? "Today" : dS; div.appendChild(s); lastD = dS; }
 
-                if(m.type === "system") { const e = document.createElement('div'); e.className = 'sys-msg'; e.innerText = m.text; div.appendChild(e); }
-                else {
+                if(m.type !== "system") {
                     const isMe = m.sender === auth.currentUser.email;
                     const w = document.createElement('div'); w.className = 'msg-wrapper ' + (isMe ? 'my-wrapper' : 'their-wrapper');
                     const b = document.createElement('div'); b.className = 'msg ' + (isMe ? 'my-msg' : 'their-msg');
+                    
                     b.onclick = (e) => { e.stopPropagation(); activeMsgId = m.id; const p = document.getElementById('reaction-picker'); p.style.display = 'flex'; p.style.top = (e.clientY-60)+'px'; p.style.left = Math.min(e.clientX, window.innerWidth-200)+'px'; };
                     
                     if(m.type === 'image') b.innerHTML = `<img src="${m.text}">`;
@@ -250,9 +302,12 @@
 
                     if(m.reaction) { const r = document.createElement('span'); r.className = 'reaction-tag'; r.innerText = m.reaction; b.appendChild(r); }
                     const t = document.createElement('div'); t.className = 'time'; t.innerText = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                    
                     w.appendChild(b); w.appendChild(t); div.appendChild(w);
 
-                    if(isMe && i === globalMsgs.length-1 && partnerReadTime && partnerReadTime >= d) { const s = document.createElement('div'); s.className = 'seen-status'; s.innerText = "Seen"; div.appendChild(s); }
+                    if(isMe && i === globalMsgs.length-1 && partnerReadTime && partnerReadTime >= d) { 
+                        const s = document.createElement('div'); s.className = 'seen-status'; s.innerText = "Seen"; div.appendChild(s); 
+                    }
                 }
             });
             div.scrollTop = div.scrollHeight;
@@ -260,7 +315,12 @@
 
         function addReaction(emoji) { if(activeMsgId) db.collection('chats').doc(activeMsgId).update({ reaction: emoji }); hidePicker(); }
         function hidePicker() { document.getElementById('reaction-picker').style.display = 'none'; }
-        function sendMessage() { const t = document.getElementById('msg-input').value.trim(); if(!t) return; db.collection('chats').add({ text: t, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('msg-input').value = ""; markAsRead(); }
+        
+        function sendMessage() { 
+            const t = document.getElementById('msg-input').value.trim(); if(!t) return; 
+            db.collection('chats').add({ text: t, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); 
+            document.getElementById('msg-input').value = ""; markAsRead(); setTyping(false); 
+        }
         document.getElementById('msg-input').addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
     </script>
 </body>
