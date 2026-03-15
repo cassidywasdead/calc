@@ -9,57 +9,44 @@
         * { box-sizing: border-box; font-family: -apple-system, sans-serif; margin: 0; padding: 0; touch-action: manipulation; }
         body { background: #000; color: #fff; height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; position: fixed; width: 100%; }
 
-        /* --- FRONT: CALCULATOR UI --- */
+        /* --- CALCULATOR --- */
         #calc-ui { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; height: 100%; background: #000; }
         #display { flex: 1; display: flex; align-items: flex-end; justify-content: flex-end; font-size: 65px; padding: 20px; overflow: hidden; }
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-        .btn { height: 75px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
-        .num { background: #333; color: white; }
-        .op { background: #f1a33c; color: white; }
-        .top { background: #a5a5a5; color: black; }
-        .zero { grid-column: span 2; border-radius: 40px; }
+        .btn { height: 75px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .num { background: #333; color: white; } .op { background: #f1a33c; color: white; } .top { background: #a5a5a5; color: black; } .zero { grid-column: span 2; border-radius: 40px; }
 
         /* --- SECRET APP WRAPPER --- */
         #secret-app { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
+        #sos-floating { position: fixed; top: calc(var(--safe-top) + 15px); right: 15px; width: 45px; height: 45px; background: rgba(255, 59, 48, 0.9); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; border: 2px solid rgba(255,255,255,0.2); z-index: 9999; }
 
-        /* --- FLOATING SOS BUTTON --- */
-        #sos-floating { position: fixed; top: calc(var(--safe-top) + 15px); right: 15px; width: 45px; height: 45px; background: rgba(255, 59, 48, 0.9); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; border: 2px solid rgba(255,255,255,0.2); z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; }
-
-        /* --- SCREEN 1: LOGIN --- */
+        /* --- LOGIN --- */
         #login-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .login-input { width: 85%; padding: 16px; margin-bottom: 12px; background: #1c1c1e; border: 1px solid #333; color: #fff; border-radius: 12px; outline: none; font-size: 16px; }
-        .login-btn { width: 85%; padding: 16px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        .login-btn { width: 85%; padding: 16px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 16px; }
 
-        /* --- SCREEN 2: DM LIST (INSTA STYLE) --- */
+        /* --- DM LIST --- */
         #dm-list-ui { display: none; flex-direction: column; height: 100%; width: 100%; padding-top: var(--safe-top); }
         .dm-header { padding: 15px 20px; font-size: 20px; font-weight: bold; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; }
-        .dm-item { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #111; }
-        .dm-item:active { background: #111; }
+        .dm-item { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; }
         .dm-pfp { width: 55px; height: 55px; border-radius: 50%; background: #333; margin-right: 15px; object-fit: cover; }
-        .dm-info { flex: 1; display: flex; flex-direction: column; }
-        .dm-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .dm-name { font-size: 16px; font-weight: 600; }
         .dm-preview { font-size: 14px; color: #8e8e93; }
-        .dm-dot { width: 10px; height: 10px; background: #007aff; border-radius: 50%; }
 
-        /* --- SCREEN 3: CHAT UI --- */
-        #chat-ui { display: none; flex-direction: column; height: 100%; width: 100%; }
-        #chat-header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; background: #000; z-index: 10; }
-        .back-btn { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding-right: 10px; }
-        .chat-pfp { width: 35px; height: 35px; border-radius: 50%; background: #333; }
-        .chat-name { font-weight: 700; font-size: 16px; flex: 1; }
-
-        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-        .msg-wrap { display: flex; flex-direction: column; max-width: 80%; }
-        .me { align-self: flex-end; align-items: flex-end; }
-        .them { align-self: flex-start; align-items: flex-start; }
-        .bubble { padding: 12px 16px; border-radius: 20px; font-size: 15px; line-height: 1.4; }
-        .bubble-me { background: #3797f0; color: #fff; border-bottom-right-radius: 4px; }
-        .bubble-them { background: #262626; color: #fff; border-bottom-left-radius: 4px; }
-        .time { font-size: 10px; color: #8e8e93; margin-top: 5px; }
-
+        /* --- CHAT UI --- */
+        #chat-ui { display: none; flex-direction: column; height: 100%; width: 100%; background-size: cover; background-position: center; }
+        #chat-header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+        .chat-pfp { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .bubble { padding: 10px 16px; border-radius: 20px; font-size: 15px; max-width: 80%; }
+        .me { align-self: flex-end; background: #3797f0; border-bottom-right-radius: 4px; }
+        .them { align-self: flex-start; background: #262626; border-bottom-left-radius: 4px; }
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: #000; }
-        #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; outline: none; font-size: 16px; }
-        .send-btn { background: none; border: none; color: #3797f0; font-weight: bold; font-size: 16px; padding: 0 10px; }
+        #msg-in { flex: 1; padding: 10px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; font-size: 16px; outline: none; }
+
+        /* --- SETTINGS MODAL --- */
+        #settings-ui { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .set-box { width: 90%; background: #1c1c1e; padding: 20px; border-radius: 20px; text-align: center; }
     </style>
 </head>
 <body>
@@ -67,8 +54,7 @@
     <div id="calc-ui">
         <div id="display">0</div>
         <div class="grid">
-            <button class="btn top" onclick="handleAC()">AC</button>
-            <button class="btn top">+/-</button><button class="btn top">%</button><button class="btn op" onclick="press('/')">÷</button>
+            <button class="btn top" onclick="handleAC()">AC</button><button class="btn top">+/-</button><button class="btn top">%</button><button class="btn op" onclick="press('/')">÷</button>
             <button class="btn num" onclick="press('7')">7</button><button class="btn num" onclick="press('8')">8</button><button class="btn num" onclick="press('9')">9</button><button class="btn op" onclick="press('*')">×</button>
             <button class="btn num" onclick="press('4')">4</button><button class="btn num" onclick="press('5')">5</button><button class="btn num" onclick="press('6')">6</button><button class="btn op" onclick="press('-')">-</button>
             <button class="btn num" onclick="press('1')">1</button><button class="btn num" onclick="press('2')">2</button><button class="btn num" onclick="press('3')">3</button><button class="btn op" onclick="press('+')">+</button>
@@ -77,11 +63,10 @@
     </div>
 
     <div id="secret-app">
-        
         <div id="sos-floating" onclick="forceLogout()">SOS</div>
 
         <div id="login-screen">
-            <h2 style="font-weight: 300; margin-bottom: 30px;">Premium Access</h2>
+            <h2 style="font-weight: 200; margin-bottom: 20px;">Membership Login</h2>
             <input type="text" id="user" class="login-input" placeholder="ID (123)" inputmode="numeric">
             <input type="password" id="pass" class="login-input" placeholder="PIN (123)" inputmode="numeric">
             <button class="login-btn" onclick="checkLogin()">Enter</button>
@@ -90,101 +75,93 @@
         <div id="dm-list-ui">
             <div class="dm-header">
                 <span>ahrnavsharma</span>
+                <span onclick="openSettings()" style="font-size: 24px;">⚙️</span>
             </div>
             <div class="dm-item" onclick="openChat()">
-                <img src="https://ui-avatars.com/api/?name=L&background=random" class="dm-pfp">
-                <div class="dm-info">
-                    <span class="dm-name">lovleenx</span>
-                    <span class="dm-preview">Sent you a message • 1m</span>
-                </div>
-                <div class="dm-dot"></div>
+                <img id="list-pfp" src="https://ui-avatars.com/api/?name=L&background=random" class="dm-pfp">
+                <div class="dm-info"><span class="dm-name">lovleenx</span><span class="dm-preview">Sent a photo • 2m</span></div>
             </div>
         </div>
 
         <div id="chat-ui">
             <div id="chat-header">
-                <button class="back-btn" onclick="backToList()">‹</button>
-                <img src="https://ui-avatars.com/api/?name=L&background=random" class="chat-pfp">
-                <div class="chat-name">lovleenx</div>
+                <button onclick="backToList()" style="background:none; border:none; color:#fff; font-size:24px;">‹</button>
+                <img id="chat-pfp" src="https://ui-avatars.com/api/?name=L&background=random" class="chat-pfp">
+                <div style="font-weight:700; flex:1;">lovleenx</div>
             </div>
-            <div id="messages">
-                <div class="msg-wrap them"><div class="bubble bubble-them">Checklist poori? DM page aur floating SOS lag gaya!</div><div class="time">11:10 PM</div></div>
-            </div>
+            <div id="messages"></div>
             <div id="input-bar">
+                <button style="background:none; border:none; font-size:24px;">📷</button>
                 <input type="text" id="msg-in" placeholder="Message..." onkeypress="if(event.key==='Enter') send()">
-                <button class="send-btn" onclick="send()">Send</button>
+                <button onclick="send()" style="background:none; border:none; color:#3797f0; font-weight:700; font-size:16px;">Send</button>
             </div>
         </div>
 
+        <div id="settings-ui">
+            <div class="set-box">
+                <h3 style="margin-bottom:20px;">App Settings</h3>
+                <input type="text" id="set-pfp-url" class="login-input" placeholder="Partner PFP Image URL">
+                <input type="text" id="set-bg-url" class="login-input" placeholder="Chat Background URL">
+                <button class="login-btn" onclick="saveSettings()">Save & Close</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- 1. CALCULATOR LOGIC ---
-        let exp = '0';
+        let exp = '0'; let taps = 0; let lastTap = 0;
         function update() { document.getElementById('display').innerText = exp; }
         function press(v) { if(exp === '0') exp = v; else exp += v; update(); }
         function equal() { try { exp = eval(exp).toString(); update(); } catch { exp = 'Error'; update(); } }
-
-        // --- 2. TRIPLE TAP TRIGGER ---
-        let taps = 0; let lastTap = 0;
+        
         function handleAC() {
             let now = Date.now();
-            if (now - lastTap < 600) { taps++; } else { taps = 1; }
+            if (now - lastTap < 600) taps++; else taps = 1;
             lastTap = now;
-            
-            if (taps === 3) { 
-                document.getElementById('secret-app').style.display = 'flex';
-                document.getElementById('calc-ui').style.display = 'none';
-                taps = 0;
-            }
+            if (taps === 3) { document.getElementById('secret-app').style.display = 'flex'; document.getElementById('calc-ui').style.display = 'none'; taps = 0; }
             exp = '0'; update();
         }
 
-        // --- 3. LOGIN & NAVIGATION ---
         function checkLogin() {
             if(document.getElementById('user').value === '123' && document.getElementById('pass').value === '123') {
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('dm-list-ui').style.display = 'flex'; // Goes to DM List
-            } else { alert("Error: Wrong Code"); }
+                document.getElementById('dm-list-ui').style.display = 'flex';
+                loadSettings();
+            } else alert("Invalid ID");
         }
 
-        function openChat() {
-            document.getElementById('dm-list-ui').style.display = 'none';
-            document.getElementById('chat-ui').style.display = 'flex';
+        function openChat() { document.getElementById('dm-list-ui').style.display='none'; document.getElementById('chat-ui').style.display='flex'; }
+        function backToList() { document.getElementById('chat-ui').style.display='none'; document.getElementById('dm-list-ui').style.display='flex'; }
+        function openSettings() { document.getElementById('settings-ui').style.display='flex'; }
+
+        function saveSettings() {
+            const pfp = document.getElementById('set-pfp-url').value;
+            const bg = document.getElementById('set-bg-url').value;
+            if(pfp) localStorage.setItem('partnerPfp', pfp);
+            if(bg) localStorage.setItem('chatBg', bg);
+            loadSettings();
+            document.getElementById('settings-ui').style.display='none';
         }
 
-        function backToList() {
-            document.getElementById('chat-ui').style.display = 'none';
-            document.getElementById('dm-list-ui').style.display = 'flex';
+        function loadSettings() {
+            const pfp = localStorage.getItem('partnerPfp');
+            const bg = localStorage.getItem('chatBg');
+            if(pfp) { document.getElementById('list-pfp').src = pfp; document.getElementById('chat-pfp').src = pfp; }
+            if(bg) { document.getElementById('chat-ui').style.backgroundImage = `url('${bg}')`; }
         }
 
-        // --- 4. THE FORCE LOGOUT (SOS) ---
         function forceLogout() {
-            // 1. Clear credentials
-            document.getElementById('user').value = '';
-            document.getElementById('pass').value = '';
-            
-            // 2. Hide all secret screens
+            document.getElementById('user').value = ''; document.getElementById('pass').value = '';
             document.getElementById('secret-app').style.display = 'none';
+            document.getElementById('calc-ui').style.display = 'flex';
+            document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('dm-list-ui').style.display = 'none';
             document.getElementById('chat-ui').style.display = 'none';
-            
-            // 3. Reset to login screen (for next time)
-            document.getElementById('login-screen').style.display = 'flex';
-            
-            // 4. Show calculator again
-            document.getElementById('calc-ui').style.display = 'flex';
-            
-            // 5. Clear calculator display
-            exp = '0'; update();
         }
 
-        // --- 5. CHAT MESSAGING ---
         function send() {
             let i = document.getElementById('msg-in'); if(!i.value.trim()) return;
-            let m = document.getElementById('messages');
-            m.innerHTML += `<div class="msg-wrap me"><div class="bubble bubble-me">${i.value}</div><div class="time">Just Now</div></div>`;
-            i.value = ''; m.scrollTop = m.scrollHeight;
+            document.getElementById('messages').innerHTML += `<div class="bubble me">${i.value}</div>`;
+            i.value = ''; document.getElementById('messages').scrollTop = 9999;
         }
     </script>
 </body>
