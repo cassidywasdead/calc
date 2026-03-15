@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
     <title>Scientific Calculator</title>
     
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            alert("Bhai code crash ho gaya!\nLine: " + lineno + "\nError: " + message);
+            return true;
+        };
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -33,10 +40,8 @@
         .dm-header { padding: 15px 20px; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; position: relative; }
         .header-name { font-weight: 700; font-size: 20px; margin-bottom: 5px; }
         .settings-btn { background: #1c1c1e; border: 1px solid #333; color: white; padding: 8px 15px; border-radius: 15px; font-size: 14px; cursor: pointer; }
-
         .search-container { padding: 10px 15px; border-bottom: 1px solid #111; z-index: 9; background: rgba(0,0,0,0.9); }
         .search-bar { width: 100%; padding: 10px 15px; background: #1c1c1e; border-radius: 15px; border: 1px solid #333; color: white; font-size: 14px; outline: none; }
-
         .dm-item { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #111; }
         .dm-pfp { width: 55px; height: 55px; border-radius: 50%; background: #333; margin-right: 15px; object-fit: cover; }
         .dm-preview { font-size: 14px; color: #8e8e93; margin-top: 4px; }
@@ -46,21 +51,16 @@
         #chat-ui { display: none; flex-direction: column; height: 100%; width: 100%; background: var(--theme-bg); background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; }
         #chat-header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 10; justify-content: flex-start; }
         .chat-pfp { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
-        
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 18px; background: rgba(0,0,0,0.5); }
         .msg-wrap { display: flex; flex-direction: column; width: 100%; }
         .me { align-items: flex-end; } .them { align-items: flex-start; }
-        
         .bubble { padding: 10px 16px; border-radius: 22px; font-size: 15px; line-height: 1.4; position: relative; cursor: pointer; max-width: 75%; word-wrap: break-word; overflow-wrap: break-word; word-break: normal; }
         .bubble-me { background: #3797f0; color: #fff; border-bottom-right-radius: 4px; }
         .bubble-them { background: #262626; color: #fff; border-bottom-left-radius: 4px; }
-        
         .chat-img { max-width: 100%; border-radius: 16px; margin-bottom: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
         .msg-footer { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #aaa; margin-top: 6px; }
-        
         .react-badge { position: absolute; bottom: -12px; background: #1c1c1e; border: 1px solid #333; padding: 2px 6px; border-radius: 12px; font-size: 13px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
         .me .react-badge { right: 10px; } .them .react-badge { left: 10px; }
-
         #typing-ind { padding: 5px 15px; font-size: 11px; color: #888; display: none; }
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: rgba(0,0,0,0.9); z-index: 10; align-items: center; }
         #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; font-size: 16px; outline: none; }
@@ -103,17 +103,13 @@
 
         <div id="dm-list-ui">
             <div class="dm-header">
-                <div class="header-info-group">
-                    <div class="header-name" id="my-username-display">Loading...</div>
-                </div>
+                <div class="header-info-group"><div class="header-name" id="my-username-display">Loading...</div></div>
                 <div style="display:flex; gap:10px;">
                     <button class="settings-btn" onclick="openSettings()">⚙️ Settings</button>
                     <div class="sos-btn" onclick="forceLogout()">SOS</div>
                 </div>
             </div>
-            <div class="search-container">
-                <input type="text" id="dm-search" class="search-bar" placeholder="🔍 Search messages..." oninput="searchMessages()">
-            </div>
+            <div class="search-container"><input type="text" id="dm-search" class="search-bar" placeholder="🔍 Search messages..." oninput="searchMessages()"></div>
             <div class="dm-item" onclick="openChat()">
                 <img id="list-pfp" src="" class="dm-pfp">
                 <div style="flex:1;">
@@ -131,9 +127,7 @@
                 <div style="font-weight:700; font-size:16px; margin-left:10px; flex:1;" id="chat-partner-name">...</div>
                 <div class="sos-btn" onclick="forceLogout()">SOS</div>
             </div>
-            <div class="search-container" style="background: rgba(0,0,0,0.5);">
-                <input type="text" id="chat-search" class="search-bar" placeholder="🔍 Search messages in chat..." oninput="searchMessages()">
-            </div>
+            <div class="search-container" style="background: rgba(0,0,0,0.5);"><input type="text" id="chat-search" class="search-bar" placeholder="🔍 Search messages in chat..." oninput="searchMessages()"></div>
             <div id="messages"></div>
             <div id="input-bar">
                 <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="sendPhoto(event)">
@@ -151,9 +145,7 @@
                     <span class="react-emoji" onclick="setReact('😂')">😂</span>
                     <span class="react-emoji" onclick="setReact('😡')">😡</span>
                 </div>
-                <div id="unsend-wrap" style="display:none; text-align:center;">
-                    <button class="unsend-btn" onclick="unsendActiveMsg()">🗑️ Unsend Message</button>
-                </div>
+                <div id="unsend-wrap" style="display:none; text-align:center;"><button class="unsend-btn" onclick="unsendActiveMsg()">🗑️ Unsend Message</button></div>
             </div>
         </div>
 
@@ -164,12 +156,10 @@
                 <input type="file" id="set-mypfp-file" style="display:none;" accept="image/*" onchange="checkFile(this, 'status-mypfp')">
                 <button class="file-upload-btn" onclick="document.getElementById('set-mypfp-file').click()">📂 Choose DP from Gallery</button>
                 <span id="status-mypfp" class="status-badge"></span>
-                
                 <label class="file-label">Change Chat Background Theme:</label>
                 <input type="file" id="set-bg-file" style="display:none;" accept="image/*" onchange="checkFile(this, 'status-bg')">
                 <button class="file-upload-btn" onclick="document.getElementById('set-bg-file').click()">🖼️ Choose Theme</button>
                 <span id="status-bg" class="status-badge"></span>
-                
                 <button class="login-btn" onclick="saveSettings()" style="margin-top:20px; background:#3797f0;">Save Settings</button>
                 <button class="delete-chat-btn" onclick="confirmDeleteChat()">🗑️ Clear Entire Chat</button>
                 <p style="margin-top: 20px; color: #aaa; font-size: 14px; cursor:pointer; text-align:center;" onclick="closeSettings()">Cancel</p>
@@ -178,14 +168,10 @@
     </div>
 
     <script>
-        // ==========================================
-        // 1. CALCULATOR LOGIC (Top par rakha hai, ab kabhi crash nahi hoga)
-        // ==========================================
         let exp = '0'; let taps = 0; let lastTap = 0;
         function update() { document.getElementById('display').innerText = exp; }
         function press(v) { if(exp === '0') exp = v; else exp += v; update(); }
         function equal() { try { exp = eval(exp).toString(); update(); } catch { exp = 'Error'; update(); } }
-        
         function handleAC() {
             let now = Date.now();
             if (now - lastTap < 600) taps++; else taps = 1;
@@ -197,75 +183,46 @@
             }
             exp = '0'; update();
         }
+    </script>
 
-        // ==========================================
-        // 2. SUPABASE CREDENTIALS & LOGIC
-        // ==========================================
+    <script>
+        // 👇 YAHAN APNI KEY DAAL (Quotes ' ' mat hatana) 👇
         const SUPABASE_URL = 'https://qrsgyerhotxwhldmtqec.supabase.co'; 
-        
-        // 🚨 YAHAN APNI KEY DAAL (Quotes ' ' mat hatana) 🚨
-        const SUPABASE_KEY = 'sb_publishable_7wlB0gl-_Fz1CsMyl6F6w_Zp-veYlo'; 
-
-
+        const SUPABASE_KEY = 'sb_publishable__7wlB0gI-_Fz1CsMyl6F6w_Zp-veYlo'; 
         
         let supabase;
         try {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         } catch(e) {
-            console.error("Supabase load nahi hua. Internet check kar le bhai.");
+            console.error("Supabase load nahi ho raha.");
         }
 
-        let chatData = [];
-        let activeMsgId = null;
-        let currentUser = '';
-        let partnerUser = '';
-        let isChatOpen = false;
+        let chatData = [], activeMsgId = null, currentUser = '', partnerUser = '', isChatOpen = false;
 
         async function checkLogin() {
-            if(!supabase) { alert("Backend connect nahi ho raha hai."); return; }
-            
+            if(!supabase) { alert("Backend load nahi hua!"); return; }
             let email = document.getElementById('user-email').value.trim().toLowerCase();
             let pass = document.getElementById('user-pass').value;
             let btn = document.getElementById('login-btn');
 
             if(!email || !pass) { alert("Email aur Password daal!"); return; }
-
             btn.innerText = "Checking...";
 
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: pass
-            });
+            const { data, error } = await supabase.auth.signInWithPassword({ email: email, password: pass });
 
-            if (error) {
-                alert("Galat Email ya Password! Phir se try kar.");
-                btn.innerText = "Enter";
-                return;
-            }
+            if (error) { alert("Galat Email ya Password!"); btn.innerText = "Enter"; return; }
 
-            if (email === "houston@boobie.com") {
-                currentUser = 'ahrnavsharma';
-                partnerUser = 'lovleenx';
-            } else if (email === "pcw69@boobie.com") {
-                currentUser = 'lovleenx';
-                partnerUser = 'ahrnavsharma';
-            } else {
-                alert("Unrecognized User");
-                btn.innerText = "Enter";
-                return;
-            }
+            if (email === "houston@boobie.com") { currentUser = 'ahrnavsharma'; partnerUser = 'lovleenx'; } 
+            else if (email === "pcw69@boobie.com") { currentUser = 'lovleenx'; partnerUser = 'ahrnavsharma'; } 
+            else { alert("Unknown User"); btn.innerText = "Enter"; return; }
             
             document.getElementById('my-username-display').innerText = currentUser;
             document.getElementById('partner-username-display').innerText = partnerUser;
             document.getElementById('chat-partner-name').innerText = partnerUser;
-
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dm-list-ui').style.display = 'flex';
             
-            loadSettings(); 
-            fetchMessages(); 
-            setupRealtime(); 
-            btn.innerText = "Enter";
+            loadSettings(); fetchMessages(); setupRealtime(); btn.innerText = "Enter";
         }
 
         async function fetchMessages() {
@@ -280,8 +237,7 @@
                 if(!isChatOpen && payload.eventType === 'INSERT' && payload.new.sender !== currentUser) {
                     document.getElementById('unread-dot').style.display = 'block';
                 }
-            })
-            .subscribe();
+            }).subscribe();
         }
 
         async function sendMsg() {
@@ -297,100 +253,53 @@
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = async function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_SIZE = 600; 
+                    const canvas = document.createElement('canvas'); const MAX_SIZE = 600; 
                     let width = img.width; let height = img.height;
                     if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
                     else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-                    canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
                     const base64Img = canvas.toDataURL('image/jpeg', 0.5); 
-                    
-                    const msgObj = { text: base64Img, sender: currentUser, time: getTime(), react: "", type: "img", seen: false };
-                    await supabase.from('messages').insert([msgObj]);
-                }
-                img.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
+                    await supabase.from('messages').insert([{ text: base64Img, sender: currentUser, time: getTime(), react: "", type: "img", seen: false }]);
+                }; img.src = e.target.result;
+            }; reader.readAsDataURL(file);
         }
 
-        async function unsendActiveMsg() {
-            document.getElementById('react-tray').style.display = 'none';
-            await supabase.from('messages').delete().eq('id', activeMsgId);
-        }
-
-        async function setReact(emoji) {
-            document.getElementById('react-tray').style.display = 'none';
-            await supabase.from('messages').update({ react: emoji }).eq('id', activeMsgId);
-        }
-
-        async function confirmDeleteChat() {
-            if(confirm("Delete chat? Yeh wapas nahi aayegi.")) {
-                await supabase.from('messages').delete().neq('id', 0); 
-                closeSettings();
-            }
-        }
-
+        async function unsendActiveMsg() { document.getElementById('react-tray').style.display = 'none'; await supabase.from('messages').delete().eq('id', activeMsgId); }
+        async function setReact(emoji) { document.getElementById('react-tray').style.display = 'none'; await supabase.from('messages').update({ react: emoji }).eq('id', activeMsgId); }
+        async function confirmDeleteChat() { if(confirm("Delete chat?")) { await supabase.from('messages').delete().neq('id', 0); closeSettings(); } }
         async function markMessagesAsSeen() {
             const unseenIds = chatData.filter(m => m.sender === partnerUser && !m.seen).map(m => m.id);
-            if(unseenIds.length > 0) {
-                await supabase.from('messages').update({ seen: true }).in('id', unseenIds);
-            }
+            if(unseenIds.length > 0) await supabase.from('messages').update({ seen: true }).in('id', unseenIds);
         }
 
-        function openChat() { 
-            document.getElementById('dm-list-ui').style.display='none'; 
-            document.getElementById('chat-ui').style.display='flex'; 
-            document.getElementById('unread-dot').style.display = 'none';
-            isChatOpen = true;
-            markMessagesAsSeen();
-            scrollToBottom(); 
-        }
+        function openChat() { document.getElementById('dm-list-ui').style.display='none'; document.getElementById('chat-ui').style.display='flex'; document.getElementById('unread-dot').style.display='none'; isChatOpen=true; markMessagesAsSeen(); scrollToBottom(); }
         function backToList() { document.getElementById('chat-ui').style.display='none'; document.getElementById('dm-list-ui').style.display='flex'; isChatOpen = false; }
-        
-        async function forceLogout() { 
-            if(supabase) await supabase.auth.signOut();
-            location.reload(); 
-        }
+        async function forceLogout() { if(supabase) await supabase.auth.signOut(); location.reload(); }
 
-        function openSettings() { document.getElementById('settings-ui').style.display='flex'; document.getElementById('status-mypfp').innerText=''; document.getElementById('status-bg').innerText=''; }
+        function openSettings() { document.getElementById('settings-ui').style.display='flex'; }
         function closeSettings() { document.getElementById('settings-ui').style.display='none'; }
         function checkFile(input, statusId) { if(input.files && input.files[0]) document.getElementById(statusId).innerText = "✅ Image Selected"; }
 
         function compressAndSave(file, storageKey) {
-            if (!file) return;
-            const reader = new FileReader();
+            if (!file) return; const reader = new FileReader();
             reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_SIZE = 800; let width = img.width; let height = img.height;
-                    if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
-                    else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-                    canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6); 
-                    try { localStorage.setItem(storageKey, compressedBase64); loadSettings(); } 
-                    catch(err) { alert("Phone memory full!"); }
-                }
-                img.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
+                const img = new Image(); img.onload = function() {
+                    const canvas = document.createElement('canvas'); const MAX_SIZE = 800; let width = img.width; let height = img.height;
+                    if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                    canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    try { localStorage.setItem(storageKey, canvas.toDataURL('image/jpeg', 0.6)); loadSettings(); } catch(err) { alert("Memory full!"); }
+                }; img.src = e.target.result;
+            }; reader.readAsDataURL(file);
         }
 
         function saveSettings() {
-            const mypfpFile = document.getElementById('set-mypfp-file').files[0];
-            const bgFile = document.getElementById('set-bg-file').files[0];
-            if(mypfpFile) compressAndSave(mypfpFile, currentUser + '_pfp');
-            if(bgFile) compressAndSave(bgFile, 'chatBg');
-            closeSettings();
-            document.getElementById('set-mypfp-file').value = ''; document.getElementById('set-bg-file').value = '';
+            if(document.getElementById('set-mypfp-file').files[0]) compressAndSave(document.getElementById('set-mypfp-file').files[0], currentUser + '_pfp');
+            if(document.getElementById('set-bg-file').files[0]) compressAndSave(document.getElementById('set-bg-file').files[0], 'chatBg');
+            closeSettings(); document.getElementById('set-mypfp-file').value = ''; document.getElementById('set-bg-file').value = '';
         }
 
         function loadSettings() {
-            const partnerPfpData = localStorage.getItem(partnerUser + '_pfp');
-            const bgData = localStorage.getItem('chatBg');
+            const partnerPfpData = localStorage.getItem(partnerUser + '_pfp'); const bgData = localStorage.getItem('chatBg');
             const defaultPartner = `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`;
             document.getElementById('list-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
             document.getElementById('chat-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
@@ -398,64 +307,32 @@
         }
 
         function renderMessages(query = '') {
-            let container = document.getElementById('messages');
-            container.innerHTML = '';
-            
+            let container = document.getElementById('messages'); container.innerHTML = '';
             let filtered = chatData.filter(m => m.type === 'text' ? m.text.toLowerCase().includes(query.toLowerCase()) : true);
-            
             filtered.forEach((m) => {
                 let isMe = m.sender === currentUser; 
                 let content = m.type === 'img' ? `<img src="${m.text}" class="chat-img">` : m.text;
                 let reactHTML = m.react ? `<span class="react-badge">${m.react}</span>` : '';
-                
-                let pfpSrc = '';
-                if(!isMe) {
-                    let partnerPfpData = localStorage.getItem(partnerUser + '_pfp');
-                    pfpSrc = partnerPfpData ? partnerPfpData : `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`;
-                }
+                let pfpSrc = !isMe ? (localStorage.getItem(partnerUser + '_pfp') || `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`) : '';
 
                 container.innerHTML += `
                     <div class="msg-wrap ${isMe ? 'me' : 'them'}">
                         <div style="display:flex; align-items:flex-end; gap:8px;">
                             ${!isMe ? `<img src="${pfpSrc}" class="chat-pfp">` : ''}
                             <div style="position:relative;">
-                                <div class="bubble ${isMe ? 'bubble-me' : 'bubble-them'}" style="${m.type === 'img' ? 'background:transparent; padding:0;' : ''}" onclick="openReact(${m.id})">
-                                    ${content}
-                                </div>
+                                <div class="bubble ${isMe ? 'bubble-me' : 'bubble-them'}" style="${m.type === 'img' ? 'background:transparent; padding:0;' : ''}" onclick="openReact(${m.id})">${content}</div>
                                 ${reactHTML}
                             </div>
                         </div>
-                        <div class="msg-footer">
-                            <span>${m.time}</span>
-                            ${isMe && m.seen ? '• Seen' : ''}
-                        </div>
+                        <div class="msg-footer"><span>${m.time}</span>${isMe && m.seen ? ' • Seen' : ''}</div>
                     </div>`;
             });
-            
-            if(chatData.length > 0) {
-                let lastMsg = chatData[chatData.length - 1];
-                let previewText = lastMsg.type === 'img' ? "📷 Photo" : lastMsg.text;
-                if(previewText.length > 20) previewText = previewText.substring(0, 20) + "...";
-                document.getElementById('last-msg-preview').innerText = previewText;
-            } else {
-                document.getElementById('last-msg-preview').innerText = "Tap to view chat...";
-            }
+            document.getElementById('last-msg-preview').innerText = chatData.length > 0 ? (chatData[chatData.length - 1].type === 'img' ? "📷 Photo" : chatData[chatData.length - 1].text.substring(0, 20) + "...") : "Tap to view chat...";
             scrollToBottom();
         }
 
-        function searchMessages() {
-            let dmQ = document.getElementById('dm-search').value;
-            let chatQ = document.getElementById('chat-search').value;
-            renderMessages(dmQ || chatQ);
-        }
-
-        function openReact(id) { 
-            activeMsgId = id; 
-            let m = chatData.find(x => x.id === id);
-            document.getElementById('unsend-wrap').style.display = (m && m.sender === currentUser) ? 'block' : 'none';
-            document.getElementById('react-tray').style.display = 'flex'; 
-        }
-        
+        function searchMessages() { renderMessages(document.getElementById('dm-search').value || document.getElementById('chat-search').value); }
+        function openReact(id) { activeMsgId = id; let m = chatData.find(x => x.id === id); document.getElementById('unsend-wrap').style.display = (m && m.sender === currentUser) ? 'block' : 'none'; document.getElementById('react-tray').style.display = 'flex'; }
         window.onclick = (e) => { if(!e.target.closest('.bubble') && !e.target.closest('#react-tray')) document.getElementById('react-tray').style.display='none'; }
         function scrollToBottom() { let m = document.getElementById('messages'); m.scrollTop = m.scrollHeight; }
         function getTime() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
