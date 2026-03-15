@@ -4,64 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Calculator Pro</title>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body { font-family: -apple-system, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 0; overflow: hidden; height: 100dvh; }
         .container { max-width: 500px; margin: auto; height: 100%; display: flex; flex-direction: column; position: relative; }
         
-        /* Login Screen */
         #login-screen { position: absolute; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .login-input { width: 85%; padding: 14px; background: #121212; border: 1px solid #262626; border-radius: 8px; color: #fff; margin-bottom: 12px; outline: none; }
         .login-btn { width: 85%; padding: 14px; background: #333; color: #fff; border: none; border-radius: 8px; font-weight: 600; }
 
-        /* SOS Button */
         #sos-btn {
-            position: absolute; top: calc(var(--safe-top) + 60px); right: 20px; width: 42px; height: 42px;
+            position: absolute; top: calc(var(--safe-top) + 60px); right: 20px; width: 40px; height: 40px;
             background: #ff3b30; color: white; border-radius: 50%; display: none; justify-content: center; align-items: center;
-            font-size: 10px; font-weight: bold; z-index: 9999; touch-action: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-size: 10px; font-weight: bold; z-index: 999; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        /* Fixed Header */
         #header { padding: calc(var(--safe-top) + 10px) 15px 10px; border-bottom: 1px solid #262626; display: flex; align-items: center; background: #000; z-index: 10; }
-        .profile-area { width: 36px; height: 36px; margin-right: 12px; cursor: pointer; }
+        .profile-area { width: 34px; height: 34px; margin-right: 12px; cursor: pointer; }
         .profile-pic { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #333; }
-        .user-name { font-weight: 600; font-size: 16px; cursor: pointer; }
+        .user-name { font-weight: 600; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
-        /* Messages */
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 4px; }
-        .date-sep { align-self: center; font-size: 11px; color: #8e8e8e; margin: 10px 0; }
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 75%; }
+        .date-sep { align-self: center; font-size: 11px; color: #8e8e8e; margin: 15px 0 5px; }
+        
+        /* System Message Styling - IG Style */
+        .sys-msg { align-self: center; color: #8e8e8e; font-size: 11px; margin: 8px 0; text-align: center; width: 100%; opacity: 0.8; }
+        
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; position: relative; margin-bottom: 5px;}
         .my-wrapper { align-self: flex-end; align-items: flex-end; }
         .their-wrapper { align-self: flex-start; align-items: flex-start; }
         
-        .msg { padding: 8px 14px; border-radius: 18px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
+        .msg { padding: 9px 15px; border-radius: 20px; font-size: 15px; line-height: 1.3; cursor: pointer; position: relative; }
         .my-msg { background: linear-gradient(135deg, #b026ff, #0d6efd); border-bottom-right-radius: 4px; }
         .their-msg { background-color: #262626; border-bottom-left-radius: 4px; }
-        .time { font-size: 10px; color: #555; margin: 2px 4px; }
-        .seen-status { font-size: 11px; color: #8e8e8e; align-self: flex-end; margin-bottom: 8px; }
         
-        /* Typing indicator under message */
-        .typing-bubble { background: #262626; padding: 6px 12px; border-radius: 15px; font-size: 12px; color: #8e8e8e; align-self: flex-start; margin-left: 15px; display: none; font-style: italic; }
+        .reaction-tag { position: absolute; bottom: -8px; font-size: 13px; background: #121212; border: 1px solid #262626; border-radius: 10px; padding: 1px 4px; z-index: 2; }
+        .my-wrapper .reaction-tag { right: 5px; }
+        .their-wrapper .reaction-tag { left: 5px; }
 
-        /* Input Area */
+        .time { font-size: 10px; color: #555; margin: 2px 4px; }
+        .seen-status { font-size: 10px; color: #8e8e8e; margin: -2px 5px 10px 0; align-self: flex-end; }
+        
+        .typing-bubble { font-size: 12px; color: #8e8e8e; padding: 5px 20px; display: none; font-style: italic; }
+
         #input-area { padding: 10px 15px calc(var(--safe-bottom) + 15px); background: #000; display: flex; gap: 10px; align-items: center; border-top: 1px solid #262626; }
-        #msg-input { flex: 1; padding: 10px 18px; background: #121212; border: 1px solid #363636; border-radius: 25px; color: #fff; outline: none; }
+        #msg-input { flex: 1; padding: 11px 18px; background: #121212; border: 1px solid #363636; border-radius: 25px; color: #fff; outline: none; font-size: 15px; }
         #send-btn { color: #0095f6; font-weight: 600; background: none; border: none; font-size: 15px; }
+
+        /* Reaction Picker Popup */
+        #reaction-picker { display: none; position: fixed; background: #262626; border-radius: 30px; padding: 5px 15px; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); gap: 10px; }
+        .emoji-opt { font-size: 22px; cursor: pointer; transition: transform 0.1s; }
+        .emoji-opt:active { transform: scale(1.3); }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div id="sos-btn" onclick="triggerSOS()">SOS</div>
+        <div id="reaction-picker">
+            <span class="emoji-opt" onclick="addReaction('❤️')">❤️</span>
+            <span class="emoji-opt" onclick="addReaction('😂')">😂</span>
+            <span class="emoji-opt" onclick="addReaction('😮')">😮</span>
+            <span class="emoji-opt" onclick="addReaction('😢')">😢</span>
+            <span class="emoji-opt" onclick="addReaction('🔥')">🔥</span>
+            <span class="emoji-opt" onclick="addReaction('👍')">👍</span>
+        </div>
 
         <div id="login-screen">
             <h1 style="font-weight:300;">Scientific Calculator</h1>
-            <p style="color:#8e8e8e; font-size:12px; margin-bottom:20px;">Cloud Sync Active</p>
             <input type="email" id="email" class="login-input" placeholder="User ID" autocapitalize="none">
             <input type="password" id="password" class="login-input" placeholder="Access Code">
             <button class="login-btn" onclick="login()">Sync Database</button>
@@ -69,12 +81,10 @@
 
         <div id="chat-screen" style="display:none; flex-direction:column; height:100%;">
             <div id="header">
-                <div class="profile-area" onclick="changePFP()">
-                    <img id="header-pfp" class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
-                </div>
+                <div class="profile-area" onclick="changePFP()"><img id="header-pfp" class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png"></div>
                 <div class="user-name" onclick="changeName()"><span id="display-name">Loading...</span> ✏️</div>
             </div>
-            <div id="messages"></div>
+            <div id="messages" onclick="hidePicker()"></div>
             <div id="typing-bubble" class="typing-bubble">typing...</div>
             <div id="input-area">
                 <input type="text" id="msg-input" placeholder="Message..." onfocus="markAsRead()">
@@ -84,7 +94,6 @@
     </div>
 
     <script>
-        // --- API KEYS YAHAN PASTE KARNA ---
         const firebaseConfig = {
     apiKey: "AIzaSyBCrx5hqoBFAR9VDNJ4opUBp3hTuL3bGJ4",
     authDomain: "secretspace-ca604.firebaseapp.com",
@@ -94,136 +103,109 @@
     appId: "1:440793813496:web:405615f2dc570b296b460d",
     measurementId: "G-2N4RWH4VK0"
   };
-        // --------------------------------
-
-        const ARNAV_EMAIL = "ak5940962@gmail.com";      
-        const LOVLEEN_EMAIL = "pcw69@secret.com";  
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        let otherUserReadTime = null;
-        let typingTimer = null;
+        const ARNAV_EMAIL = "ak5940962@gmail.com"; const LOVLEEN_EMAIL = "pcw69@secret.com";
+        firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const db = firebase.firestore();
+        let otherUserReadTime = null; let typingTimer = null; let activeMsgId = null;
 
         auth.onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('chat-screen').style.display = 'flex';
                 document.getElementById('sos-btn').style.display = 'flex';
-                loadChatInfo();
-                listenToReadReceipts();
-                listenToTyping();
-                loadMessages();
+                loadChatInfo(); listenToReadReceipts(); listenToTyping(); loadMessages();
+                markAsRead(); // App khulte hi seen update ho jaye
             }
         });
 
-        function login() {
-            const e = document.getElementById('email').value.trim().toLowerCase();
-            const p = document.getElementById('password').value;
-            auth.signInWithEmailAndPassword(e, p).catch(err => alert("Access Denied"));
+        function login() { auth.signInWithEmailAndPassword(document.getElementById('email').value.trim().toLowerCase(), document.getElementById('password').value).catch(e => alert("Denied")); }
+        function triggerSOS() { auth.signOut().then(() => { window.location.replace("https://www.google.com/search?q=calculator"); }); }
+
+        // Reaction Logic
+        function showPicker(e, msgId) {
+            e.stopPropagation(); activeMsgId = msgId;
+            const picker = document.getElementById('reaction-picker');
+            picker.style.display = 'flex';
+            picker.style.top = (e.clientY - 50) + 'px';
+            picker.style.left = Math.min(e.clientX, window.innerWidth - 200) + 'px';
+        }
+        function hidePicker() { document.getElementById('reaction-picker').style.display = 'none'; }
+        function addReaction(emoji) {
+            if(activeMsgId) db.collection('chats').doc(activeMsgId).update({ reaction: emoji });
+            hidePicker();
         }
 
-        function triggerSOS() {
-            auth.signOut().then(() => { window.location.replace("https://www.google.com/search?q=calculator"); });
-        }
-
-        function setTypingStatus(status) {
-            const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavIsTyping' : 'lovleenIsTyping';
-            db.collection('settings').doc('typing').set({ [key]: status }, {merge: true});
-        }
-
-        document.getElementById('msg-input').addEventListener('input', () => {
-            if (!typingTimer) setTypingStatus(true);
-            clearTimeout(typingTimer);
-            typingTimer = setTimeout(() => { setTypingStatus(false); typingTimer = null; }, 2500);
-        });
-
-        function listenToTyping() {
-            const otherKey = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenIsTyping' : 'arnavIsTyping';
-            db.collection('settings').doc('typing').onSnapshot(doc => {
-                const isTyping = doc.exists && doc.data()[otherKey];
-                document.getElementById('typing-bubble').style.display = isTyping ? 'block' : 'none';
-                if(isTyping) { 
-                    const msgDiv = document.getElementById('messages');
-                    msgDiv.scrollTop = msgDiv.scrollHeight;
-                }
-            });
-        }
-
-        function changePFP() {
-            const url = prompt("Paste Image Link:");
-            if(url) db.collection('settings').doc('chatInfo').set({ pfpUrl: url }, {merge: true});
-        }
-
+        // System & Info Logic
+        function changePFP() { const url = prompt("PFP Link:"); if(url) db.collection('settings').doc('chatInfo').set({ pfpUrl: url }, {merge: true}); }
         function changeName() {
-            const n = prompt("Enter nickname:");
+            const n = prompt("Nickname:");
             if(n) {
                 const me = auth.currentUser.email === ARNAV_EMAIL ? "ahrnavsharma" : "lovleenx";
                 db.collection('settings').doc('chatInfo').set({ chatName: n }, {merge: true});
-                db.collection('chats').add({ text: `${me} set name to ${n}`, type: "system", timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                db.collection('chats').add({ text: `${me} set the nickname to ${n}`, type: "system", timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             }
         }
-
         function loadChatInfo() {
             db.collection('settings').doc('chatInfo').onSnapshot(doc => {
                 if(doc.exists) {
-                    document.getElementById('display-name').innerText = doc.data().chatName || "Chat Space";
+                    document.getElementById('display-name').innerText = doc.data().chatName || "Chat";
                     if(doc.data().pfpUrl) document.getElementById('header-pfp').src = doc.data().pfpUrl;
                 }
             });
         }
 
+        // Typing & Seen Logic
+        function setTyping(s) { const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavIsTyping' : 'lovleenIsTyping'; db.collection('settings').doc('typing').set({ [key]: s }, {merge: true}); }
+        document.getElementById('msg-input').addEventListener('input', () => {
+            if (!typingTimer) setTyping(true);
+            clearTimeout(typingTimer); typingTimer = setTimeout(() => { setTyping(false); typingTimer = null; }, 2000);
+        });
+        function listenToTyping() {
+            const other = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenIsTyping' : 'arnavIsTyping';
+            db.collection('settings').doc('typing').onSnapshot(doc => { document.getElementById('typing-bubble').style.display = (doc.exists && doc.data()[other]) ? 'block' : 'none'; });
+        }
         function markAsRead() {
             const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavRead' : 'lovleenRead';
             db.collection('settings').doc('receipts').set({ [key]: firebase.firestore.FieldValue.serverTimestamp() }, {merge: true});
         }
-
         function listenToReadReceipts() {
-            const otherKey = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenRead' : 'arnavRead';
-            db.collection('settings').doc('receipts').onSnapshot(doc => {
-                if(doc.exists && doc.data()[otherKey]) { 
-                    otherUserReadTime = doc.data()[otherKey].toDate(); 
-                    renderMessages(); 
-                }
-            });
+            const other = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenRead' : 'arnavRead';
+            db.collection('settings').doc('receipts').onSnapshot(doc => { if(doc.exists && doc.data()[other]) { otherUserReadTime = doc.data()[other].toDate(); renderMessages(); } });
         }
 
+        // Messages Logic
         function sendMessage() {
-            const t = document.getElementById('msg-input').value.trim();
-            if(!t) return;
-            setTypingStatus(false);
-            db.collection('chats').add({ text: t, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            document.getElementById('msg-input').value = "";
+            const t = document.getElementById('msg-input').value.trim(); if(!t) return;
+            setTyping(false); db.collection('chats').add({ text: t, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            document.getElementById('msg-input').value = ""; markAsRead();
         }
-
         let globalMsgs = [];
         function loadMessages() {
             db.collection('chats').orderBy('timestamp').onSnapshot(snap => {
-                globalMsgs = []; snap.forEach(doc => { if(doc.data().timestamp) globalMsgs.push(doc.data()); });
+                globalMsgs = []; snap.forEach(doc => { if(doc.data().timestamp) globalMsgs.push({id: doc.id, ...doc.data()}); });
                 renderMessages();
             });
         }
-
         function renderMessages() {
             const div = document.getElementById('messages'); div.innerHTML = ''; let lastD = "";
             globalMsgs.forEach((m, i) => {
-                const d = m.timestamp.toDate();
-                const dStr = d.toDateString();
-                if (dStr !== lastD) {
-                    const s = document.createElement('div'); s.className = 'date-sep'; s.innerText = dStr === new Date().toDateString() ? "Today" : dStr;
-                    div.appendChild(s); lastD = dStr;
-                }
+                const d = m.timestamp.toDate(); const dStr = d.toDateString();
+                if (dStr !== lastD) { const s = document.createElement('div'); s.className = 'date-sep'; s.innerText = dStr === new Date().toDateString() ? "Today" : dStr; div.appendChild(s); lastD = dStr; }
+                
                 if (m.type === "system") {
                     const e = document.createElement('div'); e.className = 'sys-msg'; e.innerText = m.text; div.appendChild(e);
                 } else {
                     const isMe = m.sender === auth.currentUser.email;
                     const w = document.createElement('div'); w.className = 'msg-wrapper ' + (isMe ? 'my-wrapper' : 'their-wrapper');
-                    const b = document.createElement('div'); b.className = 'msg ' + (isMe ? 'my-msg' : 'their-msg'); b.innerText = m.text;
+                    const b = document.createElement('div'); b.className = 'msg ' + (isMe ? 'my-msg' : 'their-msg'); 
+                    b.innerText = m.text; b.onclick = (e) => showPicker(e, m.id);
+                    
+                    if(m.reaction) { const r = document.createElement('span'); r.className = 'reaction-tag'; r.innerText = m.reaction; b.appendChild(r); }
+                    
                     const tm = document.createElement('div'); tm.className = 'time'; tm.innerText = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     w.appendChild(b); w.appendChild(tm); div.appendChild(w);
                     
                     if(isMe && i === globalMsgs.length-1 && otherUserReadTime && otherUserReadTime >= d) {
-                        const seen = document.createElement('div'); seen.className = 'seen-status'; seen.innerText = "Seen"; div.appendChild(seen);
+                        const s = document.createElement('div'); s.className = 'seen-status'; s.innerText = "Seen"; div.appendChild(s);
                     }
                 }
             });
@@ -231,9 +213,7 @@
         }
 
         const btn = document.getElementById('sos-btn');
-        btn.addEventListener('touchmove', (e) => {
-            let t = e.touches[0]; btn.style.left = t.clientX - 22 + 'px'; btn.style.top = t.clientY - 22 + 'px'; btn.style.right = 'auto';
-        });
+        btn.addEventListener('touchmove', (e) => { let t = e.touches[0]; btn.style.left = t.clientX - 20 + 'px'; btn.style.top = t.clientY - 20 + 'px'; btn.style.right = 'auto'; });
         document.getElementById('msg-input').addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
     </script>
 </body>
