@@ -7,71 +7,74 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body { font-family: -apple-system, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 0; overflow: hidden; height: 100dvh; }
-        .container { max-width: 500px; margin: auto; height: 100%; display: flex; flex-direction: column; position: relative; }
-        
-        /* Login Screen */
-        #login-screen { position: absolute; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .container { max-width: 500px; margin: auto; height: 100%; display: flex; flex-direction: column; position: relative; background: #000; }
+        .hidden { display: none !important; }
+        .flex-col { display: flex; flex-direction: column; }
+
+        /* Login */
+        #login-screen { position: absolute; inset: 0; background: #000; z-index: 10000; align-items: center; justify-content: center; padding: 20px; display: flex; }
         .login-input { width: 85%; padding: 14px; background: #121212; border: 1px solid #262626; border-radius: 8px; color: #fff; margin-bottom: 12px; outline: none; }
         .login-btn { width: 85%; padding: 14px; background: #333; color: #fff; border: none; border-radius: 8px; font-weight: 600; }
 
-        /* SOS Button */
-        #sos-btn {
-            position: absolute; top: calc(var(--safe-top) + 60px); right: 20px; width: 40px; height: 40px;
-            background: #ff3b30; color: white; border-radius: 50%; display: none; justify-content: center; align-items: center;
-            font-size: 10px; font-weight: bold; z-index: 999; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
+        /* Inbox Entry Page */
+        #inbox-screen { flex: 1; padding-top: var(--safe-top); overflow-y: auto; }
+        .inbox-header { padding: 15px 20px; font-size: 20px; font-weight: 700; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; }
+        .chat-row { display: flex; align-items: center; padding: 12px 20px; cursor: pointer; }
+        .inbox-pfp-wrapper { width: 56px; height: 56px; border-radius: 50%; margin-right: 15px; overflow: hidden; background: #262626; border: 1px solid #333; }
+        .inbox-pfp-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        .inbox-details { flex: 1; display: flex; flex-direction: column; }
+        .inbox-name { font-weight: 500; font-size: 15px; }
+        .inbox-status { font-size: 13px; color: #8e8e8e; margin-top: 2px; }
+        .status-unread { color: #fff; font-weight: 600; }
+        .unread-dot { width: 8px; height: 8px; background: #0095f6; border-radius: 50%; margin-left: auto; }
 
-        /* Header */
+        /* Chat Screen */
         #header { padding: calc(var(--safe-top) + 10px) 15px 10px; border-bottom: 1px solid #262626; display: flex; align-items: center; background: #000; z-index: 10; }
-        .profile-area { width: 34px; height: 34px; margin-right: 12px; }
-        .profile-pic { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #333; }
-        .user-name { font-weight: 600; font-size: 15px; cursor: pointer; }
+        .back-btn { font-size: 30px; margin-right: 15px; cursor: pointer; }
+        .profile-area { width: 34px; height: 34px; margin-right: 12px; border-radius: 50%; overflow: hidden; }
+        .profile-pic { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Messages Area */
-        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 4px; }
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 5px; }
+        .sys-msg { align-self: center; color: #8e8e8e; font-size: 11px; margin: 15px 0; text-align: center; }
         
-        /* System Message (Nickname Fix) */
-        .sys-msg { align-self: center; color: #8e8e8e; font-size: 11px; margin: 12px 0; text-align: center; width: 100%; font-weight: 500; }
-        .date-sep { align-self: center; font-size: 11px; color: #8e8e8e; margin: 15px 0 8px; }
-
-        /* Chat Bubbles */
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; position: relative; margin-bottom: 6px; }
+        /* Message Bubbles */
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; position: relative; margin-bottom: 15px; }
         .my-wrapper { align-self: flex-end; align-items: flex-end; }
         .their-wrapper { align-self: flex-start; align-items: flex-start; }
         
-        .msg { padding: 9px 15px; border-radius: 20px; font-size: 15px; line-height: 1.3; cursor: pointer; position: relative; word-wrap: break-word; }
+        .msg { padding: 10px 16px; border-radius: 22px; font-size: 15px; line-height: 1.4; position: relative; }
         .my-msg { background: linear-gradient(135deg, #b026ff, #0d6efd); border-bottom-right-radius: 4px; }
         .their-msg { background-color: #262626; border-bottom-left-radius: 4px; }
-        .msg img { max-width: 100%; border-radius: 12px; display: block; }
-
-        /* Reaction Tags */
-        .reaction-tag { position: absolute; bottom: -10px; font-size: 13px; background: #121212; border: 1px solid #262626; border-radius: 12px; padding: 2px 6px; z-index: 2; }
-        .my-wrapper .reaction-tag { right: 5px; }
-        .their-wrapper .reaction-tag { left: 5px; }
-
-        /* Time & Seen */
-        .time { font-size: 10px; color: #555; margin: 2px 4px; }
-        .seen-status { font-size: 11px; color: #8e8e8e; align-self: flex-end; margin-bottom: 8px; margin-top: -2px; }
         
-        /* Input Area */
-        #input-area { padding: 10px 15px calc(var(--safe-bottom) + 15px); background: #000; display: flex; gap: 10px; align-items: center; border-top: 1px solid #262626; }
-        #msg-input { flex: 1; padding: 11px 18px; background: #121212; border: 1px solid #363636; border-radius: 25px; color: #fff; outline: none; font-size: 15px; }
-        .media-btn { font-size: 28px; color: #0095f6; cursor: pointer; font-weight: 300; margin-bottom: 2px; }
-        #send-btn { color: #0095f6; font-weight: 600; background: none; border: none; font-size: 15px; cursor: pointer; }
+        .msg img, .msg video { max-width: 100%; border-radius: 12px; display: block; margin-top: 2px; }
 
-        .typing-bubble { font-size: 12px; color: #8e8e8e; padding: 0 20px 8px; display: none; font-style: italic; }
-        #reaction-picker { display: none; position: fixed; background: #262626; border-radius: 30px; padding: 8px 15px; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.6); gap: 12px; }
-        .emoji-opt { font-size: 24px; cursor: pointer; }
+        .reaction-tag { position: absolute; bottom: -12px; font-size: 13px; background: #121212; border: 1px solid #262626; border-radius: 12px; padding: 2px 6px; z-index: 5; }
+        .my-wrapper .reaction-tag { right: 8px; }
+        .their-wrapper .reaction-tag { left: 8px; }
+
+        .time { font-size: 10px; color: #555; margin: 4px 5px 0; }
+        .seen-status { font-size: 11px; color: #8e8e8e; align-self: flex-end; margin-top: -10px; margin-bottom: 5px; }
+        
+        /* Input */
+        #input-area { padding: 10px 15px calc(var(--safe-bottom) + 15px); background: #000; display: flex; gap: 12px; align-items: center; border-top: 1px solid #262626; }
+        #msg-input { flex: 1; padding: 12px 18px; background: #121212; border: 1px solid #333; border-radius: 25px; color: #fff; outline: none; font-size: 15px; }
+        .media-label { font-size: 30px; color: #0095f6; cursor: pointer; }
+        #send-btn { color: #0095f6; font-weight: 600; font-size: 16px; background: none; border: none; }
+
+        /* Popups */
+        #reaction-picker { display: none; position: fixed; background: #262626; border-radius: 30px; padding: 10px 18px; z-index: 2000; box-shadow: 0 5px 20px rgba(0,0,0,0.7); gap: 15px; }
+        .emoji-opt { font-size: 26px; cursor: pointer; }
         #file-input { display: none; }
+        .typing-bubble { font-size: 12px; color: #8e8e8e; padding: 0 20px 5px; display: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="sos-btn" onclick="triggerSOS()">SOS</div>
-        
         <div id="reaction-picker">
             <span class="emoji-opt" onclick="addReaction('❤️')">❤️</span>
             <span class="emoji-opt" onclick="addReaction('😂')">😂</span>
@@ -81,22 +84,41 @@
         </div>
 
         <div id="login-screen">
-            <h1>Scientific Calculator</h1>
-            <input type="email" id="email" class="login-input" placeholder="User ID" autocapitalize="none">
-            <input type="password" id="password" class="login-input" placeholder="Access Code">
-            <button class="login-btn" onclick="login()">Sync Database</button>
+            <div class="flex-col" style="width:100%; align-items:center;">
+                <h1>Scientific Calculator</h1>
+                <input type="email" id="email" class="login-input" placeholder="User ID" autocapitalize="none">
+                <input type="password" id="password" class="login-input" placeholder="Access Code">
+                <button class="login-btn" onclick="login()">Sync Database</button>
+            </div>
         </div>
 
-        <div id="chat-screen" style="display:none; flex-direction:column; height:100%;">
+        <div id="inbox-screen" class="hidden flex-col">
+            <div class="inbox-header">
+                <div onclick="setMyPFP()" style="cursor:pointer;"><span id="my-name-display">Me</span> ✏️</div>
+                <div style="font-size: 22px;">📝</div>
+            </div>
+            <div style="padding: 15px 20px 5px; font-weight:700;">Messages</div>
+            <div class="chat-row" onclick="openChat()">
+                <div class="inbox-pfp-wrapper"><img id="inbox-partner-pfp" src=""></div>
+                <div class="inbox-details">
+                    <div class="inbox-name" id="inbox-partner-name">Partner</div>
+                    <div class="inbox-status" id="inbox-status-text">No messages yet</div>
+                </div>
+                <div id="unread-dot" class="unread-dot hidden"></div>
+            </div>
+        </div>
+
+        <div id="chat-screen" class="hidden flex-col">
             <div id="header">
-                <div class="profile-area"><img id="header-pfp" class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png"></div>
-                <div class="user-name" onclick="changeNickname()"><span id="display-name">Loading...</span> <span style="font-size:12px; color:#8e8e8e;">✏️</span></div>
+                <div class="back-btn" onclick="closeChat()">‹</div>
+                <div class="profile-area" onclick="setPartnerPFP()"><img id="chat-partner-pfp" class="profile-pic" src=""></div>
+                <div class="user-name" onclick="setPartnerNickname()"><span id="chat-partner-name">Partner</span> ✏️</div>
             </div>
             <div id="messages" onclick="hidePicker()"></div>
             <div id="typing-bubble" class="typing-bubble">typing...</div>
             <div id="input-area">
-                <label for="file-input" class="media-btn">+</label>
-                <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(this)">
+                <label for="file-input" class="media-label" id="media-label">+</label>
+                <input type="file" id="file-input" accept="image/*,video/*" onchange="handleMediaUpload(this)">
                 <input type="text" id="msg-input" placeholder="Message..." onfocus="markAsRead()">
                 <button id="send-btn" onclick="sendMessage()">Send</button>
             </div>
@@ -104,8 +126,7 @@
     </div>
 
     <script>
-        // --- ⚠️ API KEYS PASTE KARNA ⚠️ ---
-        const firebaseConfig = {
+    const firebaseConfig = {
     apiKey: "AIzaSyBCrx5hqoBFAR9VDNJ4opUBp3hTuL3bGJ4",
     authDomain: "secretspace-ca604.firebaseapp.com",
     projectId: "secretspace-ca604",
@@ -116,173 +137,130 @@
   };
         const ARNAV_EMAIL = "ak5940962@gmail.com"; 
         const LOVLEEN_EMAIL = "pcw69@secret.com";
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(); const db = firebase.firestore(); const storage = firebase.storage();
         
-        firebase.initializeApp(firebaseConfig); 
-        const auth = firebase.auth(); 
-        const db = firebase.firestore();
-        let otherUserReadTime = null; 
-        let activeMsgId = null;
+        let activeMsgId = null; let isChatOpen = false; let globalMsgs = [];
+        let myReadTime = null; let partnerReadTime = null;
 
         auth.onAuthStateChanged(user => {
             if (user) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('chat-screen').style.display = 'flex';
-                document.getElementById('sos-btn').style.display = 'flex';
-                loadNicknames(); listenToReadReceipts(); listenToTyping(); loadMessages();
-                markAsRead();
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('inbox-screen').classList.remove('hidden');
+                document.getElementById('my-name-display').innerText = user.email === ARNAV_EMAIL ? "ahrnavsharma" : "lovleenx";
+                loadProfiles(); listenToReadReceipts(); listenToTyping(); loadMessages();
             }
         });
 
-        function login() { auth.signInWithEmailAndPassword(document.getElementById('email').value.trim().toLowerCase(), document.getElementById('password').value).catch(e => alert("Denied")); }
-        function triggerSOS() { auth.signOut().then(() => { window.location.replace("https://www.google.com/search?q=calculator"); }); }
+        function login() { auth.signInWithEmailAndPassword(document.getElementById('email').value.trim().toLowerCase(), document.getElementById('password').value).catch(e => alert("Access Denied")); }
+        function openChat() { isChatOpen = true; document.getElementById('inbox-screen').classList.add('hidden'); document.getElementById('chat-screen').classList.remove('hidden'); markAsRead(); renderMessages(); }
+        function closeChat() { isChatOpen = false; document.getElementById('chat-screen').classList.add('hidden'); document.getElementById('inbox-screen').classList.remove('hidden'); }
 
-        // --- REACTIONS LOGIC ---
-        function showPicker(e, msgId) {
-            e.stopPropagation(); activeMsgId = msgId;
-            const picker = document.getElementById('reaction-picker');
-            picker.style.display = 'flex';
-            picker.style.top = (e.clientY - 60) + 'px';
-            picker.style.left = Math.min(e.clientX - 50, window.innerWidth - 220) + 'px';
-        }
-        function hidePicker() { document.getElementById('reaction-picker').style.display = 'none'; }
-        function addReaction(emoji) {
-            if(activeMsgId) db.collection('chats').doc(activeMsgId).update({ reaction: emoji });
-            hidePicker();
-        }
+        // --- Profile Management ---
+        function setMyPFP() { const url = prompt("Your DP URL:"); if(url) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavPfp' : 'lovleenPfp'; db.collection('settings').doc('profiles').set({ [k]: url.trim() }, {merge: true}); } }
+        function setPartnerPFP() { const url = prompt("Partner DP URL:"); if(url) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenPfp' : 'arnavPfp'; db.collection('settings').doc('profiles').set({ [k]: url.trim() }, {merge: true}); } }
+        function setPartnerNickname() { const n = prompt("Nickname for partner:"); if(n) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavsView' : 'lovleensView'; db.collection('settings').doc('profiles').set({ [k]: n.trim() }, {merge: true}); db.collection('chats').add({ text: `${auth.currentUser.email === ARNAV_EMAIL ? 'ahrnavsharma' : 'lovleenx'} set nickname to ${n}`, type: "system", timestamp: firebase.firestore.FieldValue.serverTimestamp() }); } }
 
-        // --- PHOTO UPLOAD LOGIC ---
-        function handleFileUpload(input) {
-            const file = input.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image(); img.src = e.target.result;
-                img.onload = function() {
-                    const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
-                    const maxW = 600; const scale = maxW / img.width; // Compressed
-                    canvas.width = maxW; canvas.height = img.height * scale;
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    const base64 = canvas.toDataURL('image/jpeg', 0.6);
-                    db.collection('chats').add({ text: base64, type: "image", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                };
-            };
-            reader.readAsDataURL(file); input.value = "";
-        }
-
-        // --- NICKNAMES LOGIC ---
-        function changeNickname() {
-            const n = prompt("Enter nickname for your partner:");
-            if(n) {
-                const myKey = auth.currentUser.email === ARNAV_EMAIL ? 'arnavsView' : 'lovleensView';
-                db.collection('settings').doc('nicknames').set({ [myKey]: n.trim() }, {merge: true});
-                // Send small system message
-                const me = auth.currentUser.email === ARNAV_EMAIL ? "ahrnavsharma" : "lovleenx";
-                db.collection('chats').add({ text: `${me} set the nickname to ${n.trim()}`, type: "system", timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            }
-        }
-        function loadNicknames() {
-            db.collection('settings').doc('nicknames').onSnapshot(doc => {
-                const myKey = auth.currentUser.email === ARNAV_EMAIL ? 'arnavsView' : 'lovleensView';
-                document.getElementById('display-name').innerText = (doc.exists && doc.data()[myKey]) ? doc.data()[myKey] : "Partner";
-            });
-        }
-
-        // --- SEEN LOGIC ---
-        function markAsRead() {
-            if(!auth.currentUser) return;
-            const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavRead' : 'lovleenRead';
-            db.collection('settings').doc('receipts').set({ [key]: firebase.firestore.FieldValue.serverTimestamp() }, {merge: true});
-        }
-        document.addEventListener('visibilitychange', () => { if (!document.hidden) markAsRead(); });
-        function listenToReadReceipts() {
-            const other = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenRead' : 'arnavRead';
-            db.collection('settings').doc('receipts').onSnapshot(doc => { if(doc.exists && doc.data()[other]) { otherUserReadTime = doc.data()[other].toDate(); renderMessages(globalMsgs); } });
-        }
-
-        // --- TYPING & SENDING ---
-        function setTyping(s) { const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavIsTyping' : 'lovleenIsTyping'; db.collection('settings').doc('typing').set({ [key]: s }, {merge: true}); }
-        document.getElementById('msg-input').addEventListener('input', () => { setTyping(true); clearTimeout(window.tT); window.tT = setTimeout(()=>setTyping(false), 2000); });
-        function listenToTyping() {
-            const other = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenIsTyping' : 'arnavIsTyping';
-            db.collection('settings').doc('typing').onSnapshot(doc => { document.getElementById('typing-bubble').style.display = (doc.exists && doc.data()[other]) ? 'block' : 'none'; });
-        }
-        function sendMessage() {
-            const t = document.getElementById('msg-input').value.trim(); if(!t) return;
-            setTyping(false);
-            db.collection('chats').add({ text: t, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            document.getElementById('msg-input').value = ""; markAsRead();
-        }
-
-        // --- RENDER MESSAGES (Bug Fixed) ---
-        let globalMsgs = [];
-        function loadMessages() {
-            db.collection('chats').orderBy('timestamp').onSnapshot(snap => {
-                globalMsgs = []; snap.forEach(doc => { if(doc.data().timestamp) globalMsgs.push({id: doc.id, ...doc.data()}); });
-                renderMessages(globalMsgs);
-            });
-        }
-
-        function renderMessages(msgs) {
-            const div = document.getElementById('messages'); 
-            div.innerHTML = ''; 
-            let lastD = "";
-            
-            msgs.forEach((m, i) => {
-                const d = m.timestamp.toDate();
-                const dStr = d.toDateString();
-                
-                // Date Separator
-                if (dStr !== lastD) {
-                    const s = document.createElement('div'); s.className = 'date-sep'; 
-                    s.innerText = dStr === new Date().toDateString() ? "Today" : dStr; 
-                    div.appendChild(s); lastD = dStr;
+        function loadProfiles() {
+            db.collection('settings').doc('profiles').onSnapshot(doc => {
+                if(doc.exists) {
+                    const d = doc.data(); const amIArnav = auth.currentUser.email === ARNAV_EMAIL;
+                    const pName = amIArnav ? d.arnavsView : d.lovleensView;
+                    const pPfp = amIArnav ? d.lovleenPfp : d.arnavPfp;
+                    document.getElementById('inbox-partner-name').innerText = pName || "Partner";
+                    document.getElementById('chat-partner-name').innerText = pName || "Partner";
+                    document.getElementById('inbox-partner-pfp').src = pPfp || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                    document.getElementById('chat-partner-pfp').src = pPfp || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
                 }
+            });
+        }
 
-                // FIXED: System Messages (Small & Centered)
-                if (m.type === "system") {
-                    const sysDiv = document.createElement('div'); 
-                    sysDiv.className = 'sys-msg'; 
-                    sysDiv.innerText = m.text; 
-                    div.appendChild(sysDiv);
-                } 
-                // Normal Chat & Images
+        // --- Media Upload (With Progress) ---
+        function handleMediaUpload(input) {
+            const file = input.files[0]; if (!file) return;
+            const label = document.getElementById('media-label');
+            const isVideo = file.type.startsWith('video/');
+            
+            label.innerText = "0%";
+            const ref = storage.ref('media/' + Date.now() + "_" + file.name);
+            const task = ref.put(file);
+
+            task.on('state_changed', 
+                (snap) => { label.innerText = Math.round((snap.bytesTransferred/snap.totalBytes)*100) + "%"; },
+                (err) => { alert("Upload Failed!"); label.innerText = "+"; },
+                () => { task.snapshot.ref.getDownloadURL().then(url => {
+                    db.collection('chats').add({ text: url, type: isVideo ? "video" : "image", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                    label.innerText = "+";
+                }); }
+            );
+            input.value = "";
+        }
+
+        // --- Real-time Logic ---
+        function markAsRead() { if(isChatOpen) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavRead' : 'lovleenRead'; db.collection('settings').doc('receipts').set({ [k]: firebase.firestore.FieldValue.serverTimestamp() }, {merge: true}); } }
+        function listenToReadReceipts() {
+            db.collection('settings').doc('receipts').onSnapshot(doc => {
+                if(doc.exists) {
+                    const amIArnav = auth.currentUser.email === ARNAV_EMAIL;
+                    partnerReadTime = doc.data()[amIArnav ? 'lovleenRead' : 'arnavRead']?.toDate();
+                    myReadTime = doc.data()[amIArnav ? 'arnavRead' : 'lovleenRead']?.toDate();
+                    if(isChatOpen) renderMessages();
+                    updateInbox();
+                }
+            });
+        }
+        function setTyping(s) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavIsTyping' : 'lovleenIsTyping'; db.collection('settings').doc('typing').set({ [k]: s }, {merge: true}); }
+        document.getElementById('msg-input').addEventListener('input', () => { setTyping(true); clearTimeout(window.tT); window.tT = setTimeout(()=>setTyping(false), 2000); });
+        function listenToTyping() { const o = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenIsTyping' : 'arnavIsTyping'; db.collection('settings').doc('typing').onSnapshot(doc => { document.getElementById('typing-bubble').style.display = (doc.exists && doc.data()[o]) ? 'block' : 'none'; }); }
+
+        function loadMessages() { db.collection('chats').orderBy('timestamp').onSnapshot(snap => { globalMsgs = []; snap.forEach(doc => { if(doc.data().timestamp) globalMsgs.push({id: doc.id, ...doc.data()}); }); updateInbox(); if(isChatOpen) renderMessages(); }); }
+
+        function updateInbox() {
+            if(globalMsgs.length === 0) return;
+            const last = globalMsgs[globalMsgs.length - 1];
+            let unread = 0;
+            for(let i = globalMsgs.length-1; i>=0; i--) {
+                if(globalMsgs[i].sender !== auth.currentUser.email && globalMsgs[i].type !== "system") {
+                    if(!myReadTime || globalMsgs[i].timestamp.toDate() > myReadTime) unread++; else break;
+                } else if(globalMsgs[i].sender === auth.currentUser.email) break;
+            }
+            const status = document.getElementById('inbox-status-text');
+            const dot = document.getElementById('unread-dot');
+            if(unread > 0) { status.innerText = `${unread} new message${unread>1?'s':''}`; status.className = "inbox-status status-unread"; dot.classList.remove('hidden'); }
+            else { status.innerText = last.sender === auth.currentUser.email ? "Sent just now" : "Active now"; status.className = "inbox-status"; dot.classList.add('hidden'); }
+        }
+
+        function renderMessages() {
+            const div = document.getElementById('messages'); div.innerHTML = ''; let lastD = "";
+            globalMsgs.forEach((m, i) => {
+                const d = m.timestamp.toDate(); const dS = d.toDateString();
+                if(dS !== lastD) { const s = document.createElement('div'); s.className = 'date-sep'; s.innerText = dS === new Date().toDateString() ? "Today" : dS; div.appendChild(s); lastD = dS; }
+
+                if(m.type === "system") { const e = document.createElement('div'); e.className = 'sys-msg'; e.innerText = m.text; div.appendChild(e); }
                 else {
                     const isMe = m.sender === auth.currentUser.email;
                     const w = document.createElement('div'); w.className = 'msg-wrapper ' + (isMe ? 'my-wrapper' : 'their-wrapper');
                     const b = document.createElement('div'); b.className = 'msg ' + (isMe ? 'my-msg' : 'their-msg');
-                    b.onclick = (e) => showPicker(e, m.id); // Tap for reaction
+                    b.onclick = (e) => { e.stopPropagation(); activeMsgId = m.id; const p = document.getElementById('reaction-picker'); p.style.display = 'flex'; p.style.top = (e.clientY-60)+'px'; p.style.left = Math.min(e.clientX, window.innerWidth-200)+'px'; };
                     
-                    if(m.type === 'image') {
-                        b.innerHTML = `<img src="${m.text}">`;
-                        b.style.padding = "5px"; // less padding for images
-                    } else {
-                        b.innerText = m.text;
-                    }
+                    if(m.type === 'image') b.innerHTML = `<img src="${m.text}">`;
+                    else if(m.type === 'video') b.innerHTML = `<video style="width:100%; border-radius:12px;" controls playsinline preload="metadata" src="${m.text}"></video>`;
+                    else b.innerText = m.text;
 
-                    // Render Reaction
-                    if(m.reaction) { 
-                        const r = document.createElement('span'); r.className = 'reaction-tag'; 
-                        r.innerText = m.reaction; b.appendChild(r); 
-                    }
+                    if(m.reaction) { const r = document.createElement('span'); r.className = 'reaction-tag'; r.innerText = m.reaction; b.appendChild(r); }
+                    const t = document.createElement('div'); t.className = 'time'; t.innerText = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                    w.appendChild(b); w.appendChild(t); div.appendChild(w);
 
-                    const tm = document.createElement('div'); tm.className = 'time'; 
-                    tm.innerText = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-                    
-                    w.appendChild(b); w.appendChild(tm); div.appendChild(w);
-                    
-                    // Render Seen
-                    if(isMe && i === msgs.length-1 && otherUserReadTime && otherUserReadTime >= d) {
-                        const s = document.createElement('div'); s.className = 'seen-status'; 
-                        s.innerText = "Seen"; div.appendChild(s);
-                    }
+                    if(isMe && i === globalMsgs.length-1 && partnerReadTime && partnerReadTime >= d) { const s = document.createElement('div'); s.className = 'seen-status'; s.innerText = "Seen"; div.appendChild(s); }
                 }
             });
             div.scrollTop = div.scrollHeight;
         }
 
-        // Draggable SOS
-        const btn = document.getElementById('sos-btn');
-        btn.addEventListener('touchmove', (e) => { let t = e.touches[0]; btn.style.left = t.clientX - 20 + 'px'; btn.style.top = t.clientY - 20 + 'px'; btn.style.right = 'auto'; });
-        // Enter to send
+        function addReaction(emoji) { if(activeMsgId) db.collection('chats').doc(activeMsgId).update({ reaction: emoji }); hidePicker(); }
+        function hidePicker() { document.getElementById('reaction-picker').style.display = 'none'; }
+        function sendMessage() { const t = document.getElementById('msg-input').value.trim(); if(!t) return; db.collection('chats').add({ text: t, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('msg-input').value = ""; markAsRead(); }
         document.getElementById('msg-input').addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
     </script>
 </body>
