@@ -2,57 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Scientific Calculator Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Calculator Pro</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 0; overflow: hidden; }
-        .container { max-width: 500px; margin: auto; height: 100vh; display: flex; flex-direction: column; position: relative; }
+        :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
+        body { font-family: -apple-system, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 0; overflow: hidden; height: 100dvh; }
+        .container { max-width: 500px; margin: auto; height: 100%; display: flex; flex-direction: column; position: relative; }
         
-        /* Decoy Login Page */
+        /* Login Screen */
         #login-screen { position: absolute; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        #login-screen h1 { font-size: 26px; color: #fff; margin-bottom: 10px; font-weight: 300; }
-        #login-screen p { color: #8e8e8e; margin-bottom: 30px; font-size: 13px; text-align: center; }
-        .login-input { width: 85%; padding: 14px; background: #121212; border: 1px solid #363636; border-radius: 8px; color: #fff; margin-bottom: 15px; outline: none; font-size: 16px; }
-        .login-btn { width: 85%; padding: 14px; background: #262626; color: #fff; border: 1px solid #444; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px; }
+        .login-input { width: 85%; padding: 14px; background: #121212; border: 1px solid #262626; border-radius: 8px; color: #fff; margin-bottom: 12px; outline: none; }
+        .login-btn { width: 85%; padding: 14px; background: #333; color: #fff; border: none; border-radius: 8px; font-weight: 600; }
 
-        /* SOS Floating Button */
+        /* SOS Button */
         #sos-btn {
-            position: absolute; top: 80px; right: 20px; width: 42px; height: 42px;
-            background: rgba(255, 59, 48, 0.8); color: white; border-radius: 50%;
-            display: none; justify-content: center; align-items: center;
-            font-size: 10px; font-weight: bold; z-index: 9999; touch-action: none;
-            box-shadow: 0 0 12px rgba(255, 59, 48, 0.4);
+            position: absolute; top: calc(var(--safe-top) + 60px); right: 20px; width: 42px; height: 42px;
+            background: #ff3b30; color: white; border-radius: 50%; display: none; justify-content: center; align-items: center;
+            font-size: 10px; font-weight: bold; z-index: 9999; touch-action: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        /* IG Style Header */
-        #header { padding: 12px 15px; border-bottom: 1px solid #262626; display: flex; align-items: center; background: #000; }
-        .profile-pic { width: 34px; height: 34px; border-radius: 50%; background: #333; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .user-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+        /* Fixed Header */
+        #header { padding: calc(var(--safe-top) + 10px) 15px 10px; border-bottom: 1px solid #262626; display: flex; align-items: center; background: #000; z-index: 10; }
+        .profile-area { width: 36px; height: 36px; margin-right: 12px; cursor: pointer; }
+        .profile-pic { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #333; }
+        .user-name { font-weight: 600; font-size: 16px; cursor: pointer; }
 
-        /* Message Area */
+        /* Messages */
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 4px; }
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 75%; margin-bottom: 4px; }
+        .date-sep { align-self: center; font-size: 11px; color: #8e8e8e; margin: 10px 0; }
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 75%; }
         .my-wrapper { align-self: flex-end; align-items: flex-end; }
         .their-wrapper { align-self: flex-start; align-items: flex-start; }
         
-        .msg { padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.3; word-wrap: break-word; }
+        .msg { padding: 8px 14px; border-radius: 18px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
         .my-msg { background: linear-gradient(135deg, #b026ff, #0d6efd); border-bottom-right-radius: 4px; }
         .their-msg { background-color: #262626; border-bottom-left-radius: 4px; }
+        .time { font-size: 10px; color: #555; margin: 2px 4px; }
+        .seen-status { font-size: 11px; color: #8e8e8e; align-self: flex-end; margin-bottom: 8px; }
         
-        .msg-time { font-size: 10px; color: #666; margin-top: 2px; }
-        .date-separator { align-self: center; font-size: 11px; color: #8e8e8e; margin: 15px 0 8px; font-weight: 500; }
-        .sys-msg { align-self: center; color: #8e8e8e; font-size: 11px; padding: 10px; text-align: center; }
-        .seen-status { font-size: 11px; color: #8e8e8e; align-self: flex-end; margin-bottom: 10px; padding-right: 4px; }
+        /* Typing indicator under message */
+        .typing-bubble { background: #262626; padding: 6px 12px; border-radius: 15px; font-size: 12px; color: #8e8e8e; align-self: flex-start; margin-left: 15px; display: none; font-style: italic; }
 
-        /* Typing & Input */
-        #typing-indicator { display: none; font-size: 12px; color: #8e8e8e; padding: 0 20px 8px; font-style: italic; }
-        #input-area { padding: 10px 15px 30px; background: #000; display: flex; gap: 10px; align-items: center; border-top: 1px solid #262626; }
-        #msg-input { flex: 1; padding: 10px 16px; background: #121212; border: 1px solid #363636; border-radius: 22px; color: #fff; outline: none; font-size: 15px; }
+        /* Input Area */
+        #input-area { padding: 10px 15px calc(var(--safe-bottom) + 15px); background: #000; display: flex; gap: 10px; align-items: center; border-top: 1px solid #262626; }
+        #msg-input { flex: 1; padding: 10px 18px; background: #121212; border: 1px solid #363636; border-radius: 25px; color: #fff; outline: none; }
         #send-btn { color: #0095f6; font-weight: 600; background: none; border: none; font-size: 15px; }
     </style>
 </head>
@@ -62,29 +60,31 @@
         <div id="sos-btn" onclick="triggerSOS()">SOS</div>
 
         <div id="login-screen">
-            <h1>Scientific Calculator</h1>
-            <p>Enter Access Credentials to Sync Cloud Data</p>
+            <h1 style="font-weight:300;">Scientific Calculator</h1>
+            <p style="color:#8e8e8e; font-size:12px; margin-bottom:20px;">Cloud Sync Active</p>
             <input type="email" id="email" class="login-input" placeholder="User ID" autocapitalize="none">
             <input type="password" id="password" class="login-input" placeholder="Access Code">
             <button class="login-btn" onclick="login()">Sync Database</button>
         </div>
 
         <div id="chat-screen" style="display:none; flex-direction:column; height:100%;">
-            <div id="header" onclick="changeName()">
-                <div class="profile-pic">👤</div>
-                <div class="user-name"><span id="display-name">Loading...</span> ✏️</div>
+            <div id="header">
+                <div class="profile-area" onclick="changePFP()">
+                    <img id="header-pfp" class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+                </div>
+                <div class="user-name" onclick="changeName()"><span id="display-name">Loading...</span> ✏️</div>
             </div>
             <div id="messages"></div>
-            <div id="typing-indicator">typing...</div>
+            <div id="typing-bubble" class="typing-bubble">typing...</div>
             <div id="input-area">
-                <input type="text" id="msg-input" placeholder="Message..." onclick="markAsRead()">
+                <input type="text" id="msg-input" placeholder="Message..." onfocus="markAsRead()">
                 <button id="send-btn" onclick="sendMessage()">Send</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- ⚠️ 1. FIREBASE KEYS YAHAN PASTE KARO ⚠️ ---
+        // --- API KEYS YAHAN PASTE KARNA ---
         const firebaseConfig = {
     apiKey: "AIzaSyBCrx5hqoBFAR9VDNJ4opUBp3hTuL3bGJ4",
     authDomain: "secretspace-ca604.firebaseapp.com",
@@ -94,16 +94,14 @@
     appId: "1:440793813496:web:405615f2dc570b296b460d",
     measurementId: "G-2N4RWH4VK0"
   };
+        // --------------------------------
 
-
-        // --- ⚠️ 2. EMAILS SET HAIN (DON'T CHANGE) ⚠️ ---
         const ARNAV_EMAIL = "ak5940962@gmail.com";      
         const LOVLEEN_EMAIL = "pcw69@secret.com";  
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        
         let otherUserReadTime = null;
         let typingTimer = null;
 
@@ -112,21 +110,17 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('chat-screen').style.display = 'flex';
                 document.getElementById('sos-btn').style.display = 'flex';
-                loadChatName();
+                loadChatInfo();
                 listenToReadReceipts();
                 listenToTyping();
                 loadMessages();
-            } else {
-                document.getElementById('login-screen').style.display = 'flex';
-                document.getElementById('chat-screen').style.display = 'none';
-                document.getElementById('sos-btn').style.display = 'none';
             }
         });
 
         function login() {
             const e = document.getElementById('email').value.trim().toLowerCase();
             const p = document.getElementById('password').value;
-            auth.signInWithEmailAndPassword(e, p).catch(err => alert("System Error: Access Denied"));
+            auth.signInWithEmailAndPassword(e, p).catch(err => alert("Access Denied"));
         }
 
         function triggerSOS() {
@@ -134,7 +128,6 @@
         }
 
         function setTypingStatus(status) {
-            if(!auth.currentUser) return;
             const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavIsTyping' : 'lovleenIsTyping';
             db.collection('settings').doc('typing').set({ [key]: status }, {merge: true});
         }
@@ -142,26 +135,25 @@
         document.getElementById('msg-input').addEventListener('input', () => {
             if (!typingTimer) setTypingStatus(true);
             clearTimeout(typingTimer);
-            typingTimer = setTimeout(() => { setTypingStatus(false); typingTimer = null; }, 3000);
+            typingTimer = setTimeout(() => { setTypingStatus(false); typingTimer = null; }, 2500);
         });
 
         function listenToTyping() {
             const otherKey = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenIsTyping' : 'arnavIsTyping';
             db.collection('settings').doc('typing').onSnapshot(doc => {
-                if(doc.exists && doc.data()[otherKey]) document.getElementById('typing-indicator').style.display = 'block';
-                else document.getElementById('typing-indicator').style.display = 'none';
+                const isTyping = doc.exists && doc.data()[otherKey];
+                document.getElementById('typing-bubble').style.display = isTyping ? 'block' : 'none';
+                if(isTyping) { 
+                    const msgDiv = document.getElementById('messages');
+                    msgDiv.scrollTop = msgDiv.scrollHeight;
+                }
             });
         }
 
-        function formatDate(d) {
-            const now = new Date();
-            if (d.toDateString() === now.toDateString()) return "Today";
-            const yest = new Date(now); yest.setDate(yest.getDate() - 1);
-            if (d.toDateString() === yest.toDateString()) return "Yesterday";
-            return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+        function changePFP() {
+            const url = prompt("Paste Image Link:");
+            if(url) db.collection('settings').doc('chatInfo').set({ pfpUrl: url }, {merge: true});
         }
-
-        function formatTime(d) { return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }); }
 
         function changeName() {
             const n = prompt("Enter nickname:");
@@ -172,14 +164,16 @@
             }
         }
 
-        function loadChatName() {
+        function loadChatInfo() {
             db.collection('settings').doc('chatInfo').onSnapshot(doc => {
-                document.getElementById('display-name').innerText = (doc.exists && doc.data().chatName) ? doc.data().chatName : "Chat Space";
+                if(doc.exists) {
+                    document.getElementById('display-name').innerText = doc.data().chatName || "Chat Space";
+                    if(doc.data().pfpUrl) document.getElementById('header-pfp').src = doc.data().pfpUrl;
+                }
             });
         }
 
         function markAsRead() {
-            if(!auth.currentUser) return;
             const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavRead' : 'lovleenRead';
             db.collection('settings').doc('receipts').set({ [key]: firebase.firestore.FieldValue.serverTimestamp() }, {merge: true});
         }
@@ -187,7 +181,10 @@
         function listenToReadReceipts() {
             const otherKey = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenRead' : 'arnavRead';
             db.collection('settings').doc('receipts').onSnapshot(doc => {
-                if(doc.exists && doc.data()[otherKey]) { otherUserReadTime = doc.data()[otherKey].toDate(); renderMessages(); }
+                if(doc.exists && doc.data()[otherKey]) { 
+                    otherUserReadTime = doc.data()[otherKey].toDate(); 
+                    renderMessages(); 
+                }
             });
         }
 
@@ -197,7 +194,6 @@
             setTypingStatus(false);
             db.collection('chats').add({ text: t, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             document.getElementById('msg-input').value = "";
-            markAsRead();
         }
 
         let globalMsgs = [];
@@ -209,12 +205,13 @@
         }
 
         function renderMessages() {
-            const div = document.getElementById('messages'); div.innerHTML = '';
-            let lastD = "";
+            const div = document.getElementById('messages'); div.innerHTML = ''; let lastD = "";
             globalMsgs.forEach((m, i) => {
                 const d = m.timestamp.toDate();
-                if (formatDate(d) !== lastD) {
-                    const s = document.createElement('div'); s.className = 'date-separator'; s.innerText = formatDate(d); div.appendChild(s); lastD = formatDate(d);
+                const dStr = d.toDateString();
+                if (dStr !== lastD) {
+                    const s = document.createElement('div'); s.className = 'date-sep'; s.innerText = dStr === new Date().toDateString() ? "Today" : dStr;
+                    div.appendChild(s); lastD = dStr;
                 }
                 if (m.type === "system") {
                     const e = document.createElement('div'); e.className = 'sys-msg'; e.innerText = m.text; div.appendChild(e);
@@ -222,10 +219,11 @@
                     const isMe = m.sender === auth.currentUser.email;
                     const w = document.createElement('div'); w.className = 'msg-wrapper ' + (isMe ? 'my-wrapper' : 'their-wrapper');
                     const b = document.createElement('div'); b.className = 'msg ' + (isMe ? 'my-msg' : 'their-msg'); b.innerText = m.text;
-                    const t = document.createElement('div'); t.className = 'msg-time'; t.innerText = formatTime(d);
-                    w.appendChild(b); w.appendChild(t); div.appendChild(w);
+                    const tm = document.createElement('div'); tm.className = 'time'; tm.innerText = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    w.appendChild(b); w.appendChild(tm); div.appendChild(w);
+                    
                     if(isMe && i === globalMsgs.length-1 && otherUserReadTime && otherUserReadTime >= d) {
-                        const sText = document.createElement('div'); sText.className = 'seen-status'; sText.innerText = "Seen just now"; div.appendChild(sText);
+                        const seen = document.createElement('div'); seen.className = 'seen-status'; seen.innerText = "Seen"; div.appendChild(seen);
                     }
                 }
             });
@@ -236,7 +234,6 @@
         btn.addEventListener('touchmove', (e) => {
             let t = e.touches[0]; btn.style.left = t.clientX - 22 + 'px'; btn.style.top = t.clientY - 22 + 'px'; btn.style.right = 'auto';
         });
-
         document.getElementById('msg-input').addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
     </script>
 </body>
