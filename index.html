@@ -61,6 +61,7 @@
         .react-badge { position: absolute; bottom: -12px; background: #1c1c1e; border: 1px solid #333; padding: 2px 6px; border-radius: 12px; font-size: 13px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
         .me .react-badge { right: 10px; } .them .react-badge { left: 10px; }
 
+        #typing-ind { padding: 5px 15px; font-size: 11px; color: #888; display: none; }
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: rgba(0,0,0,0.9); z-index: 10; align-items: center; }
         #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; font-size: 16px; outline: none; }
 
@@ -178,20 +179,8 @@
 
     <script>
         // ==========================================
-        // 🚨 1. SUPABASE CREDENTIALS YAHAN DAAL 🚨
+        // 1. CALCULATOR LOGIC (Top par rakha hai, ab kabhi crash nahi hoga)
         // ==========================================
-        const SUPABASE_URL = 'https://qrsgyerhotxwhldmtqec.supabase.co'; 
-        const SUPABASE_KEY = 'sb_publishable__7wlB0gI-_Fz1CsMyl6F6w_Zp-veYlo; // <--- APNI ANON KEY YAHAN DAAL (Ye safe hai!)
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        let chatData = [];
-        let activeMsgId = null;
-        let currentUser = '';
-        let partnerUser = '';
-        let isChatOpen = false;
-
-        // --- CALCULATOR LOGIC ---
         let exp = '0'; let taps = 0; let lastTap = 0;
         function update() { document.getElementById('display').innerText = exp; }
         function press(v) { if(exp === '0') exp = v; else exp += v; update(); }
@@ -201,14 +190,40 @@
             let now = Date.now();
             if (now - lastTap < 600) taps++; else taps = 1;
             lastTap = now;
-            if (taps === 3) { document.getElementById('secret-app').style.display = 'flex'; document.getElementById('calc-ui').style.display = 'none'; taps = 0; }
+            if (taps === 3) { 
+                document.getElementById('secret-app').style.display = 'flex'; 
+                document.getElementById('calc-ui').style.display = 'none'; 
+                taps = 0; 
+            }
             exp = '0'; update();
         }
 
         // ==========================================
-        // 🚨 2. LOGIN (Seedha Database Se) 🚨
+        // 2. SUPABASE CREDENTIALS & LOGIC
         // ==========================================
+        const SUPABASE_URL = 'https://qrsgyerhotxwhldmtqec.supabase.co'; 
+        
+        // 🚨 YAHAN APNI KEY DAAL (Quotes ' ' mat hatana) 🚨
+        const SUPABASE_KEY = 'sb_publishable_7wlB0gl-_Fz1CsMyl6F6w_Zp-veYlo'; 
+
+
+        
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch(e) {
+            console.error("Supabase load nahi hua. Internet check kar le bhai.");
+        }
+
+        let chatData = [];
+        let activeMsgId = null;
+        let currentUser = '';
+        let partnerUser = '';
+        let isChatOpen = false;
+
         async function checkLogin() {
+            if(!supabase) { alert("Backend connect nahi ho raha hai."); return; }
+            
             let email = document.getElementById('user-email').value.trim().toLowerCase();
             let pass = document.getElementById('user-pass').value;
             let btn = document.getElementById('login-btn');
@@ -217,7 +232,6 @@
 
             btn.innerText = "Checking...";
 
-            // Asli Supabase auth, bina password hardcode kiye
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: email,
                 password: pass
@@ -229,7 +243,6 @@
                 return;
             }
 
-            // Emails se username decide karna
             if (email === "houston@boobie.com") {
                 currentUser = 'ahrnavsharma';
                 partnerUser = 'lovleenx';
@@ -255,7 +268,6 @@
             btn.innerText = "Enter";
         }
 
-        // --- DATABASE LOGIC ---
         async function fetchMessages() {
             const { data, error } = await supabase.from('messages').select('*').order('created_at', { ascending: true });
             if (data) { chatData = data; renderMessages(); }
@@ -327,7 +339,6 @@
             }
         }
 
-        // --- NAVIGATION ---
         function openChat() { 
             document.getElementById('dm-list-ui').style.display='none'; 
             document.getElementById('chat-ui').style.display='flex'; 
@@ -339,11 +350,10 @@
         function backToList() { document.getElementById('chat-ui').style.display='none'; document.getElementById('dm-list-ui').style.display='flex'; isChatOpen = false; }
         
         async function forceLogout() { 
-            await supabase.auth.signOut();
+            if(supabase) await supabase.auth.signOut();
             location.reload(); 
         }
 
-        // --- SETTINGS ---
         function openSettings() { document.getElementById('settings-ui').style.display='flex'; document.getElementById('status-mypfp').innerText=''; document.getElementById('status-bg').innerText=''; }
         function closeSettings() { document.getElementById('settings-ui').style.display='none'; }
         function checkFile(input, statusId) { if(input.files && input.files[0]) document.getElementById(statusId).innerText = "✅ Image Selected"; }
@@ -387,7 +397,6 @@
             if(bgData) document.documentElement.style.setProperty('--theme-bg', `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${bgData}')`); 
         }
 
-        // --- UI RENDERING ---
         function renderMessages(query = '') {
             let container = document.getElementById('messages');
             container.innerHTML = '';
