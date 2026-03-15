@@ -1,245 +1,543 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Scientific Calculator</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    
-    <style>
-        :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
-        body { font-family: -apple-system, sans-serif; margin: 0; padding: 0; overflow: hidden; height: 100dvh; background: #000; color: #fff; }
-        
-        /* 🚨 SOS BUTTON - GUARANTEED FLOATING */
-        #sos-btn {
-            position: fixed; top: calc(var(--safe-top) + 20px); right: 20px; width: 48px; height: 48px;
-            background: #ff3b30; color: white; border-radius: 50%; display: none; 
-            justify-content: center; align-items: center; font-size: 11px; font-weight: 800; 
-            z-index: 9999999; box-shadow: 0 4px 15px rgba(255,0,0,0.5); border: 2px solid rgba(255,255,255,0.3);
-            cursor: pointer;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrivateChat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
 
-        .container { max-width: 500px; margin: auto; height: 100%; display: flex; flex-direction: column; position: relative; background: #000; }
-        #login-screen, #inbox-screen, #chat-screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; flex-direction: column; }
-        
-        /* Login */
-        #login-screen { display: flex; align-items: center; justify-content: center; z-index: 1000; background: #000; }
-        .login-input { width: 85%; padding: 15px; background: #121212; border: 1px solid #333; border-radius: 10px; color: #fff; margin-bottom: 15px; outline: none; }
-        .login-btn { width: 85%; padding: 15px; background: #c13584; color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
+    body {
+      background: linear-gradient(135deg, #0a0a0f, #111827, #0f172a);
+      color: white;
+      min-height: 100vh;
+      overflow: hidden;
+    }
 
-        /* Inbox */
-        #inbox-screen { padding-top: var(--safe-top); z-index: 100; background: #000; }
-        .inbox-header { padding: 20px; font-size: 22px; font-weight: 800; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; }
-        .chat-row { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #111; }
-        .pfp-main { width: 60px; height: 60px; border-radius: 50%; margin-right: 15px; border: 2px solid #c13584; object-fit: cover; }
-        .theme-btn { font-size: 11px; background: #262626; padding: 6px 14px; border-radius: 20px; cursor: pointer; color: #e895b6; font-weight: 600; }
+    .app {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+      backdrop-filter: blur(20px);
+    }
 
-        /* Chat Room */
-        #chat-screen { z-index: 60; background: #000; }
-        #header { padding: calc(var(--safe-top) + 10px) 15px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 10; }
-        .back-btn { font-size: 35px; margin-right: 15px; cursor: pointer; line-height: 1; }
-        .profile-area { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1.5px solid #fff; margin-right: 12px; }
+    .sidebar {
+      width: 340px;
+      min-width: 300px;
+      background: rgba(17, 24, 39, 0.88);
+      border-right: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      flex-direction: column;
+      padding: 18px;
+    }
 
-        /* BUBBLES & THEME */
-        #messages { 
-            flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 4px; 
-            background-image: url('https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=2070&auto=format&fit=crop');
-            background-size: cover; background-position: center; position: relative;
-        }
-        
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; position: relative; margin-bottom: 12px; }
-        .my-wrapper { align-self: flex-end; align-items: flex-end; }
-        .their-wrapper { align-self: flex-start; align-items: flex-start; }
-        
-        .msg { padding: 10px 16px; border-radius: 22px; font-size: 15px; line-height: 1.4; position: relative; word-wrap: break-word; }
-        .msg.has-reaction { margin-bottom: 18px; }
-        .my-msg { background-color: #e895b6; color: #000; border-bottom-right-radius: 4px; }
-        .their-msg { background-color: #521c31; border-bottom-left-radius: 4px; color: #fff; }
-        .msg img { max-width: 100%; border-radius: 12px; display: block; margin-top: 2px; }
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
 
-        .reaction-tag { position: absolute; bottom: -14px; font-size: 12px; background: rgba(0,0,0,0.85); border-radius: 12px; padding: 2px 6px; z-index: 5; border: 1px solid rgba(255,255,255,0.1); }
-        .time { font-size: 10px; color: rgba(255,255,255,0.6); margin: 4px 5px 0; font-weight: 500; text-shadow: 0 1px 2px #000; }
-        .seen-status { font-size: 11px; color: #e895b6; font-weight: 600; align-self: flex-end; margin-top: -8px; margin-bottom: 8px; text-shadow: 0 1px 2px #000; }
-        .typing-indicator { font-size: 13px; color: #fff; padding: 5px 20px; display: none; font-style: italic; text-shadow: 0 1px 2px #000; }
+    .brand h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #fff, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-        #input-area { padding: 10px 15px calc(var(--safe-bottom) + 15px); background: #000; display: flex; gap: 10px; align-items: center; border-top: 1px solid #262626; z-index: 10; }
-        #msg-input { flex: 1; padding: 12px 18px; background: #121212; border: 1px solid #333; border-radius: 25px; color: #fff; outline: none; }
-        
-        #search-bar { padding: 10px 15px; background: #111; display: none; gap: 10px; border-bottom: 1px solid #262626; z-index: 10; }
-        #search-input { flex: 1; padding: 8px 15px; border-radius: 20px; background: #222; border: none; color: #fff; outline: none; }
+    .new-chat-btn {
+      border: none;
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
 
-        /* REACTION PICKER */
-        #reaction-picker { display: none; position: fixed; background: #1a1a1a; border: 1px solid #333; border-radius: 30px; padding: 10px 15px; z-index: 10000000; gap: 15px; box-shadow: 0 10px 30px #000; }
-        .emoji-opt { font-size: 28px; cursor: pointer; }
-    </style>
+    .search-box {
+      margin: 12px 0 18px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: white;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .chat-list {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 4px;
+    }
+
+    .chat-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .chat-item:hover,
+    .chat-item.active {
+      background: rgba(124, 58, 237, 0.15);
+      border: 1px solid rgba(124, 58, 237, 0.2);
+    }
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #9333ea, #3b82f6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .online-dot {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #22c55e;
+      border: 2px solid #111827;
+    }
+
+    .chat-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chat-meta-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .chat-name {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .chat-time {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .chat-preview {
+      color: #9ca3af;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .main-chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background:
+        radial-gradient(circle at top right, rgba(124,58,237,0.12), transparent 25%),
+        radial-gradient(circle at bottom left, rgba(37,99,235,0.12), transparent 25%);
+    }
+
+    .chat-header {
+      height: 76px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(10px);
+    }
+
+    .chat-user {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .chat-user-info h2 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .chat-user-info p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: white;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .message-row {
+      display: flex;
+      width: 100%;
+    }
+
+    .message-row.me {
+      justify-content: flex-end;
+    }
+
+    .bubble {
+      max-width: 72%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.45;
+      position: relative;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .bubble.other {
+      background: rgba(255,255,255,0.08);
+      border-top-left-radius: 6px;
+      color: #f8fafc;
+    }
+
+    .bubble.me {
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      border-top-right-radius: 6px;
+      color: white;
+    }
+
+    .msg-time {
+      display: block;
+      margin-top: 8px;
+      font-size: 11px;
+      opacity: 0.7;
+      text-align: right;
+    }
+
+    .media-card {
+      margin-top: 10px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .media-card img,
+    .media-card video {
+      width: 100%;
+      display: block;
+      max-height: 280px;
+      object-fit: cover;
+      background: black;
+    }
+
+    .media-label {
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    .typing {
+      padding: 0 22px 12px;
+      font-size: 13px;
+      color: #a78bfa;
+    }
+
+    .composer {
+      padding: 16px 18px 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(10px);
+    }
+
+    .composer-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 10px;
+    }
+
+    .composer-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: white;
+      font-size: 14px;
+      padding: 10px;
+    }
+
+    .send-btn {
+      border: none;
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .attach-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(255,255,255,0.06);
+      color: white;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .welcome-screen {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 100px;
+        min-width: 100px;
+        padding: 14px 10px;
+      }
+
+      .brand h1,
+      .search-box,
+      .chat-meta,
+      .new-chat-btn {
+        display: none;
+      }
+
+      .chat-item {
+        justify-content: center;
+        padding: 10px;
+      }
+
+      .bubble {
+        max-width: 85%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        min-width: 100%;
+        height: 92px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        flex-direction: row;
+        align-items: center;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 10px;
+      }
+
+      .chat-list {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      .chat-item {
+        min-width: fit-content;
+      }
+
+      .chat-header {
+        padding: 0 14px;
+      }
+
+      .messages {
+        padding: 16px;
+      }
+
+      .composer {
+        padding: 12px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div id="sos-btn" onclick="triggerSOS()">SOS</div>
-    <div id="reaction-picker">
-        <span class="emoji-opt" onclick="addReaction('❤️')">❤️</span>
-        <span class="emoji-opt" onclick="addReaction('😂')">😂</span>
-        <span class="emoji-opt" onclick="addReaction('🔥')">🔥</span>
-    </div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>PrivateChat</h1>
+        <button class="new-chat-btn">+</button>
+      </div>
 
-    <div class="container">
-        <div id="login-screen">
-            <div style="text-align:center; width:100%;">
-                <h1 style="font-weight:200; margin-bottom: 30px;">Scientific Calculator</h1>
-                <input type="email" id="email" class="login-input" placeholder="User ID" autocapitalize="none">
-                <input type="password" id="password" class="login-input" placeholder="Access Code">
-                <button class="login-btn" onclick="login()">Sync Database</button>
+      <div class="search-box">
+        <input type="text" placeholder="Search private chats..." />
+      </div>
+
+      <div class="chat-list">
+        <div class="chat-item active">
+          <div class="avatar">A<div class="online-dot"></div></div>
+          <div class="chat-meta">
+            <div class="chat-meta-top">
+              <span class="chat-name">Aarohi</span>
+              <span class="chat-time">now</span>
             </div>
+            <div class="chat-preview">Missing you ❤️</div>
+          </div>
         </div>
 
-        <div id="inbox-screen">
-            <div class="inbox-header">
-                <div style="display:flex; flex-direction:column;">
-                    <span id="my-name-display" style="font-weight: 600;">ahrnavsharma</span>
-                    <span onclick="setMyPFP()" style="font-size:11px; color:#aaa; cursor:pointer; margin-top:2px;">Edit DP</span>
-                </div>
-                <span class="theme-btn" onclick="setChatBG()">Theme 🎨</span>
+        <div class="chat-item">
+          <div class="avatar">R</div>
+          <div class="chat-meta">
+            <div class="chat-meta-top">
+              <span class="chat-name">Riya</span>
+              <span class="chat-time">2h</span>
             </div>
-            <div class="chat-row" onclick="openChat()">
-                <img id="inbox-partner-pfp" class="pfp-main" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
-                <div style="flex:1;">
-                    <div class="inbox-name" id="inbox-partner-name">lovleenx</div>
-                    <div style="font-size:13px; color:#888; margin-top:4px;">Tap to open chat</div>
-                </div>
-            </div>
+            <div class="chat-preview">Photo received</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-chat">
+      <div class="chat-header">
+        <div class="chat-user">
+          <div class="avatar">A<div class="online-dot"></div></div>
+          <div class="chat-user-info">
+            <h2>Aarohi</h2>
+            <p>online now</p>
+          </div>
         </div>
 
-        <div id="chat-screen">
-            <div id="header">
-                <div class="back-btn" onclick="closeChat()">‹</div>
-                <div class="profile-area" onclick="setPartnerPFP()"><img id="chat-partner-pfp" style="width:100%; height:100%; object-fit:cover;"></div>
-                <div id="chat-partner-name" style="font-weight: 600; flex:1;">lovleenx</div>
-                <div style="font-size: 22px; cursor: pointer;" onclick="toggleSearch()">🔍</div>
-            </div>
-            <div id="search-bar"><input type="text" id="search-input" placeholder="Search..." oninput="doSearch()"></div>
-            <div id="messages" onclick="document.getElementById('reaction-picker').style.display='none'"></div>
-            <div id="typing-bubble" class="typing-indicator">typing...</div>
-            <div id="input-area">
-                <label id="media-label" style="font-size:32px; color:#e895b6; cursor:pointer; font-weight:300;" for="file-input">+</label>
-                <input type="file" id="file-input" style="display:none" accept="image/*" onchange="handleImage(this)">
-                <input type="text" id="msg-input" placeholder="Message..." onfocus="markAsRead()">
-                <button onclick="sendMessage()" style="background:none; border:none; color:#fff; font-weight:700; font-size:16px;">Send</button>
-            </div>
+        <div class="header-actions">
+          <button class="icon-btn">📞</button>
+          <button class="icon-btn">🎥</button>
+          <button class="icon-btn">⋯</button>
         </div>
-    </div>
+      </div>
 
-    <script>
-        // --- ⚠️ CONFIGURATION (DHYAN SE BHAREIN) ⚠️ ---
-        const firebaseConfig = {
-    apiKey: "AIzaSyBCrx5hqoBFAR9VDNJ4opUBp3hTuL3bGJ4",
-    authDomain: "secretspace-ca604.firebaseapp.com",
-    projectId: "secretspace-ca604",
-    storageBucket: "secretspace-ca604.firebasestorage.app",
-    messagingSenderId: "440793813496",
-    appId: "1:440793813496:web:405615f2dc570b296b460d",
-    measurementId: "G-2N4RWH4VK0"
-  };
+      <div class="messages" id="messages">
+        <div class="message-row">
+          <div class="bubble other">
+            Hey... reached home?
+            <span class="msg-time">10:42 PM</span>
+          </div>
+        </div>
 
-        
-        const ARNAV_EMAIL = "ak5940962@gmail.com"; 
-        const LOVLEEN_EMAIL = "pcw69@secret.com";
+        <div class="message-row me">
+          <div class="bubble me">
+            Haan baby, just reached. Tu khaana kha liya?
+            <span class="msg-time">10:43 PM</span>
+          </div>
+        </div>
 
-        firebase.initializeApp(firebaseConfig); 
-        const auth = firebase.auth(); const db = firebase.firestore(); const storage = firebase.storage();
-        
-        let activeMsgId = null; let isChatOpen = false; let globalMsgs = []; 
-        let partnerReadTime = null; let searchQuery = ""; let typingTimeout;
+        <div class="message-row">
+          <div class="bubble other">
+            Yes hehe. Also sending you something 💌
+            <div class="media-card">
+              <img src="https://images.unsplash.com/photo-1516589091380-5d8e87df6999?q=80&w=1200&auto=format&fit=crop" alt="shared image">
+              <div class="media-label">shared_photo.jpg</div>
+            </div>
+            <span class="msg-time">10:44 PM</span>
+          </div>
+        </div>
 
-        function login() { 
-            auth.signInWithEmailAndPassword(document.getElementById('email').value.trim().toLowerCase(), document.getElementById('password').value)
-            .catch(() => alert("是的、你．好，在我的心里永远是最美滴HACKED\n你，好想，iPhone\n是．你．我\nCLOSE APP RIGHT NOW ELSE HACKED\n一起期待新，我在")); 
-        }
+        <div class="message-row me">
+          <div class="bubble me">
+            Awww, this looks beautiful.
+            <div class="media-card">
+              <video controls>
+                <source src="" type="video/mp4">
+              </video>
+              <div class="media-label">private_video.mp4</div>
+            </div>
+            <span class="msg-time">10:45 PM</span>
+          </div>
+        </div>
+      </div>
 
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('inbox-screen').style.display = 'flex';
-                document.getElementById('sos-btn').style.display = 'flex';
-                const amIArnav = user.email === ARNAV_EMAIL;
-                document.getElementById('my-name-display').innerText = amIArnav ? "ahrnavsharma" : "lovleenx";
-                const pName = amIArnav ? "lovleenx" : "ahrnavsharma";
-                document.getElementById('inbox-partner-name').innerText = pName;
-                document.getElementById('chat-partner-name').innerText = pName;
-                loadTheme(); loadProfiles(); listenToReadReceipts(); listenToTyping(); loadMessages();
-            }
-        });
+      <div class="typing">Aarohi is typing...</div>
 
-        function triggerSOS() { auth.signOut().then(() => window.location.replace("https://www.google.com/search?q=calculator")); }
-        function openChat() { isChatOpen = true; document.getElementById('inbox-screen').style.display='none'; document.getElementById('chat-screen').style.display='flex'; markAsRead(); renderMessages(); }
-        function closeChat() { isChatOpen = false; document.getElementById('chat-screen').style.display='none'; document.getElementById('inbox-screen').style.display='flex'; }
-        
-        function timeAgo(date) {
-            if(!date) return "just now";
-            const sec = Math.floor((new Date() - date) / 1000);
-            if (sec < 60) return "just now";
-            const min = Math.floor(sec / 60);
-            if (min < 60) return min + "m ago";
-            return Math.floor(min / 60) + "h ago";
-        }
+      <div class="composer">
+        <div class="composer-box">
+          <button class="attach-btn">＋</button>
+          <input type="text" id="messageInput" placeholder="Send a private message..." />
+          <button class="attach-btn">🖼️</button>
+          <button class="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </main>
+  </div>
 
-        function markAsRead() { if(isChatOpen && auth.currentUser) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavRead' : 'lovleenRead'; db.collection('settings').doc('receipts').set({ [k]: firebase.firestore.FieldValue.serverTimestamp() }, {merge: true}); } }
-        function listenToReadReceipts() { db.collection('settings').doc('receipts').onSnapshot(doc => { if(doc.exists && auth.currentUser) { const f = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenRead' : 'arnavRead'; partnerReadTime = doc.data()[f]?.toDate(); if(isChatOpen) renderMessages(); } }); }
-        function setTyping(s) { if(!auth.currentUser) return; const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavTyping' : 'lovleenTyping'; db.collection('settings').doc('typing').set({ [k]: s }, {merge: true}); }
-        document.getElementById('msg-input').addEventListener('input', () => { setTyping(true); clearTimeout(typingTimeout); typingTimeout = setTimeout(() => setTyping(false), 2000); });
-        function listenToTyping() { db.collection('settings').doc('typing').onSnapshot(doc => { if(doc.exists && auth.currentUser) { const f = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenTyping' : 'arnavTyping'; document.getElementById('typing-bubble').style.display = doc.data()[f] ? 'block' : 'none'; } }); }
+  <script>
+    function sendMessage() {
+      const input = document.getElementById("messageInput");
+      const messages = document.getElementById("messages");
+      const text = input.value.trim();
 
-        function setChatBG() { const url = prompt("Paste Background Image URL:"); if(url) db.collection('settings').doc('theme').set({ bg: url.trim() }, {merge: true}); }
-        function loadTheme() { db.collection('settings').doc('theme').onSnapshot(doc => { if(doc.exists && doc.data().bg) document.getElementById('messages').style.backgroundImage = `url('${doc.data().bg}')`; }); }
-        function setPartnerPFP() { const url = prompt("Partner DP URL:"); if(url) db.collection('settings').doc('profiles').set({ [auth.currentUser.email === ARNAV_EMAIL ? 'lovleenPfp' : 'arnavPfp']: url.trim() }, {merge: true}); }
-        function setMyPFP() { const url = prompt("Your DP URL:"); if(url) db.collection('settings').doc('profiles').set({ [auth.currentUser.email === ARNAV_EMAIL ? 'arnavPfp' : 'lovleenPfp']: url.trim() }, {merge: true}); }
-        function loadProfiles() { db.collection('settings').doc('profiles').onSnapshot(doc => { if(doc.exists && auth.currentUser) { const p = auth.currentUser.email === ARNAV_EMAIL ? doc.data().lovleenPfp : doc.data().arnavPfp; const f = p || "https://cdn-icons-png.flaticon.com/512/149/149071.png"; document.getElementById('inbox-partner-pfp').src = f; document.getElementById('chat-partner-pfp').src = f; } }); }
+      if (!text) return;
 
-        function loadMessages() { db.collection('chats').orderBy('timestamp').onSnapshot(snap => { globalMsgs = []; snap.forEach(doc => globalMsgs.push({id: doc.id, ...doc.data()})); if(isChatOpen) renderMessages(); }); }
-        function sendMessage() { const t = document.getElementById('msg-input').value.trim(); if(!t) return; db.collection('chats').add({ text: t, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('msg-input').value = ""; markAsRead(); }
-        
-        function handleImage(input) { 
-            const f = input.files[0]; if(!f) return; 
-            const label = document.getElementById('media-label'); label.innerText = "⏳";
-            const ref = storage.ref('photos/' + Date.now() + "_" + f.name);
-            const task = ref.put(f);
-            task.on('state_changed', null, null, () => {
-                task.snapshot.ref.getDownloadURL().then(url => {
-                    db.collection('chats').add({ text: url, type: "img", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                    label.innerText = "+";
-                });
-            });
-            input.value = "";
-        }
+      const row = document.createElement("div");
+      row.className = "message-row me";
 
-        function renderMessages() {
-            const div = document.getElementById('messages'); div.innerHTML = '';
-            const msgs = globalMsgs.filter(m => searchQuery==="" || (m.type==='msg' && m.text.toLowerCase().includes(searchQuery)));
-            msgs.forEach((m, i) => {
-                const isMe = m.sender === auth.currentUser.email;
-                const w = document.createElement('div'); w.className = 'msg-wrapper ' + (isMe ? 'my-wrapper' : 'their-wrapper');
-                const b = document.createElement('div'); b.className = 'msg ' + (isMe ? 'my-msg' : 'their-msg');
-                if(m.type==='img') b.innerHTML=`<img src="${m.text}">`; else b.innerText=m.text || "";
-                if(m.reaction) b.innerHTML += `<span class="reaction-tag">${m.reaction}</span>`;
-                b.onclick=(e)=>{ 
-                    e.stopPropagation(); activeMsgId=m.id; 
-                    const p = document.getElementById('reaction-picker'); p.style.display='flex'; 
-                    p.style.top = (e.clientY - 60) + 'px'; p.style.left = (Math.min(e.clientX, window.innerWidth - 180)) + 'px'; 
-                };
-                const tObj = m.timestamp ? m.timestamp.toDate() : new Date();
-                const t = document.createElement('div'); t.className='time'; t.innerText = tObj.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-                w.appendChild(b); w.appendChild(t); div.appendChild(w);
-                if(isMe && i === msgs.length-1 && partnerReadTime && m.timestamp && partnerReadTime >= m.timestamp.toDate()) {
-                    const s = document.createElement('div'); s.className = 'seen-status'; s.innerText = "Seen " + timeAgo(partnerReadTime); div.appendChild(s);
-                }
-            }); div.scrollTop = div.scrollHeight;
-        }
+      row.innerHTML = `
+        <div class="bubble me">
+          ${text}
+          <span class="msg-time">now</span>
+        </div>
+      `;
 
-        function toggleSearch() { const s = document.getElementById('search-bar'); s.style.display = s.style.display==='flex'?'none':'flex'; if(s.style.display==='none'){searchQuery="";renderMessages();} }
-        function doSearch() { searchQuery = document.getElementById('search-input').value.toLowerCase(); renderMessages(); }
-        function addReaction(e) { if(activeMsgId) db.collection('chats').doc(activeMsgId).update({ reaction: e }); document.getElementById('reaction-picker').style.display='none'; }
-    </script>
+      messages.appendChild(row);
+      input.value = "";
+      messages.scrollTop = messages.scrollHeight;
+    }
+  </script>
 </body>
 </html>
