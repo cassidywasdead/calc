@@ -12,58 +12,72 @@
         body { font-family: -apple-system, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 0; overflow: hidden; height: 100dvh; }
         .container { max-width: 500px; margin: auto; height: 100%; display: flex; flex-direction: column; position: relative; }
         
+        /* Login Screen */
         #login-screen { position: absolute; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .login-input { width: 85%; padding: 14px; background: #121212; border: 1px solid #262626; border-radius: 8px; color: #fff; margin-bottom: 12px; outline: none; }
         .login-btn { width: 85%; padding: 14px; background: #333; color: #fff; border: none; border-radius: 8px; font-weight: 600; }
 
+        /* SOS Button */
         #sos-btn {
             position: absolute; top: calc(var(--safe-top) + 60px); right: 20px; width: 40px; height: 40px;
             background: #ff3b30; color: white; border-radius: 50%; display: none; justify-content: center; align-items: center;
             font-size: 10px; font-weight: bold; z-index: 999; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
+        /* Header */
         #header { padding: calc(var(--safe-top) + 10px) 15px 10px; border-bottom: 1px solid #262626; display: flex; align-items: center; background: #000; z-index: 10; }
         .profile-area { width: 34px; height: 34px; margin-right: 12px; }
         .profile-pic { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #333; }
         .user-name { font-weight: 600; font-size: 15px; cursor: pointer; }
 
+        /* Messages Area */
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 4px; }
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; position: relative; margin-bottom: 10px; }
+        
+        /* System Message (Nickname Fix) */
+        .sys-msg { align-self: center; color: #8e8e8e; font-size: 11px; margin: 12px 0; text-align: center; width: 100%; font-weight: 500; }
+        .date-sep { align-self: center; font-size: 11px; color: #8e8e8e; margin: 15px 0 8px; }
+
+        /* Chat Bubbles */
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; position: relative; margin-bottom: 6px; }
         .my-wrapper { align-self: flex-end; align-items: flex-end; }
         .their-wrapper { align-self: flex-start; align-items: flex-start; }
         
-        .msg { padding: 9px 15px; border-radius: 20px; font-size: 15px; line-height: 1.3; cursor: pointer; position: relative; }
+        .msg { padding: 9px 15px; border-radius: 20px; font-size: 15px; line-height: 1.3; cursor: pointer; position: relative; word-wrap: break-word; }
         .my-msg { background: linear-gradient(135deg, #b026ff, #0d6efd); border-bottom-right-radius: 4px; }
         .their-msg { background-color: #262626; border-bottom-left-radius: 4px; }
-        .msg img { max-width: 100%; border-radius: 12px; margin-top: 5px; display: block; }
+        .msg img { max-width: 100%; border-radius: 12px; display: block; }
 
-        .reaction-tag { position: absolute; bottom: -12px; font-size: 12px; background: #121212; border: 1px solid #262626; border-radius: 10px; padding: 2px 5px; z-index: 2; }
+        /* Reaction Tags */
+        .reaction-tag { position: absolute; bottom: -10px; font-size: 13px; background: #121212; border: 1px solid #262626; border-radius: 12px; padding: 2px 6px; z-index: 2; }
         .my-wrapper .reaction-tag { right: 5px; }
         .their-wrapper .reaction-tag { left: 5px; }
 
+        /* Time & Seen */
         .time { font-size: 10px; color: #555; margin: 2px 4px; }
-        .seen-status { font-size: 10px; color: #8e8e8e; align-self: flex-end; margin-bottom: 10px; }
+        .seen-status { font-size: 11px; color: #8e8e8e; align-self: flex-end; margin-bottom: 8px; margin-top: -2px; }
         
+        /* Input Area */
         #input-area { padding: 10px 15px calc(var(--safe-bottom) + 15px); background: #000; display: flex; gap: 10px; align-items: center; border-top: 1px solid #262626; }
-        #msg-input { flex: 1; padding: 11px 18px; background: #121212; border: 1px solid #363636; border-radius: 25px; color: #fff; outline: none; }
-        .media-btn { font-size: 28px; color: #0095f6; cursor: pointer; }
-        #send-btn { color: #0095f6; font-weight: 600; background: none; border: none; font-size: 15px; }
+        #msg-input { flex: 1; padding: 11px 18px; background: #121212; border: 1px solid #363636; border-radius: 25px; color: #fff; outline: none; font-size: 15px; }
+        .media-btn { font-size: 28px; color: #0095f6; cursor: pointer; font-weight: 300; margin-bottom: 2px; }
+        #send-btn { color: #0095f6; font-weight: 600; background: none; border: none; font-size: 15px; cursor: pointer; }
 
-        .typing-bubble { font-size: 12px; color: #8e8e8e; padding: 5px 20px; display: none; font-style: italic; }
-        #reaction-picker { display: none; position: fixed; background: #262626; border-radius: 30px; padding: 5px 15px; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); gap: 10px; }
-        .emoji-opt { font-size: 22px; cursor: pointer; }
+        .typing-bubble { font-size: 12px; color: #8e8e8e; padding: 0 20px 8px; display: none; font-style: italic; }
+        #reaction-picker { display: none; position: fixed; background: #262626; border-radius: 30px; padding: 8px 15px; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.6); gap: 12px; }
+        .emoji-opt { font-size: 24px; cursor: pointer; }
         #file-input { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
         <div id="sos-btn" onclick="triggerSOS()">SOS</div>
+        
         <div id="reaction-picker">
-            <span onclick="addReaction('❤️')">❤️</span>
-            <span onclick="addReaction('😂')">😂</span>
-            <span onclick="addReaction('😮')">😮</span>
-            <span onclick="addReaction('😢')">😢</span>
-            <span onclick="addReaction('🔥')">🔥</span>
+            <span class="emoji-opt" onclick="addReaction('❤️')">❤️</span>
+            <span class="emoji-opt" onclick="addReaction('😂')">😂</span>
+            <span class="emoji-opt" onclick="addReaction('😮')">😮</span>
+            <span class="emoji-opt" onclick="addReaction('😢')">😢</span>
+            <span class="emoji-opt" onclick="addReaction('🔥')">🔥</span>
         </div>
 
         <div id="login-screen">
@@ -76,7 +90,7 @@
         <div id="chat-screen" style="display:none; flex-direction:column; height:100%;">
             <div id="header">
                 <div class="profile-area"><img id="header-pfp" class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png"></div>
-                <div class="user-name" onclick="changeNickname()"><span id="display-name">Loading...</span> ✏️</div>
+                <div class="user-name" onclick="changeNickname()"><span id="display-name">Loading...</span> <span style="font-size:12px; color:#8e8e8e;">✏️</span></div>
             </div>
             <div id="messages" onclick="hidePicker()"></div>
             <div id="typing-bubble" class="typing-bubble">typing...</div>
@@ -90,6 +104,7 @@
     </div>
 
     <script>
+        // --- ⚠️ API KEYS PASTE KARNA ⚠️ ---
         const firebaseConfig = {
     apiKey: "AIzaSyBCrx5hqoBFAR9VDNJ4opUBp3hTuL3bGJ4",
     authDomain: "secretspace-ca604.firebaseapp.com",
@@ -99,9 +114,14 @@
     appId: "1:440793813496:web:405615f2dc570b296b460d",
     measurementId: "G-2N4RWH4VK0"
   };
-        const ARNAV_EMAIL = "ak5940962@gmail.com"; const LOVLEEN_EMAIL = "pcw69@secret.com";
-        firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const db = firebase.firestore();
-        let otherUserReadTime = null; let activeMsgId = null;
+        const ARNAV_EMAIL = "ak5940962@gmail.com"; 
+        const LOVLEEN_EMAIL = "pcw69@secret.com";
+        
+        firebase.initializeApp(firebaseConfig); 
+        const auth = firebase.auth(); 
+        const db = firebase.firestore();
+        let otherUserReadTime = null; 
+        let activeMsgId = null;
 
         auth.onAuthStateChanged(user => {
             if (user) {
@@ -121,8 +141,8 @@
             e.stopPropagation(); activeMsgId = msgId;
             const picker = document.getElementById('reaction-picker');
             picker.style.display = 'flex';
-            picker.style.top = (e.clientY - 50) + 'px';
-            picker.style.left = Math.min(e.clientX, window.innerWidth - 180) + 'px';
+            picker.style.top = (e.clientY - 60) + 'px';
+            picker.style.left = Math.min(e.clientX - 50, window.innerWidth - 220) + 'px';
         }
         function hidePicker() { document.getElementById('reaction-picker').style.display = 'none'; }
         function addReaction(emoji) {
@@ -130,7 +150,7 @@
             hidePicker();
         }
 
-        // --- PHOTO LOGIC ---
+        // --- PHOTO UPLOAD LOGIC ---
         function handleFileUpload(input) {
             const file = input.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -138,7 +158,7 @@
                 const img = new Image(); img.src = e.target.result;
                 img.onload = function() {
                     const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
-                    const maxW = 800; const scale = maxW / img.width;
+                    const maxW = 600; const scale = maxW / img.width; // Compressed
                     canvas.width = maxW; canvas.height = img.height * scale;
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     const base64 = canvas.toDataURL('image/jpeg', 0.6);
@@ -148,29 +168,37 @@
             reader.readAsDataURL(file); input.value = "";
         }
 
-        // --- NAMES, SEEN, TYPING ---
+        // --- NICKNAMES LOGIC ---
         function changeNickname() {
-            const n = prompt("Nickname for partner:");
+            const n = prompt("Enter nickname for your partner:");
             if(n) {
-                const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavsView' : 'lovleensView';
-                db.collection('settings').doc('nicknames').set({ [key]: n.trim() }, {merge: true});
+                const myKey = auth.currentUser.email === ARNAV_EMAIL ? 'arnavsView' : 'lovleensView';
+                db.collection('settings').doc('nicknames').set({ [myKey]: n.trim() }, {merge: true});
+                // Send small system message
+                const me = auth.currentUser.email === ARNAV_EMAIL ? "ahrnavsharma" : "lovleenx";
+                db.collection('chats').add({ text: `${me} set the nickname to ${n.trim()}`, type: "system", timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             }
         }
         function loadNicknames() {
             db.collection('settings').doc('nicknames').onSnapshot(doc => {
-                const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavsView' : 'lovleensView';
-                document.getElementById('display-name').innerText = (doc.exists && doc.data()[key]) ? doc.data()[key] : "Partner";
+                const myKey = auth.currentUser.email === ARNAV_EMAIL ? 'arnavsView' : 'lovleensView';
+                document.getElementById('display-name').innerText = (doc.exists && doc.data()[myKey]) ? doc.data()[myKey] : "Partner";
             });
         }
+
+        // --- SEEN LOGIC ---
         function markAsRead() {
+            if(!auth.currentUser) return;
             const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavRead' : 'lovleenRead';
             db.collection('settings').doc('receipts').set({ [key]: firebase.firestore.FieldValue.serverTimestamp() }, {merge: true});
         }
         document.addEventListener('visibilitychange', () => { if (!document.hidden) markAsRead(); });
         function listenToReadReceipts() {
             const other = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenRead' : 'arnavRead';
-            db.collection('settings').doc('receipts').onSnapshot(doc => { if(doc.exists && doc.data()[other]) { otherUserReadTime = doc.data()[other].toDate(); renderMessages(); } });
+            db.collection('settings').doc('receipts').onSnapshot(doc => { if(doc.exists && doc.data()[other]) { otherUserReadTime = doc.data()[other].toDate(); renderMessages(globalMsgs); } });
         }
+
+        // --- TYPING & SENDING ---
         function setTyping(s) { const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavIsTyping' : 'lovleenIsTyping'; db.collection('settings').doc('typing').set({ [key]: s }, {merge: true}); }
         document.getElementById('msg-input').addEventListener('input', () => { setTyping(true); clearTimeout(window.tT); window.tT = setTimeout(()=>setTyping(false), 2000); });
         function listenToTyping() {
@@ -179,41 +207,82 @@
         }
         function sendMessage() {
             const t = document.getElementById('msg-input').value.trim(); if(!t) return;
+            setTyping(false);
             db.collection('chats').add({ text: t, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             document.getElementById('msg-input').value = ""; markAsRead();
         }
 
+        // --- RENDER MESSAGES (Bug Fixed) ---
+        let globalMsgs = [];
         function loadMessages() {
             db.collection('chats').orderBy('timestamp').onSnapshot(snap => {
-                let msgs = []; snap.forEach(doc => { if(doc.data().timestamp) msgs.push({id: doc.id, ...doc.data()}); });
-                renderMessages(msgs);
+                globalMsgs = []; snap.forEach(doc => { if(doc.data().timestamp) globalMsgs.push({id: doc.id, ...doc.data()}); });
+                renderMessages(globalMsgs);
             });
         }
 
         function renderMessages(msgs) {
-            const div = document.getElementById('messages'); div.innerHTML = '';
+            const div = document.getElementById('messages'); 
+            div.innerHTML = ''; 
+            let lastD = "";
+            
             msgs.forEach((m, i) => {
                 const d = m.timestamp.toDate();
-                const isMe = m.sender === auth.currentUser.email;
-                const w = document.createElement('div'); w.className = 'msg-wrapper ' + (isMe ? 'my-wrapper' : 'their-wrapper');
-                const b = document.createElement('div'); b.className = 'msg ' + (isMe ? 'my-msg' : 'their-msg');
-                b.onclick = (e) => showPicker(e, m.id);
+                const dStr = d.toDateString();
                 
-                if(m.type === 'image') b.innerHTML = `<img src="${m.text}">`; else b.innerText = m.text;
-                if(m.reaction) { const r = document.createElement('span'); r.className = 'reaction-tag'; r.innerText = m.reaction; b.appendChild(r); }
+                // Date Separator
+                if (dStr !== lastD) {
+                    const s = document.createElement('div'); s.className = 'date-sep'; 
+                    s.innerText = dStr === new Date().toDateString() ? "Today" : dStr; 
+                    div.appendChild(s); lastD = dStr;
+                }
 
-                const tm = document.createElement('div'); tm.className = 'time'; tm.innerText = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-                w.appendChild(b); w.appendChild(tm); div.appendChild(w);
-                
-                if(isMe && i === msgs.length-1 && otherUserReadTime && otherUserReadTime >= d) {
-                    const s = document.createElement('div'); s.className = 'seen-status'; s.innerText = "Seen"; div.appendChild(s);
+                // FIXED: System Messages (Small & Centered)
+                if (m.type === "system") {
+                    const sysDiv = document.createElement('div'); 
+                    sysDiv.className = 'sys-msg'; 
+                    sysDiv.innerText = m.text; 
+                    div.appendChild(sysDiv);
+                } 
+                // Normal Chat & Images
+                else {
+                    const isMe = m.sender === auth.currentUser.email;
+                    const w = document.createElement('div'); w.className = 'msg-wrapper ' + (isMe ? 'my-wrapper' : 'their-wrapper');
+                    const b = document.createElement('div'); b.className = 'msg ' + (isMe ? 'my-msg' : 'their-msg');
+                    b.onclick = (e) => showPicker(e, m.id); // Tap for reaction
+                    
+                    if(m.type === 'image') {
+                        b.innerHTML = `<img src="${m.text}">`;
+                        b.style.padding = "5px"; // less padding for images
+                    } else {
+                        b.innerText = m.text;
+                    }
+
+                    // Render Reaction
+                    if(m.reaction) { 
+                        const r = document.createElement('span'); r.className = 'reaction-tag'; 
+                        r.innerText = m.reaction; b.appendChild(r); 
+                    }
+
+                    const tm = document.createElement('div'); tm.className = 'time'; 
+                    tm.innerText = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                    
+                    w.appendChild(b); w.appendChild(tm); div.appendChild(w);
+                    
+                    // Render Seen
+                    if(isMe && i === msgs.length-1 && otherUserReadTime && otherUserReadTime >= d) {
+                        const s = document.createElement('div'); s.className = 'seen-status'; 
+                        s.innerText = "Seen"; div.appendChild(s);
+                    }
                 }
             });
             div.scrollTop = div.scrollHeight;
         }
 
+        // Draggable SOS
         const btn = document.getElementById('sos-btn');
         btn.addEventListener('touchmove', (e) => { let t = e.touches[0]; btn.style.left = t.clientX - 20 + 'px'; btn.style.top = t.clientY - 20 + 'px'; btn.style.right = 'auto'; });
+        // Enter to send
         document.getElementById('msg-input').addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
     </script>
 </body>
