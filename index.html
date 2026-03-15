@@ -9,8 +9,8 @@
         * { box-sizing: border-box; font-family: -apple-system, sans-serif; margin: 0; padding: 0; touch-action: manipulation; }
         body { background: #000; color: #fff; height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; position: fixed; width: 100%; }
 
-        /* --- CALCULATOR UI --- */
-        #calc-ui { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; height: 100%; }
+        /* --- FRONT: CALCULATOR UI --- */
+        #calc-ui { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; height: 100%; background: #000; }
         #display { flex: 1; display: flex; align-items: flex-end; justify-content: flex-end; font-size: 65px; padding: 20px; overflow: hidden; }
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
         .btn { height: 75px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
@@ -19,21 +19,34 @@
         .top { background: #a5a5a5; color: black; }
         .zero { grid-column: span 2; border-radius: 40px; }
 
-        /* --- SECRET APP CONTAINER --- */
+        /* --- SECRET APP WRAPPER --- */
         #secret-app { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
 
-        /* --- LOGIN SCREEN --- */
-        #login-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        /* Font-size 16px is MAGIC to stop iPhone zoom */
-        .login-input { width: 85%; padding: 16px; margin-bottom: 12px; background: #1c1c1e; border: 1px solid #333; color: #fff; border-radius: 12px; outline: none; font-size: 16px; }
-        .login-btn { width: 85%; padding: 16px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 16px; }
+        /* --- FLOATING SOS BUTTON --- */
+        #sos-floating { position: fixed; top: calc(var(--safe-top) + 15px); right: 15px; width: 45px; height: 45px; background: rgba(255, 59, 48, 0.9); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; border: 2px solid rgba(255,255,255,0.2); z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; }
 
-        /* --- CHAT UI --- */
-        #chat-ui { display: none; flex-direction: column; height: 100%; }
-        #header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; }
-        .pfp { width: 35px; height: 35px; border-radius: 50%; background: #333; }
-        .name { font-weight: 700; font-size: 16px; flex: 1; }
-        #sos-btn { color: #ff3b30; font-size: 12px; font-weight: bold; border: 1px solid #ff3b30; padding: 4px 8px; border-radius: 5px; }
+        /* --- SCREEN 1: LOGIN --- */
+        #login-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .login-input { width: 85%; padding: 16px; margin-bottom: 12px; background: #1c1c1e; border: 1px solid #333; color: #fff; border-radius: 12px; outline: none; font-size: 16px; }
+        .login-btn { width: 85%; padding: 16px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 16px; margin-top: 10px; }
+
+        /* --- SCREEN 2: DM LIST (INSTA STYLE) --- */
+        #dm-list-ui { display: none; flex-direction: column; height: 100%; width: 100%; padding-top: var(--safe-top); }
+        .dm-header { padding: 15px 20px; font-size: 20px; font-weight: bold; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; }
+        .dm-item { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #111; }
+        .dm-item:active { background: #111; }
+        .dm-pfp { width: 55px; height: 55px; border-radius: 50%; background: #333; margin-right: 15px; object-fit: cover; }
+        .dm-info { flex: 1; display: flex; flex-direction: column; }
+        .dm-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .dm-preview { font-size: 14px; color: #8e8e93; }
+        .dm-dot { width: 10px; height: 10px; background: #007aff; border-radius: 50%; }
+
+        /* --- SCREEN 3: CHAT UI --- */
+        #chat-ui { display: none; flex-direction: column; height: 100%; width: 100%; }
+        #chat-header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; background: #000; z-index: 10; }
+        .back-btn { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding-right: 10px; }
+        .chat-pfp { width: 35px; height: 35px; border-radius: 50%; background: #333; }
+        .chat-name { font-weight: 700; font-size: 16px; flex: 1; }
 
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
         .msg-wrap { display: flex; flex-direction: column; max-width: 80%; }
@@ -45,7 +58,8 @@
         .time { font-size: 10px; color: #8e8e93; margin-top: 5px; }
 
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: #000; }
-        #msg-in { flex: 1; padding: 10px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; outline: none; font-size: 16px; }
+        #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; outline: none; font-size: 16px; }
+        .send-btn { background: none; border: none; color: #3797f0; font-weight: bold; font-size: 16px; padding: 0 10px; }
     </style>
 </head>
 <body>
@@ -63,41 +77,61 @@
     </div>
 
     <div id="secret-app">
+        
+        <div id="sos-floating" onclick="forceLogout()">SOS</div>
+
         <div id="login-screen">
-            <h2 style="font-weight: 200; margin-bottom: 20px;">Membership Login</h2>
+            <h2 style="font-weight: 300; margin-bottom: 30px;">Premium Access</h2>
             <input type="text" id="user" class="login-input" placeholder="ID (123)" inputmode="numeric">
             <input type="password" id="pass" class="login-input" placeholder="PIN (123)" inputmode="numeric">
             <button class="login-btn" onclick="checkLogin()">Enter</button>
-            <p style="margin-top: 30px; color: #444; font-size: 12px;" onclick="location.reload()">Back</p>
+        </div>
+
+        <div id="dm-list-ui">
+            <div class="dm-header">
+                <span>ahrnavsharma</span>
+            </div>
+            <div class="dm-item" onclick="openChat()">
+                <img src="https://ui-avatars.com/api/?name=L&background=random" class="dm-pfp">
+                <div class="dm-info">
+                    <span class="dm-name">lovleenx</span>
+                    <span class="dm-preview">Sent you a message • 1m</span>
+                </div>
+                <div class="dm-dot"></div>
+            </div>
         </div>
 
         <div id="chat-ui">
-            <div id="header">
-                <div class="pfp"></div>
-                <div class="name">lovleenx</div>
-                <div id="sos-btn" onclick="location.reload()">OFF</div>
+            <div id="chat-header">
+                <button class="back-btn" onclick="backToList()">‹</button>
+                <img src="https://ui-avatars.com/api/?name=L&background=random" class="chat-pfp">
+                <div class="chat-name">lovleenx</div>
             </div>
             <div id="messages">
-                <div class="msg-wrap them"><div class="bubble bubble-them">Ab zoom nahi hoga! Mast test kar.</div><div class="time">10:50 PM</div></div>
+                <div class="msg-wrap them"><div class="bubble bubble-them">Checklist poori? DM page aur floating SOS lag gaya!</div><div class="time">11:10 PM</div></div>
             </div>
             <div id="input-bar">
                 <input type="text" id="msg-in" placeholder="Message..." onkeypress="if(event.key==='Enter') send()">
-                <button onclick="send()" style="background:none; border:none; color:#3797f0; font-weight:bold; font-size:16px;">Send</button>
+                <button class="send-btn" onclick="send()">Send</button>
             </div>
         </div>
+
     </div>
 
     <script>
+        // --- 1. CALCULATOR LOGIC ---
         let exp = '0';
         function update() { document.getElementById('display').innerText = exp; }
         function press(v) { if(exp === '0') exp = v; else exp += v; update(); }
         function equal() { try { exp = eval(exp).toString(); update(); } catch { exp = 'Error'; update(); } }
 
+        // --- 2. TRIPLE TAP TRIGGER ---
         let taps = 0; let lastTap = 0;
         function handleAC() {
             let now = Date.now();
             if (now - lastTap < 600) { taps++; } else { taps = 1; }
             lastTap = now;
+            
             if (taps === 3) { 
                 document.getElementById('secret-app').style.display = 'flex';
                 document.getElementById('calc-ui').style.display = 'none';
@@ -106,13 +140,46 @@
             exp = '0'; update();
         }
 
+        // --- 3. LOGIN & NAVIGATION ---
         function checkLogin() {
             if(document.getElementById('user').value === '123' && document.getElementById('pass').value === '123') {
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('chat-ui').style.display = 'flex';
-            } else { alert("Error"); }
+                document.getElementById('dm-list-ui').style.display = 'flex'; // Goes to DM List
+            } else { alert("Error: Wrong Code"); }
         }
 
+        function openChat() {
+            document.getElementById('dm-list-ui').style.display = 'none';
+            document.getElementById('chat-ui').style.display = 'flex';
+        }
+
+        function backToList() {
+            document.getElementById('chat-ui').style.display = 'none';
+            document.getElementById('dm-list-ui').style.display = 'flex';
+        }
+
+        // --- 4. THE FORCE LOGOUT (SOS) ---
+        function forceLogout() {
+            // 1. Clear credentials
+            document.getElementById('user').value = '';
+            document.getElementById('pass').value = '';
+            
+            // 2. Hide all secret screens
+            document.getElementById('secret-app').style.display = 'none';
+            document.getElementById('dm-list-ui').style.display = 'none';
+            document.getElementById('chat-ui').style.display = 'none';
+            
+            // 3. Reset to login screen (for next time)
+            document.getElementById('login-screen').style.display = 'flex';
+            
+            // 4. Show calculator again
+            document.getElementById('calc-ui').style.display = 'flex';
+            
+            // 5. Clear calculator display
+            exp = '0'; update();
+        }
+
+        // --- 5. CHAT MESSAGING ---
         function send() {
             let i = document.getElementById('msg-in'); if(!i.value.trim()) return;
             let m = document.getElementById('messages');
