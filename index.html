@@ -6,8 +6,8 @@
     <title>Scientific Calculator</title>
     
     <script>
-        window.onerror = function(message, source, lineno, colno, error) {
-            alert("Bhai code crash ho gaya!\nLine: " + lineno + "\nError: " + message);
+        window.onerror = function(msg, url, line) {
+            alert("Bhai API Key dalte waqt pakka quote (' ') ya bracket cut gaya hai!\nLine: " + line + "\nError: " + msg);
             return true;
         };
     </script>
@@ -51,30 +51,47 @@
         #chat-ui { display: none; flex-direction: column; height: 100%; width: 100%; background: var(--theme-bg); background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; }
         #chat-header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 10; justify-content: flex-start; }
         .chat-pfp { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
+        
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 18px; background: rgba(0,0,0,0.5); }
         .msg-wrap { display: flex; flex-direction: column; width: 100%; }
         .me { align-items: flex-end; } .them { align-items: flex-start; }
-        .bubble { padding: 10px 16px; border-radius: 22px; font-size: 15px; line-height: 1.4; position: relative; cursor: pointer; max-width: 75%; word-wrap: break-word; overflow-wrap: break-word; word-break: normal; }
+        
+        /* 🚨 ALIGNMENT FIX 🚨 */
+        .bubble { 
+            padding: 10px 16px; 
+            border-radius: 20px; 
+            font-size: 15px; 
+            line-height: 1.4; 
+            position: relative; 
+            cursor: pointer; 
+            max-width: 75%; 
+            white-space: pre-wrap; 
+            word-wrap: break-word; 
+            word-break: normal; 
+        }
         .bubble-me { background: #3797f0; color: #fff; border-bottom-right-radius: 4px; }
         .bubble-them { background: #262626; color: #fff; border-bottom-left-radius: 4px; }
-        .chat-img { max-width: 100%; border-radius: 16px; margin-bottom: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+        
+        /* 🚨 IMAGE FIX 🚨 */
+        .chat-img { max-width: 200px; border-radius: 12px; margin-bottom: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+        
         .msg-footer { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #aaa; margin-top: 6px; }
         .react-badge { position: absolute; bottom: -12px; background: #1c1c1e; border: 1px solid #333; padding: 2px 6px; border-radius: 12px; font-size: 13px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
         .me .react-badge { right: 10px; } .them .react-badge { left: 10px; }
+
         #typing-ind { padding: 5px 15px; font-size: 11px; color: #888; display: none; }
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: rgba(0,0,0,0.9); z-index: 10; align-items: center; }
         #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; font-size: 16px; outline: none; }
 
-        /* --- REACTION TRAY --- */
+        /* REACTION TRAY */
         #react-tray { display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #262626; padding: 15px; border-radius: 20px; flex-direction: column; gap: 12px; z-index: 3000; box-shadow: 0 8px 20px rgba(0,0,0,0.6); min-width: 250px; }
         .emoji-row { display: flex; justify-content: space-between; gap: 10px; }
         .react-emoji { font-size: 26px; cursor: pointer; transition: 0.2s; } .react-emoji:active { transform: scale(1.3); }
         .unsend-btn { background: none; border: none; color: #ff3b30; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; border-top: 1px solid #444; padding-top: 12px; }
 
-        /* --- SETTINGS MODAL --- */
+        /* SETTINGS */
         #settings-ui { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .set-box { width: 90%; background: #1c1c1e; padding: 25px; border-radius: 20px; border: 1px solid #333; text-align: left; }
-        .file-label { color:#aaa; font-size:14px; display:block; margin-bottom:5px; margin-top: 15px; font-weight:bold;}
         .file-upload-btn { width: 100%; padding: 12px; background: #333; color: white; border-radius: 10px; border: none; font-size: 14px; margin-bottom: 5px; }
         .status-badge { color: #4cd964; font-size: 12px; display: block; text-align: center; }
         .delete-chat-btn { width: 100%; padding: 12px; background: rgba(255, 59, 48, 0.2); border: 1px solid #ff3b30; color: #ff3b30; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 25px; }
@@ -127,7 +144,6 @@
                 <div style="font-weight:700; font-size:16px; margin-left:10px; flex:1;" id="chat-partner-name">...</div>
                 <div class="sos-btn" onclick="forceLogout()">SOS</div>
             </div>
-            <div class="search-container" style="background: rgba(0,0,0,0.5);"><input type="text" id="chat-search" class="search-bar" placeholder="🔍 Search messages in chat..." oninput="searchMessages()"></div>
             <div id="messages"></div>
             <div id="input-bar">
                 <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="sendPhoto(event)">
@@ -143,7 +159,6 @@
                     <span class="react-emoji" onclick="setReact('🫠')">🫠</span>
                     <span class="react-emoji" onclick="setReact('🥺')">🥺</span>
                     <span class="react-emoji" onclick="setReact('😂')">😂</span>
-                    <span class="react-emoji" onclick="setReact('😡')">😡</span>
                 </div>
                 <div id="unsend-wrap" style="display:none; text-align:center;"><button class="unsend-btn" onclick="unsendActiveMsg()">🗑️ Unsend Message</button></div>
             </div>
@@ -156,10 +171,6 @@
                 <input type="file" id="set-mypfp-file" style="display:none;" accept="image/*" onchange="checkFile(this, 'status-mypfp')">
                 <button class="file-upload-btn" onclick="document.getElementById('set-mypfp-file').click()">📂 Choose DP from Gallery</button>
                 <span id="status-mypfp" class="status-badge"></span>
-                <label class="file-label">Change Chat Background Theme:</label>
-                <input type="file" id="set-bg-file" style="display:none;" accept="image/*" onchange="checkFile(this, 'status-bg')">
-                <button class="file-upload-btn" onclick="document.getElementById('set-bg-file').click()">🖼️ Choose Theme</button>
-                <span id="status-bg" class="status-badge"></span>
                 <button class="login-btn" onclick="saveSettings()" style="margin-top:20px; background:#3797f0;">Save Settings</button>
                 <button class="delete-chat-btn" onclick="confirmDeleteChat()">🗑️ Clear Entire Chat</button>
                 <p style="margin-top: 20px; color: #aaa; font-size: 14px; cursor:pointer; text-align:center;" onclick="closeSettings()">Cancel</p>
@@ -186,21 +197,15 @@
     </script>
 
     <script>
-        // 👇 YAHAN APNI KEY DAAL (Quotes ' ' mat hatana) 👇
-        const SUPABASE_URL = 'https://qrsgyerhotxwhldmtqec.supabase.co'; 
-        const SUPABASE_KEY = 'sb_publishable__7wlB0gI-_Fz1CsMyl6F6w_Zp-veYlo'; 
+        // 🚨 YAHAN APNI KEY DAAL (Quotes " " mat hatana) 🚨
+        const SUPABASE_URL = "https://qrsgyerhotxwhldmtqec.supabase.co"; 
+        const SUPABASE_KEY = "sb_publishable__7wlB0gI-_Fz1CsMyl6F6w_Zp-veYlo"; 
         
-        let supabase;
-        try {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        } catch(e) {
-            console.error("Supabase load nahi ho raha.");
-        }
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let chatData = [], activeMsgId = null, currentUser = '', partnerUser = '', isChatOpen = false;
 
         async function checkLogin() {
-            if(!supabase) { alert("Backend load nahi hua!"); return; }
             let email = document.getElementById('user-email').value.trim().toLowerCase();
             let pass = document.getElementById('user-pass').value;
             let btn = document.getElementById('login-btn');
@@ -208,13 +213,12 @@
             if(!email || !pass) { alert("Email aur Password daal!"); return; }
             btn.innerText = "Checking...";
 
-            const { data, error } = await supabase.auth.signInWithPassword({ email: email, password: pass });
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
 
             if (error) { alert("Galat Email ya Password!"); btn.innerText = "Enter"; return; }
 
             if (email === "houston@boobie.com") { currentUser = 'ahrnavsharma'; partnerUser = 'lovleenx'; } 
             else if (email === "pcw69@boobie.com") { currentUser = 'lovleenx'; partnerUser = 'ahrnavsharma'; } 
-            else { alert("Unknown User"); btn.innerText = "Enter"; return; }
             
             document.getElementById('my-username-display').innerText = currentUser;
             document.getElementById('partner-username-display').innerText = partnerUser;
@@ -232,88 +236,36 @@
 
         function setupRealtime() {
             supabase.channel('custom-all-channel')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
-                fetchMessages(); 
-                if(!isChatOpen && payload.eventType === 'INSERT' && payload.new.sender !== currentUser) {
-                    document.getElementById('unread-dot').style.display = 'block';
-                }
-            }).subscribe();
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => fetchMessages()).subscribe();
         }
 
         async function sendMsg() {
             let i = document.getElementById('msg-in'); if(!i.value.trim()) return;
-            const msgObj = { text: i.value, sender: currentUser, time: getTime(), react: "", type: "text", seen: false };
-            i.value = ''; document.getElementById('chat-search').value = ''; 
-            await supabase.from('messages').insert([msgObj]);
+            await supabase.from('messages').insert([{ text: i.value, sender: currentUser, time: getTime(), type: "text", seen: false }]);
+            i.value = ''; scrollToBottom();
         }
 
         function sendPhoto(event) {
             const file = event.target.files[0]; if(!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                const img = new Image();
-                img.onload = async function() {
+                const img = new Image(); img.onload = async function() {
                     const canvas = document.createElement('canvas'); const MAX_SIZE = 600; 
-                    let width = img.width; let height = img.height;
-                    if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
-                    else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-                    canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                    const base64Img = canvas.toDataURL('image/jpeg', 0.5); 
-                    await supabase.from('messages').insert([{ text: base64Img, sender: currentUser, time: getTime(), react: "", type: "img", seen: false }]);
+                    let w = img.width, h = img.height;
+                    if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE/w; w = MAX_SIZE; } } else { if (h > MAX_SIZE) { w *= MAX_SIZE/h; h = MAX_SIZE; } }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    await supabase.from('messages').insert([{ text: canvas.toDataURL('image/jpeg', 0.5), sender: currentUser, time: getTime(), type: "img", seen: false }]);
                 }; img.src = e.target.result;
             }; reader.readAsDataURL(file);
         }
 
-        async function unsendActiveMsg() { document.getElementById('react-tray').style.display = 'none'; await supabase.from('messages').delete().eq('id', activeMsgId); }
-        async function setReact(emoji) { document.getElementById('react-tray').style.display = 'none'; await supabase.from('messages').update({ react: emoji }).eq('id', activeMsgId); }
-        async function confirmDeleteChat() { if(confirm("Delete chat?")) { await supabase.from('messages').delete().neq('id', 0); closeSettings(); } }
-        async function markMessagesAsSeen() {
-            const unseenIds = chatData.filter(m => m.sender === partnerUser && !m.seen).map(m => m.id);
-            if(unseenIds.length > 0) await supabase.from('messages').update({ seen: true }).in('id', unseenIds);
-        }
-
-        function openChat() { document.getElementById('dm-list-ui').style.display='none'; document.getElementById('chat-ui').style.display='flex'; document.getElementById('unread-dot').style.display='none'; isChatOpen=true; markMessagesAsSeen(); scrollToBottom(); }
-        function backToList() { document.getElementById('chat-ui').style.display='none'; document.getElementById('dm-list-ui').style.display='flex'; isChatOpen = false; }
-        async function forceLogout() { if(supabase) await supabase.auth.signOut(); location.reload(); }
-
-        function openSettings() { document.getElementById('settings-ui').style.display='flex'; }
-        function closeSettings() { document.getElementById('settings-ui').style.display='none'; }
-        function checkFile(input, statusId) { if(input.files && input.files[0]) document.getElementById(statusId).innerText = "✅ Image Selected"; }
-
-        function compressAndSave(file, storageKey) {
-            if (!file) return; const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image(); img.onload = function() {
-                    const canvas = document.createElement('canvas'); const MAX_SIZE = 800; let width = img.width; let height = img.height;
-                    if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-                    canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                    try { localStorage.setItem(storageKey, canvas.toDataURL('image/jpeg', 0.6)); loadSettings(); } catch(err) { alert("Memory full!"); }
-                }; img.src = e.target.result;
-            }; reader.readAsDataURL(file);
-        }
-
-        function saveSettings() {
-            if(document.getElementById('set-mypfp-file').files[0]) compressAndSave(document.getElementById('set-mypfp-file').files[0], currentUser + '_pfp');
-            if(document.getElementById('set-bg-file').files[0]) compressAndSave(document.getElementById('set-bg-file').files[0], 'chatBg');
-            closeSettings(); document.getElementById('set-mypfp-file').value = ''; document.getElementById('set-bg-file').value = '';
-        }
-
-        function loadSettings() {
-            const partnerPfpData = localStorage.getItem(partnerUser + '_pfp'); const bgData = localStorage.getItem('chatBg');
-            const defaultPartner = `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`;
-            document.getElementById('list-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
-            document.getElementById('chat-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
-            if(bgData) document.documentElement.style.setProperty('--theme-bg', `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${bgData}')`); 
-        }
-
-        function renderMessages(query = '') {
+        function renderMessages() {
             let container = document.getElementById('messages'); container.innerHTML = '';
-            let filtered = chatData.filter(m => m.type === 'text' ? m.text.toLowerCase().includes(query.toLowerCase()) : true);
-            filtered.forEach((m) => {
+            chatData.forEach((m) => {
                 let isMe = m.sender === currentUser; 
                 let content = m.type === 'img' ? `<img src="${m.text}" class="chat-img">` : m.text;
-                let reactHTML = m.react ? `<span class="react-badge">${m.react}</span>` : '';
-                let pfpSrc = !isMe ? (localStorage.getItem(partnerUser + '_pfp') || `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`) : '';
+                let pfpSrc = !isMe ? (localStorage.getItem(partnerUser + '_pfp') || `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}`) : '';
 
                 container.innerHTML += `
                     <div class="msg-wrap ${isMe ? 'me' : 'them'}">
@@ -321,17 +273,41 @@
                             ${!isMe ? `<img src="${pfpSrc}" class="chat-pfp">` : ''}
                             <div style="position:relative;">
                                 <div class="bubble ${isMe ? 'bubble-me' : 'bubble-them'}" style="${m.type === 'img' ? 'background:transparent; padding:0;' : ''}" onclick="openReact(${m.id})">${content}</div>
-                                ${reactHTML}
+                                ${m.react ? `<span class="react-badge">${m.react}</span>` : ''}
                             </div>
                         </div>
                         <div class="msg-footer"><span>${m.time}</span>${isMe && m.seen ? ' • Seen' : ''}</div>
                     </div>`;
             });
-            document.getElementById('last-msg-preview').innerText = chatData.length > 0 ? (chatData[chatData.length - 1].type === 'img' ? "📷 Photo" : chatData[chatData.length - 1].text.substring(0, 20) + "...") : "Tap to view chat...";
             scrollToBottom();
         }
 
-        function searchMessages() { renderMessages(document.getElementById('dm-search').value || document.getElementById('chat-search').value); }
+        async function unsendActiveMsg() { document.getElementById('react-tray').style.display = 'none'; await supabase.from('messages').delete().eq('id', activeMsgId); }
+        async function setReact(emoji) { document.getElementById('react-tray').style.display = 'none'; await supabase.from('messages').update({ react: emoji }).eq('id', activeMsgId); }
+        async function confirmDeleteChat() { if(confirm("Delete chat?")) { await supabase.from('messages').delete().neq('id', 0); closeSettings(); } }
+        function openChat() { document.getElementById('dm-list-ui').style.display='none'; document.getElementById('chat-ui').style.display='flex'; isChatOpen=true; scrollToBottom(); }
+        function backToList() { document.getElementById('chat-ui').style.display='none'; document.getElementById('dm-list-ui').style.display='flex'; isChatOpen = false; }
+        async function forceLogout() { await supabase.auth.signOut(); location.reload(); }
+        function openSettings() { document.getElementById('settings-ui').style.display='flex'; }
+        function closeSettings() { document.getElementById('settings-ui').style.display='none'; }
+        function checkFile(input, id) { if(input.files[0]) document.getElementById(id).innerText = "✅ Picture Selected"; }
+        function compressAndSave(file, key) {
+            const reader = new FileReader(); reader.onload = function(e) {
+                const img = new Image(); img.onload = function() {
+                    const canvas = document.createElement('canvas'); canvas.width = 400; canvas.height = 400;
+                    canvas.getContext('2d').drawImage(img, 0, 0, 400, 400);
+                    localStorage.setItem(key, canvas.toDataURL('image/jpeg', 0.5)); loadSettings();
+                }; img.src = e.target.result;
+            }; reader.readAsDataURL(file);
+        }
+        function saveSettings() {
+            if(document.getElementById('set-mypfp-file').files[0]) compressAndSave(document.getElementById('set-mypfp-file').files[0], currentUser + '_pfp');
+            closeSettings();
+        }
+        function loadSettings() {
+            const bg = localStorage.getItem('chatBg');
+            if(bg) document.documentElement.style.setProperty('--theme-bg', `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${bg}')`);
+        }
         function openReact(id) { activeMsgId = id; let m = chatData.find(x => x.id === id); document.getElementById('unsend-wrap').style.display = (m && m.sender === currentUser) ? 'block' : 'none'; document.getElementById('react-tray').style.display = 'flex'; }
         window.onclick = (e) => { if(!e.target.closest('.bubble') && !e.target.closest('#react-tray')) document.getElementById('react-tray').style.display='none'; }
         function scrollToBottom() { let m = document.getElementById('messages'); m.scrollTop = m.scrollHeight; }
