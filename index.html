@@ -3,61 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Calculator Pro</title>
+    <title>Scientific Calculator Pro</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <style>
-        body { font-family: -apple-system, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 0; overflow: hidden; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 0; overflow: hidden; }
         .container { max-width: 500px; margin: auto; height: 100vh; display: flex; flex-direction: column; position: relative; }
         
-        /* Fake Login Page */
+        /* Decoy Login Page */
         #login-screen { position: absolute; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        #login-screen h1 { font-size: 28px; color: #fff; margin-bottom: 10px; font-weight: 300; }
-        #login-screen p { color: #8e8e8e; margin-bottom: 30px; font-size: 14px; }
-        .login-input { width: 85%; padding: 12px; background: #121212; border: 1px solid #363636; border-radius: 8px; color: #fff; margin-bottom: 15px; outline: none; }
-        .login-btn { width: 85%; padding: 12px; background: #333; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        #login-screen h1 { font-size: 26px; color: #fff; margin-bottom: 10px; font-weight: 300; }
+        #login-screen p { color: #8e8e8e; margin-bottom: 30px; font-size: 13px; text-align: center; }
+        .login-input { width: 85%; padding: 14px; background: #121212; border: 1px solid #363636; border-radius: 8px; color: #fff; margin-bottom: 15px; outline: none; font-size: 16px; }
+        .login-btn { width: 85%; padding: 14px; background: #262626; color: #fff; border: 1px solid #444; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px; }
 
-        /* SOS Movable Button */
+        /* SOS Floating Button */
         #sos-btn {
-            position: absolute; top: 80px; right: 20px; width: 45px; height: 45px;
-            background: rgba(255, 59, 48, 0.7); color: white; border-radius: 50%;
+            position: absolute; top: 80px; right: 20px; width: 42px; height: 42px;
+            background: rgba(255, 59, 48, 0.8); color: white; border-radius: 50%;
             display: none; justify-content: center; align-items: center;
             font-size: 10px; font-weight: bold; z-index: 9999; touch-action: none;
-            box-shadow: 0 0 10px rgba(255, 59, 48, 0.3);
+            box-shadow: 0 0 12px rgba(255, 59, 48, 0.4);
         }
 
-        /* Chat Header */
-        #header { padding: 12px 15px; border-bottom: 1px solid #262626; display: flex; align-items: center; background: #000; z-index: 10; }
-        .profile-pic { width: 35px; height: 35px; border-radius: 50%; background: #262626; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .user-name { font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .edit-icon { font-size: 12px; color: #8e8e8e; }
+        /* IG Style Header */
+        #header { padding: 12px 15px; border-bottom: 1px solid #262626; display: flex; align-items: center; background: #000; }
+        .profile-pic { width: 34px; height: 34px; border-radius: 50%; background: #333; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .user-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
 
-        /* Messages */
-        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 6px; }
-        
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 75%; }
+        /* Message Area */
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 4px; }
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 75%; margin-bottom: 4px; }
         .my-wrapper { align-self: flex-end; align-items: flex-end; }
         .their-wrapper { align-self: flex-start; align-items: flex-start; }
         
-        .msg { padding: 10px 16px; border-radius: 20px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
+        .msg { padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.3; word-wrap: break-word; }
         .my-msg { background: linear-gradient(135deg, #b026ff, #0d6efd); border-bottom-right-radius: 4px; }
         .their-msg { background-color: #262626; border-bottom-left-radius: 4px; }
         
-        .msg-time { font-size: 10px; color: #777; margin-top: 2px; padding: 0 4px; }
-        .date-separator { align-self: center; font-size: 11px; color: #8e8e8e; margin: 15px 0 5px 0; font-weight: 500; }
-        .sys-msg { align-self: center; background: transparent; color: #8e8e8e; font-size: 12px; padding: 5px; text-align: center; max-width: 90%; }
-        .seen-status { font-size: 11px; color: #8e8e8e; align-self: flex-end; margin-top: 2px; margin-bottom: 8px; padding-right: 5px; }
+        .msg-time { font-size: 10px; color: #666; margin-top: 2px; }
+        .date-separator { align-self: center; font-size: 11px; color: #8e8e8e; margin: 15px 0 8px; font-weight: 500; }
+        .sys-msg { align-self: center; color: #8e8e8e; font-size: 11px; padding: 10px; text-align: center; }
+        .seen-status { font-size: 11px; color: #8e8e8e; align-self: flex-end; margin-bottom: 10px; padding-right: 4px; }
 
-        /* Typing Indicator Area */
-        #typing-indicator { display: none; font-size: 12px; color: #8e8e8e; padding: 0 15px 8px 15px; font-style: italic; background: #000; }
-
-        /* Input area */
+        /* Typing & Input */
+        #typing-indicator { display: none; font-size: 12px; color: #8e8e8e; padding: 0 20px 8px; font-style: italic; }
         #input-area { padding: 10px 15px 30px; background: #000; display: flex; gap: 10px; align-items: center; border-top: 1px solid #262626; }
-        #msg-input { flex: 1; padding: 12px 18px; background: #121212; border: 1px solid #363636; border-radius: 25px; color: #fff; outline: none; }
-        #send-btn { color: #0095f6; font-weight: 600; background: none; border: none; font-size: 15px; cursor: pointer; }
+        #msg-input { flex: 1; padding: 10px 16px; background: #121212; border: 1px solid #363636; border-radius: 22px; color: #fff; outline: none; font-size: 15px; }
+        #send-btn { color: #0095f6; font-weight: 600; background: none; border: none; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -67,16 +63,16 @@
 
         <div id="login-screen">
             <h1>Scientific Calculator</h1>
-            <p>Enter your cloud credentials to sync data</p>
-            <input type="text" id="email" class="login-input" placeholder="User ID">
+            <p>Enter Access Credentials to Sync Cloud Data</p>
+            <input type="email" id="email" class="login-input" placeholder="User ID" autocapitalize="none">
             <input type="password" id="password" class="login-input" placeholder="Access Code">
-            <button class="login-btn" onclick="login()">Open Database</button>
+            <button class="login-btn" onclick="login()">Sync Database</button>
         </div>
 
         <div id="chat-screen" style="display:none; flex-direction:column; height:100%;">
             <div id="header" onclick="changeName()">
                 <div class="profile-pic">👤</div>
-                <div class="user-name"><span id="display-name">Loading...</span> <span class="edit-icon">✏️</span></div>
+                <div class="user-name"><span id="display-name">Loading...</span> ✏️</div>
             </div>
             <div id="messages"></div>
             <div id="typing-indicator">typing...</div>
@@ -88,7 +84,7 @@
     </div>
 
     <script>
-        // --- ⚠️ 1. APNI KEYS YAHAN PASTE KARNA ⚠️ ---
+        // --- ⚠️ 1. FIREBASE KEYS YAHAN PASTE KARO ⚠️ ---
         const firebaseConfig = {
     apiKey: "AIzaSyBCrx5hqoBFAR9VDNJ4opUBp3hTuL3bGJ4",
     authDomain: "secretspace-ca604.firebaseapp.com",
@@ -98,9 +94,9 @@
     appId: "1:440793813496:web:405615f2dc570b296b460d",
     measurementId: "G-2N4RWH4VK0"
   };
-        };
 
-        // --- ⚠️ 2. APNE FAKE EMAILS YAHAN DAALNA ⚠️ ---
+
+        // --- ⚠️ 2. EMAILS SET HAIN (DON'T CHANGE) ⚠️ ---
         const ARNAV_EMAIL = "ak5940962@gmail.com";      
         const LOVLEEN_EMAIL = "pcw69@secret.com";  
 
@@ -128,179 +124,108 @@
         });
 
         function login() {
-            auth.signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value)
-                .catch(e => alert("System Error: Access Denied"));
+            const e = document.getElementById('email').value.trim().toLowerCase();
+            const p = document.getElementById('password').value;
+            auth.signInWithEmailAndPassword(e, p).catch(err => alert("System Error: Access Denied"));
         }
 
         function triggerSOS() {
-            auth.signOut().then(() => {
-                window.location.replace("https://www.google.com/search?q=calculator");
-            });
+            auth.signOut().then(() => { window.location.replace("https://www.google.com/search?q=calculator"); });
         }
 
-        // --- Typing Logic (Smart Debounce) ---
-        function setTypingStatus(isTyping) {
+        function setTypingStatus(status) {
             if(!auth.currentUser) return;
-            const myTypingKey = auth.currentUser.email === ARNAV_EMAIL ? 'arnavIsTyping' : 'lovleenIsTyping';
-            db.collection('settings').doc('typing').set({ [myTypingKey]: isTyping }, {merge: true});
+            const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavIsTyping' : 'lovleenIsTyping';
+            db.collection('settings').doc('typing').set({ [key]: status }, {merge: true});
         }
 
         document.getElementById('msg-input').addEventListener('input', () => {
-            if (!typingTimer) {
-                setTypingStatus(true); // Pehla letter dabte hi signal bhejo
-            }
+            if (!typingTimer) setTypingStatus(true);
             clearTimeout(typingTimer);
-            typingTimer = setTimeout(() => {
-                setTypingStatus(false); // 3 second band hone par typing hata do
-                typingTimer = null;
-            }, 3000);
+            typingTimer = setTimeout(() => { setTypingStatus(false); typingTimer = null; }, 3000);
         });
 
         function listenToTyping() {
-            const otherTypingKey = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenIsTyping' : 'arnavIsTyping';
+            const otherKey = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenIsTyping' : 'arnavIsTyping';
             db.collection('settings').doc('typing').onSnapshot(doc => {
-                if(doc.exists && doc.data()[otherTypingKey]) {
-                    document.getElementById('typing-indicator').style.display = 'block';
-                } else {
-                    document.getElementById('typing-indicator').style.display = 'none';
-                }
+                if(doc.exists && doc.data()[otherKey]) document.getElementById('typing-indicator').style.display = 'block';
+                else document.getElementById('typing-indicator').style.display = 'none';
             });
         }
-        // ------------------------------------
 
-        // Rest of the normal functions
-        function formatDate(date) {
-            const today = new Date();
-            const yesterday = new Date(today);
-            yesterday.setDate(yesterday.getDate() - 1);
-            if (date.toDateString() === today.toDateString()) return "Today";
-            if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
-            return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        function formatDate(d) {
+            const now = new Date();
+            if (d.toDateString() === now.toDateString()) return "Today";
+            const yest = new Date(now); yest.setDate(yest.getDate() - 1);
+            if (d.toDateString() === yest.toDateString()) return "Yesterday";
+            return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
         }
 
-        function formatTime(date) { return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }); }
-        
-        function timeAgo(date) {
-            const seconds = Math.floor((new Date() - date) / 1000);
-            if (seconds < 60) return "just now";
-            const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return `${minutes}m ago`;
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `${hours}h ago`;
-            return `${Math.floor(hours / 24)}d ago`;
-        }
-
-        function getFixedName() {
-            if(auth.currentUser.email === ARNAV_EMAIL) return "ahrnavsharma";
-            if(auth.currentUser.email === LOVLEEN_EMAIL) return "lovleenx";
-            return "Someone";
-        }
+        function formatTime(d) { return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }); }
 
         function changeName() {
-            const newName = prompt("Enter new nickname for this chat:");
-            if(newName && newName.trim() !== "") {
-                const fixedName = getFixedName();
-                db.collection('settings').doc('chatInfo').set({ chatName: newName.trim() }, {merge: true});
-                db.collection('chats').add({
-                    text: `${fixedName} set the name to ${newName.trim()}`, type: "system", timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
+            const n = prompt("Enter nickname:");
+            if(n) {
+                const me = auth.currentUser.email === ARNAV_EMAIL ? "ahrnavsharma" : "lovleenx";
+                db.collection('settings').doc('chatInfo').set({ chatName: n }, {merge: true});
+                db.collection('chats').add({ text: `${me} set name to ${n}`, type: "system", timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             }
         }
 
         function loadChatName() {
             db.collection('settings').doc('chatInfo').onSnapshot(doc => {
-                if(doc.exists && doc.data().chatName) document.getElementById('display-name').innerText = doc.data().chatName;
-                else document.getElementById('display-name').innerText = "Tap to set name";
+                document.getElementById('display-name').innerText = (doc.exists && doc.data().chatName) ? doc.data().chatName : "Chat Space";
             });
         }
 
         function markAsRead() {
             if(!auth.currentUser) return;
-            const myKey = auth.currentUser.email === ARNAV_EMAIL ? 'arnavRead' : 'lovleenRead';
-            db.collection('settings').doc('receipts').set({ [myKey]: firebase.firestore.FieldValue.serverTimestamp() }, {merge: true});
+            const key = auth.currentUser.email === ARNAV_EMAIL ? 'arnavRead' : 'lovleenRead';
+            db.collection('settings').doc('receipts').set({ [key]: firebase.firestore.FieldValue.serverTimestamp() }, {merge: true});
         }
 
         function listenToReadReceipts() {
             const otherKey = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenRead' : 'arnavRead';
             db.collection('settings').doc('receipts').onSnapshot(doc => {
-                if(doc.exists && doc.data()[otherKey]) {
-                    otherUserReadTime = doc.data()[otherKey].toDate();
-                    renderMessages();
-                }
+                if(doc.exists && doc.data()[otherKey]) { otherUserReadTime = doc.data()[otherKey].toDate(); renderMessages(); }
             });
         }
 
         function sendMessage() {
-            const text = document.getElementById('msg-input').value;
-            if(!text.trim()) return;
-            
-            // Message send karte hi typing status band kar do
+            const t = document.getElementById('msg-input').value.trim();
+            if(!t) return;
             setTypingStatus(false);
-            clearTimeout(typingTimer);
-            typingTimer = null;
-
-            db.collection('chats').add({
-                text: text, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            db.collection('chats').add({ text: t, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             document.getElementById('msg-input').value = "";
             markAsRead();
         }
 
-        let globalMessages = [];
+        let globalMsgs = [];
         function loadMessages() {
             db.collection('chats').orderBy('timestamp').onSnapshot(snap => {
-                globalMessages = [];
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    if(data.timestamp) globalMessages.push({ id: doc.id, ...data });
-                });
+                globalMsgs = []; snap.forEach(doc => { if(doc.data().timestamp) globalMsgs.push(doc.data()); });
                 renderMessages();
             });
         }
 
         function renderMessages() {
-            const div = document.getElementById('messages');
-            div.innerHTML = '';
-            let lastDate = "";
-            let lastMyMsgIndex = -1;
-
-            for(let i = globalMessages.length - 1; i >= 0; i--) {
-                if(globalMessages[i].type === "msg" && globalMessages[i].sender === auth.currentUser.email) {
-                    lastMyMsgIndex = i; break;
+            const div = document.getElementById('messages'); div.innerHTML = '';
+            let lastD = "";
+            globalMsgs.forEach((m, i) => {
+                const d = m.timestamp.toDate();
+                if (formatDate(d) !== lastD) {
+                    const s = document.createElement('div'); s.className = 'date-separator'; s.innerText = formatDate(d); div.appendChild(s); lastD = formatDate(d);
                 }
-            }
-
-            globalMessages.forEach((m, index) => {
-                const msgDateObj = m.timestamp.toDate();
-                const currentDateStr = formatDate(msgDateObj);
-                
-                if (currentDateStr !== lastDate) {
-                    const dateSep = document.createElement('div');
-                    dateSep.className = 'date-separator'; dateSep.innerText = currentDateStr;
-                    div.appendChild(dateSep); lastDate = currentDateStr;
-                }
-
                 if (m.type === "system") {
-                    const el = document.createElement('div');
-                    el.className = 'sys-msg'; el.innerText = m.text; div.appendChild(el);
+                    const e = document.createElement('div'); e.className = 'sys-msg'; e.innerText = m.text; div.appendChild(e);
                 } else {
                     const isMe = m.sender === auth.currentUser.email;
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'msg-wrapper ' + (isMe ? 'my-wrapper' : 'their-wrapper');
-                    
-                    const bubble = document.createElement('div');
-                    bubble.className = 'msg ' + (isMe ? 'my-msg' : 'their-msg'); bubble.innerText = m.text;
-                    wrapper.appendChild(bubble);
-
-                    const timeStamp = document.createElement('div');
-                    timeStamp.className = 'msg-time'; timeStamp.innerText = formatTime(msgDateObj);
-                    wrapper.appendChild(timeStamp);
-                    div.appendChild(wrapper);
-
-                    if(isMe && index === lastMyMsgIndex && otherUserReadTime && otherUserReadTime >= msgDateObj) {
-                        const seenText = document.createElement('div');
-                        seenText.className = 'seen-status'; seenText.innerText = "Seen " + timeAgo(otherUserReadTime);
-                        div.appendChild(seenText);
+                    const w = document.createElement('div'); w.className = 'msg-wrapper ' + (isMe ? 'my-wrapper' : 'their-wrapper');
+                    const b = document.createElement('div'); b.className = 'msg ' + (isMe ? 'my-msg' : 'their-msg'); b.innerText = m.text;
+                    const t = document.createElement('div'); t.className = 'msg-time'; t.innerText = formatTime(d);
+                    w.appendChild(b); w.appendChild(t); div.appendChild(w);
+                    if(isMe && i === globalMsgs.length-1 && otherUserReadTime && otherUserReadTime >= d) {
+                        const sText = document.createElement('div'); sText.className = 'seen-status'; sText.innerText = "Seen just now"; div.appendChild(sText);
                     }
                 }
             });
@@ -309,17 +234,10 @@
 
         const btn = document.getElementById('sos-btn');
         btn.addEventListener('touchmove', (e) => {
-            let touch = e.touches[0];
-            btn.style.left = touch.clientX - 22 + 'px'; btn.style.top = touch.clientY - 22 + 'px'; btn.style.right = 'auto';
+            let t = e.touches[0]; btn.style.left = t.clientX - 22 + 'px'; btn.style.top = t.clientY - 22 + 'px'; btn.style.right = 'auto';
         });
 
-        // Enter press karne par message send ho
-        document.getElementById('msg-input').addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                sendMessage();
-            }
-        });
+        document.getElementById('msg-input').addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
     </script>
 </body>
 </html>
