@@ -4,36 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
     <title>Scientific Calculator</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
         :root { --safe-top: env(safe-area-inset-top, 20px); --safe-bottom: env(safe-area-inset-bottom, 20px); --theme-bg: #000; }
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; touch-action: manipulation; }
         body { background: #000; color: #fff; height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; position: fixed; width: 100%; }
 
-        /* --- 1. CALCULATOR (THE MASK) --- */
+        /* --- CALCULATOR FRONT --- */
         #calc-ui { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; height: 100%; background: #000; z-index: 10; }
         #display { flex: 1; display: flex; align-items: flex-end; justify-content: flex-end; font-size: 65px; padding: 20px; overflow: hidden; }
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
         .btn { height: 75px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
         .num { background: #333; color: white; } .op { background: #f1a33c; color: white; } .top { background: #a5a5a5; color: black; } .zero { grid-column: span 2; border-radius: 40px; }
 
-        /* --- 2. SECRET APP CONTAINER --- */
+        /* --- SECRET APP --- */
         #secret-app { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
-        
         .sos-btn { width: 45px; height: 45px; background: rgba(255, 59, 48, 0.9); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 2000; }
 
-        /* --- A. LOGIN SCREEN --- */
+        /* --- LOGIN SCREEN --- */
         #login-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .input-box { width: 85%; padding: 16px; margin-bottom: 12px; background: #1c1c1e; border: 1px solid #333; color: #fff; border-radius: 12px; font-size: 16px; outline: none; }
-        select.input-box { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="white" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 15px center; }
         .login-btn { width: 85%; padding: 16px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 16px; margin-top: 10px; cursor: pointer; }
 
-        /* --- B. DM LIST (INSTA DM STYLE) --- */
+        /* --- DM LIST --- */
         #dm-list-ui { display: none; flex-direction: column; height: 100%; width: 100%; padding-top: var(--safe-top); }
         .dm-header { padding: 15px 20px; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; position: relative; }
-        .header-info-group { flex: 1; }
         .header-name { font-weight: 700; font-size: 20px; margin-bottom: 5px; }
-        .header-btns-group { display: flex; gap: 10px; align-items: center; }
-
         .settings-btn { background: #1c1c1e; border: 1px solid #333; color: white; padding: 8px 15px; border-radius: 15px; font-size: 14px; cursor: pointer; }
 
         .search-container { padding: 10px 15px; border-bottom: 1px solid #111; z-index: 9; background: rgba(0,0,0,0.9); }
@@ -42,64 +40,42 @@
         .dm-item { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #111; }
         .dm-pfp { width: 55px; height: 55px; border-radius: 50%; background: #333; margin-right: 15px; object-fit: cover; }
         .dm-preview { font-size: 14px; color: #8e8e93; margin-top: 4px; }
-        .dm-dot { width: 10px; height: 10px; background: #007aff; border-radius: 50%; }
+        .dm-dot { width: 10px; height: 10px; background: #007aff; border-radius: 50%; display: none; }
 
-        /* --- C. CHAT UI --- */
+        /* --- CHAT UI --- */
         #chat-ui { display: none; flex-direction: column; height: 100%; width: 100%; background: var(--theme-bg); background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; }
         #chat-header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 10; justify-content: flex-start; }
         .chat-pfp { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
         
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 18px; background: rgba(0,0,0,0.5); }
         .msg-wrap { display: flex; flex-direction: column; width: 100%; }
+        .me { align-items: flex-end; } .them { align-items: flex-start; }
         
-        /* Flex Alignments */
-        .me { align-items: flex-end; }
-        .them { align-items: flex-start; }
-        
-        /* FIXED: Word-wrap & Break issues */
-        .bubble { 
-            padding: 10px 16px; 
-            border-radius: 22px; 
-            font-size: 15px; 
-            line-height: 1.4; 
-            position: relative; 
-            cursor: pointer; 
-            max-width: 75%; 
-            word-wrap: break-word; 
-            overflow-wrap: break-word; 
-            word-break: normal; /* This stops mid-word breaking! */
-        }
+        .bubble { padding: 10px 16px; border-radius: 22px; font-size: 15px; line-height: 1.4; position: relative; cursor: pointer; max-width: 75%; word-wrap: break-word; overflow-wrap: break-word; word-break: normal; }
         .bubble-me { background: #3797f0; color: #fff; border-bottom-right-radius: 4px; }
         .bubble-them { background: #262626; color: #fff; border-bottom-left-radius: 4px; }
         
         .chat-img { max-width: 100%; border-radius: 16px; margin-bottom: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
-        
         .msg-footer { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #aaa; margin-top: 6px; }
         
-        /* Reaction Badge CSS */
         .react-badge { position: absolute; bottom: -12px; background: #1c1c1e; border: 1px solid #333; padding: 2px 6px; border-radius: 12px; font-size: 13px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
         .me .react-badge { right: 10px; } .them .react-badge { left: 10px; }
 
-        /* FIXED: Typing indicator size */
-        #typing-ind { padding: 5px 15px; font-size: 11px; color: #888; display: none; }
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: rgba(0,0,0,0.9); z-index: 10; align-items: center; }
         #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; font-size: 16px; outline: none; }
 
-        /* --- REACTION TRAY + UNSEND --- */
+        /* --- REACTION TRAY --- */
         #react-tray { display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #262626; padding: 15px; border-radius: 20px; flex-direction: column; gap: 12px; z-index: 3000; box-shadow: 0 8px 20px rgba(0,0,0,0.6); min-width: 250px; }
         .emoji-row { display: flex; justify-content: space-between; gap: 10px; }
         .react-emoji { font-size: 26px; cursor: pointer; transition: 0.2s; } .react-emoji:active { transform: scale(1.3); }
-        .unsend-container { border-top: 1px solid #444; padding-top: 12px; text-align: center; display: none; }
-        .unsend-btn { background: none; border: none; color: #ff3b30; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; }
+        .unsend-btn { background: none; border: none; color: #ff3b30; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; border-top: 1px solid #444; padding-top: 12px; }
 
-        /* --- D. SETTINGS MODAL --- */
+        /* --- SETTINGS MODAL --- */
         #settings-ui { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .set-box { width: 90%; background: #1c1c1e; padding: 25px; border-radius: 20px; border: 1px solid #333; text-align: left; }
         .file-label { color:#aaa; font-size:14px; display:block; margin-bottom:5px; margin-top: 15px; font-weight:bold;}
         .file-upload-btn { width: 100%; padding: 12px; background: #333; color: white; border-radius: 10px; border: none; font-size: 14px; margin-bottom: 5px; }
         .status-badge { color: #4cd964; font-size: 12px; display: block; text-align: center; }
-        
-        /* NEW: Delete Chat Button */
         .delete-chat-btn { width: 100%; padding: 12px; background: rgba(255, 59, 48, 0.2); border: 1px solid #ff3b30; color: #ff3b30; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 25px; }
     </style>
 </head>
@@ -119,39 +95,31 @@
     <div id="secret-app">
         <div id="login-screen">
             <h2 style="font-weight: 200; margin-bottom: 20px;">Premium Access</h2>
-            
-            <select id="user-role" class="input-box">
-                <option value="ahrnav">I am Ahrnav</option>
-                <option value="lovleen">I am Lovleen</option>
-            </select>
-
-            <input type="text" id="user" class="input-box" placeholder="Membership ID (123)" inputmode="numeric">
-            <input type="password" id="pass" class="input-box" placeholder="Access PIN (123)" inputmode="numeric">
-            <button class="login-btn" onclick="checkLogin()">Enter</button>
+            <input type="email" id="user-email" class="input-box" placeholder="Email Address">
+            <input type="password" id="user-pass" class="input-box" placeholder="Password">
+            <button class="login-btn" id="login-btn" onclick="checkLogin()">Enter</button>
         </div>
 
         <div id="dm-list-ui">
             <div class="dm-header">
                 <div class="header-info-group">
-                    <div class="header-name" id="my-username-display">ahrnavsharma</div>
+                    <div class="header-name" id="my-username-display">Loading...</div>
                 </div>
-                <div class="header-btns-group">
+                <div style="display:flex; gap:10px;">
                     <button class="settings-btn" onclick="openSettings()">⚙️ Settings</button>
                     <div class="sos-btn" onclick="forceLogout()">SOS</div>
                 </div>
             </div>
-            
             <div class="search-container">
                 <input type="text" id="dm-search" class="search-bar" placeholder="🔍 Search messages..." oninput="searchMessages()">
             </div>
-
             <div class="dm-item" onclick="openChat()">
                 <img id="list-pfp" src="" class="dm-pfp">
                 <div style="flex:1;">
-                    <div class="dm-name" id="partner-username-display">lovleenx</div>
+                    <div class="dm-name" id="partner-username-display">...</div>
                     <div class="dm-preview" id="last-msg-preview">Tap to view chat...</div>
                 </div>
-                <div class="dm-dot"></div>
+                <div class="dm-dot" id="unread-dot"></div>
             </div>
         </div>
 
@@ -159,17 +127,13 @@
             <div id="chat-header">
                 <button onclick="backToList()" style="background:none; border:none; color:#fff; font-size:26px; padding-right:10px; cursor:pointer;">‹</button>
                 <img id="chat-pfp" src="" class="chat-pfp">
-                <div style="font-weight:700; font-size:16px; margin-left:10px; flex:1;" id="chat-partner-name">lovleenx</div>
+                <div style="font-weight:700; font-size:16px; margin-left:10px; flex:1;" id="chat-partner-name">...</div>
                 <div class="sos-btn" onclick="forceLogout()">SOS</div>
             </div>
-            
             <div class="search-container" style="background: rgba(0,0,0,0.5);">
                 <input type="text" id="chat-search" class="search-bar" placeholder="🔍 Search messages in chat..." oninput="searchMessages()">
             </div>
-            
             <div id="messages"></div>
-            <div id="typing-ind">Partner is typing...</div>
-
             <div id="input-bar">
                 <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="sendPhoto(event)">
                 <button onclick="document.getElementById('file-input').click()" style="background:none; border:none; font-size:24px; cursor:pointer;">📷</button>
@@ -186,7 +150,7 @@
                     <span class="react-emoji" onclick="setReact('😂')">😂</span>
                     <span class="react-emoji" onclick="setReact('😡')">😡</span>
                 </div>
-                <div id="unsend-wrap" class="unsend-container">
+                <div id="unsend-wrap" style="display:none; text-align:center;">
                     <button class="unsend-btn" onclick="unsendActiveMsg()">🗑️ Unsend Message</button>
                 </div>
             </div>
@@ -195,7 +159,6 @@
         <div id="settings-ui">
             <div class="set-box">
                 <h3 style="margin-bottom:15px; text-align:center;">App Settings</h3>
-                
                 <label class="file-label">Change My Display Picture:</label>
                 <input type="file" id="set-mypfp-file" style="display:none;" accept="image/*" onchange="checkFile(this, 'status-mypfp')">
                 <button class="file-upload-btn" onclick="document.getElementById('set-mypfp-file').click()">📂 Choose DP from Gallery</button>
@@ -207,25 +170,28 @@
                 <span id="status-bg" class="status-badge"></span>
                 
                 <button class="login-btn" onclick="saveSettings()" style="margin-top:20px; background:#3797f0;">Save Settings</button>
-                
                 <button class="delete-chat-btn" onclick="confirmDeleteChat()">🗑️ Clear Entire Chat</button>
-
                 <p style="margin-top: 20px; color: #aaa; font-size: 14px; cursor:pointer; text-align:center;" onclick="closeSettings()">Cancel</p>
             </div>
         </div>
-
     </div>
 
     <script>
-        let chatData = [
-            { id: 1, text: "Hii baby! Ab check kar alignment.", sender: "lovleenx", time: "11:00 PM", react: "", type: "text", seen: true },
-            { id: 2, text: "Word break bhi theek kar diya.", sender: "ahrnavsharma", time: "11:02 PM", react: "🥰", type: "text", seen: true }
-        ];
-        let activeMsgId = null;
-        let currentUser = 'ahrnavsharma';
-        let partnerUser = 'lovleenx';
+        // ==========================================
+        // 🚨 1. SUPABASE CREDENTIALS YAHAN DAAL 🚨
+        // ==========================================
+        const SUPABASE_URL = 'https://qrsgyerhotxwhldmtqec.supabase.co'; 
+        const SUPABASE_KEY = 'sb_publishable__7wlB0gI-_Fz1CsMyl6F6w_Zp-veYlo; // <--- APNI ANON KEY YAHAN DAAL (Ye safe hai!)
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- 1. CALCULATOR LOGIC ---
+        let chatData = [];
+        let activeMsgId = null;
+        let currentUser = '';
+        let partnerUser = '';
+        let isChatOpen = false;
+
+        // --- CALCULATOR LOGIC ---
         let exp = '0'; let taps = 0; let lastTap = 0;
         function update() { document.getElementById('display').innerText = exp; }
         function press(v) { if(exp === '0') exp = v; else exp += v; update(); }
@@ -239,45 +205,148 @@
             exp = '0'; update();
         }
 
-        // --- 2. LOGIN ---
-        function checkLogin() {
-            if(document.getElementById('user').value === '123' && document.getElementById('pass').value === '123') {
-                let selectedRole = document.getElementById('user-role').value;
-                if(selectedRole === 'ahrnav') { currentUser = 'ahrnavsharma'; partnerUser = 'lovleenx'; } 
-                else { currentUser = 'lovleenx'; partnerUser = 'ahrnavsharma'; }
-                
-                document.getElementById('my-username-display').innerText = currentUser;
-                document.getElementById('partner-username-display').innerText = partnerUser;
-                document.getElementById('chat-partner-name').innerText = partnerUser;
+        // ==========================================
+        // 🚨 2. LOGIN (Seedha Database Se) 🚨
+        // ==========================================
+        async function checkLogin() {
+            let email = document.getElementById('user-email').value.trim().toLowerCase();
+            let pass = document.getElementById('user-pass').value;
+            let btn = document.getElementById('login-btn');
 
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('dm-list-ui').style.display = 'flex';
-                loadSettings(); renderMessages();
-            } else alert("Invalid Code");
+            if(!email || !pass) { alert("Email aur Password daal!"); return; }
+
+            btn.innerText = "Checking...";
+
+            // Asli Supabase auth, bina password hardcode kiye
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: pass
+            });
+
+            if (error) {
+                alert("Galat Email ya Password! Phir se try kar.");
+                btn.innerText = "Enter";
+                return;
+            }
+
+            // Emails se username decide karna
+            if (email === "houston@boobie.com") {
+                currentUser = 'ahrnavsharma';
+                partnerUser = 'lovleenx';
+            } else if (email === "pcw69@boobie.com") {
+                currentUser = 'lovleenx';
+                partnerUser = 'ahrnavsharma';
+            } else {
+                alert("Unrecognized User");
+                btn.innerText = "Enter";
+                return;
+            }
+            
+            document.getElementById('my-username-display').innerText = currentUser;
+            document.getElementById('partner-username-display').innerText = partnerUser;
+            document.getElementById('chat-partner-name').innerText = partnerUser;
+
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dm-list-ui').style.display = 'flex';
+            
+            loadSettings(); 
+            fetchMessages(); 
+            setupRealtime(); 
+            btn.innerText = "Enter";
         }
-        function openChat() { document.getElementById('dm-list-ui').style.display='none'; document.getElementById('chat-ui').style.display='flex'; scrollToBottom(); }
-        function backToList() { document.getElementById('chat-ui').style.display='none'; document.getElementById('dm-list-ui').style.display='flex'; }
+
+        // --- DATABASE LOGIC ---
+        async function fetchMessages() {
+            const { data, error } = await supabase.from('messages').select('*').order('created_at', { ascending: true });
+            if (data) { chatData = data; renderMessages(); }
+        }
+
+        function setupRealtime() {
+            supabase.channel('custom-all-channel')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
+                fetchMessages(); 
+                if(!isChatOpen && payload.eventType === 'INSERT' && payload.new.sender !== currentUser) {
+                    document.getElementById('unread-dot').style.display = 'block';
+                }
+            })
+            .subscribe();
+        }
+
+        async function sendMsg() {
+            let i = document.getElementById('msg-in'); if(!i.value.trim()) return;
+            const msgObj = { text: i.value, sender: currentUser, time: getTime(), react: "", type: "text", seen: false };
+            i.value = ''; document.getElementById('chat-search').value = ''; 
+            await supabase.from('messages').insert([msgObj]);
+        }
+
+        function sendPhoto(event) {
+            const file = event.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = async function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 600; 
+                    let width = img.width; let height = img.height;
+                    if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+                    else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const base64Img = canvas.toDataURL('image/jpeg', 0.5); 
+                    
+                    const msgObj = { text: base64Img, sender: currentUser, time: getTime(), react: "", type: "img", seen: false };
+                    await supabase.from('messages').insert([msgObj]);
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        async function unsendActiveMsg() {
+            document.getElementById('react-tray').style.display = 'none';
+            await supabase.from('messages').delete().eq('id', activeMsgId);
+        }
+
+        async function setReact(emoji) {
+            document.getElementById('react-tray').style.display = 'none';
+            await supabase.from('messages').update({ react: emoji }).eq('id', activeMsgId);
+        }
+
+        async function confirmDeleteChat() {
+            if(confirm("Delete chat? Yeh wapas nahi aayegi.")) {
+                await supabase.from('messages').delete().neq('id', 0); 
+                closeSettings();
+            }
+        }
+
+        async function markMessagesAsSeen() {
+            const unseenIds = chatData.filter(m => m.sender === partnerUser && !m.seen).map(m => m.id);
+            if(unseenIds.length > 0) {
+                await supabase.from('messages').update({ seen: true }).in('id', unseenIds);
+            }
+        }
+
+        // --- NAVIGATION ---
+        function openChat() { 
+            document.getElementById('dm-list-ui').style.display='none'; 
+            document.getElementById('chat-ui').style.display='flex'; 
+            document.getElementById('unread-dot').style.display = 'none';
+            isChatOpen = true;
+            markMessagesAsSeen();
+            scrollToBottom(); 
+        }
+        function backToList() { document.getElementById('chat-ui').style.display='none'; document.getElementById('dm-list-ui').style.display='flex'; isChatOpen = false; }
         
-        function forceLogout() {
-            document.getElementById('user').value = ''; document.getElementById('pass').value = '';
-            document.getElementById('secret-app').style.display = 'none';
-            document.getElementById('calc-ui').style.display = 'flex';
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('dm-list-ui').style.display = 'none';
-            document.getElementById('chat-ui').style.display = 'none';
+        async function forceLogout() { 
+            await supabase.auth.signOut();
+            location.reload(); 
         }
 
-        // --- 3. SETTINGS & AUTO-COMPRESSOR ---
-        function openSettings() { 
-            document.getElementById('settings-ui').style.display='flex'; 
-            document.getElementById('status-mypfp').innerText = '';
-            document.getElementById('status-bg').innerText = '';
-        }
+        // --- SETTINGS ---
+        function openSettings() { document.getElementById('settings-ui').style.display='flex'; document.getElementById('status-mypfp').innerText=''; document.getElementById('status-bg').innerText=''; }
         function closeSettings() { document.getElementById('settings-ui').style.display='none'; }
-        
-        function checkFile(input, statusId) {
-            if(input.files && input.files[0]) { document.getElementById(statusId).innerText = "✅ Image Selected"; }
-        }
+        function checkFile(input, statusId) { if(input.files && input.files[0]) document.getElementById(statusId).innerText = "✅ Image Selected"; }
 
         function compressAndSave(file, storageKey) {
             if (!file) return;
@@ -286,13 +355,11 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_SIZE = 800; 
-                    let width = img.width; let height = img.height;
+                    const MAX_SIZE = 800; let width = img.width; let height = img.height;
                     if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
                     else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
                     canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
+                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
                     const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6); 
                     try { localStorage.setItem(storageKey, compressedBase64); loadSettings(); } 
                     catch(err) { alert("Phone memory full!"); }
@@ -311,27 +378,16 @@
             document.getElementById('set-mypfp-file').value = ''; document.getElementById('set-bg-file').value = '';
         }
 
-        // NEW: DELETE CHAT LOGIC
-        function confirmDeleteChat() {
-            if(confirm("Delete chat? Yeh wapas nahi aayegi.")) {
-                chatData = []; // Clear array
-                renderMessages();
-                closeSettings();
-                document.getElementById('last-msg-preview').innerText = "Tap to view chat...";
-            }
-        }
-        
         function loadSettings() {
             const partnerPfpData = localStorage.getItem(partnerUser + '_pfp');
             const bgData = localStorage.getItem('chatBg');
             const defaultPartner = `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`;
-            
             document.getElementById('list-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
             document.getElementById('chat-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
             if(bgData) document.documentElement.style.setProperty('--theme-bg', `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${bgData}')`); 
         }
 
-        // --- 4. CHAT RENDERING ---
+        // --- UI RENDERING ---
         function renderMessages(query = '') {
             let container = document.getElementById('messages');
             container.innerHTML = '';
@@ -339,7 +395,7 @@
             let filtered = chatData.filter(m => m.type === 'text' ? m.text.toLowerCase().includes(query.toLowerCase()) : true);
             
             filtered.forEach((m) => {
-                let isMe = m.sender === currentUser;
+                let isMe = m.sender === currentUser; 
                 let content = m.type === 'img' ? `<img src="${m.text}" class="chat-img">` : m.text;
                 let reactHTML = m.react ? `<span class="react-badge">${m.react}</span>` : '';
                 
@@ -362,7 +418,7 @@
                         </div>
                         <div class="msg-footer">
                             <span>${m.time}</span>
-                            ${isMe ? '• Seen' : ''}
+                            ${isMe && m.seen ? '• Seen' : ''}
                         </div>
                     </div>`;
             });
@@ -372,73 +428,28 @@
                 let previewText = lastMsg.type === 'img' ? "📷 Photo" : lastMsg.text;
                 if(previewText.length > 20) previewText = previewText.substring(0, 20) + "...";
                 document.getElementById('last-msg-preview').innerText = previewText;
+            } else {
+                document.getElementById('last-msg-preview').innerText = "Tap to view chat...";
             }
+            scrollToBottom();
         }
 
         function searchMessages() {
             let dmQ = document.getElementById('dm-search').value;
             let chatQ = document.getElementById('chat-search').value;
-            let q = dmQ || chatQ;
-            renderMessages(q);
+            renderMessages(dmQ || chatQ);
         }
 
-        // --- 5. SENDING LOGIC ---
-        function getTime() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
-
-        function sendMsg() {
-            let i = document.getElementById('msg-in'); if(!i.value.trim()) return;
-            chatData.push({ id: Date.now(), text: i.value, sender: currentUser, time: getTime(), react: "", type: "text", seen: false });
-            i.value = ''; document.getElementById('chat-search').value = ''; 
-            renderMessages(); scrollToBottom();
-        }
-
-        function sendPhoto(event) {
-            const file = event.target.files[0]; if(!file) return;
-            const imgUrl = URL.createObjectURL(file);
-            chatData.push({ id: Date.now(), text: imgUrl, sender: currentUser, time: getTime(), react: "", type: "img", seen: false });
-            renderMessages(); scrollToBottom();
-        }
-
-        // --- 6. REACTIONS & UNSEND ---
         function openReact(id) { 
             activeMsgId = id; 
             let m = chatData.find(x => x.id === id);
-            
-            // Show unsend button ONLY if I sent the message
-            if(m && m.sender === currentUser) {
-                document.getElementById('unsend-wrap').style.display = 'block';
-            } else {
-                document.getElementById('unsend-wrap').style.display = 'none';
-            }
-            
+            document.getElementById('unsend-wrap').style.display = (m && m.sender === currentUser) ? 'block' : 'none';
             document.getElementById('react-tray').style.display = 'flex'; 
         }
         
-        function setReact(emoji) {
-            let m = chatData.find(x => x.id === activeMsgId);
-            if(m) m.react = emoji;
-            document.getElementById('react-tray').style.display = 'none';
-            renderMessages();
-        }
-
-        // NEW: Unsend Function
-        function unsendActiveMsg() {
-            chatData = chatData.filter(x => x.id !== activeMsgId); // Remove from array
-            document.getElementById('react-tray').style.display = 'none';
-            renderMessages();
-            
-            if(chatData.length === 0) {
-                document.getElementById('last-msg-preview').innerText = "Tap to view chat...";
-            }
-        }
-
-        window.onclick = (e) => { 
-            if(!e.target.closest('.bubble') && !e.target.closest('#react-tray')) {
-                document.getElementById('react-tray').style.display='none'; 
-            }
-        }
-
+        window.onclick = (e) => { if(!e.target.closest('.bubble') && !e.target.closest('#react-tray')) document.getElementById('react-tray').style.display='none'; }
         function scrollToBottom() { let m = document.getElementById('messages'); m.scrollTop = m.scrollHeight; }
+        function getTime() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
     </script>
 </body>
 </html>
