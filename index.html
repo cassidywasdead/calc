@@ -4,290 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Scientific Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --safe-top: env(safe-area-inset-top, 20px); --safe-bottom: env(safe-area-inset-bottom, 20px); --chat-bg: #000; }
+        :root { --safe-top: env(safe-area-inset-top, 20px); --safe-bottom: env(safe-area-inset-bottom, 20px); }
         * { box-sizing: border-box; font-family: -apple-system, sans-serif; margin: 0; padding: 0; }
-        body { background: #000; color: #fff; height: 100dvh; overflow: hidden; }
+        body { background: #000; color: #fff; height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 
-        /* --- 1. CALCULATOR (THE MASK) --- */
-        #calculator { display: flex; flex-direction: column; height: 100%; max-width: 500px; margin: auto; padding: 20px; position: relative; }
-        #secret-trigger { position: absolute; top: 0; left: 0; width: 60px; height: 60px; z-index: 100; cursor: pointer; } /* INVISIBLE BUTTON */
-        #calc-display { flex: 1; display: flex; align-items: flex-end; justify-content: flex-end; font-size: 60px; padding: 20px 10px; color: #fff; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding-bottom: var(--safe-bottom); }
-        .btn { height: 75px; border-radius: 50%; border: none; font-size: 28px; font-weight: 500; display: flex; align-items: center; justify-content: center; background: #333; color: white; }
-        .btn-op { background: #f1a33c; } .btn-top { background: #a5a5a5; color: black; }
+        /* --- WORKING CALCULATOR UI --- */
+        #calc-container { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; height: 100%; }
+        #display { flex: 1; display: flex; align-items: flex-end; justify-content: flex-end; font-size: 60px; padding: 20px; overflow: hidden; word-break: break-all; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .btn { height: 75px; border-radius: 50%; border: none; font-size: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.1s; }
+        .btn:active { opacity: 0.7; transform: scale(0.95); }
+        .num { background: #333; color: white; }
+        .op { background: #f1a33c; color: white; }
+        .top { background: #a5a5a5; color: black; }
+        .zero { grid-column: span 2; border-radius: 40px; }
 
-        /* --- 2. LOGIN (PREMIUM MEMBERSHIP) --- */
-        #login-screen { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #000; z-index: 200; position: absolute; inset: 0; }
-        .login-box { text-align: center; width: 85%; max-width: 400px; }
-        .login-input { width: 100%; padding: 16px; margin-bottom: 15px; background: #111; border: 1px solid #333; color: #fff; border-radius: 12px; outline: none; }
-        .login-btn { width: 100%; padding: 16px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        /* --- HIDDEN LOGIN & CHAT --- */
+        #secret-app { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
+        .login-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .input { width: 85%; padding: 16px; margin-bottom: 12px; background: #1c1c1e; border: 1px solid #333; color: #fff; border-radius: 12px; outline: none; }
+        .login-btn { width: 85%; padding: 16px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-weight: bold; }
 
-        /* --- 3. CHAT APP (INSTA DM STYLE) --- */
-        #chat-app { display: none; flex-direction: column; height: 100%; max-width: 500px; margin: auto; position: relative; background: var(--chat-bg); background-size: cover; background-position: center; }
-        
-        /* Floating SOS */
-        #sos-btn { position: absolute; top: calc(var(--safe-top) + 60px); right: 15px; width: 45px; height: 45px; background: rgba(255,59,48,0.9); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; z-index: 999; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid white; cursor: pointer; }
-
-        /* Header */
-        #chat-header { padding: calc(var(--safe-top) + 10px) 15px 10px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #262626; z-index: 10; }
-        .profile-pic { width: 40px; height: 40px; border-radius: 50%; background: #333; object-fit: cover; cursor: pointer; }
-        .header-info { flex: 1; }
-        .header-name { font-weight: 600; font-size: 16px; }
-        .header-status { font-size: 12px; color: #888; }
-        .icon-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 5px; }
-
-        /* Search Bar */
-        #search-bar-container { display: none; padding: 10px; background: #000; border-bottom: 1px solid #333; }
-        #search-input { width: 100%; padding: 8px 15px; border-radius: 20px; background: #262626; border: none; color: white; outline: none; }
-
-        /* Messages */
-        #messages-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-        .msg-row { display: flex; align-items: flex-end; gap: 8px; max-width: 85%; }
-        .row-me { align-self: flex-end; flex-direction: row-reverse; }
-        .row-them { align-self: flex-start; }
-        .msg-bubble { padding: 12px 16px; border-radius: 22px; font-size: 15px; position: relative; cursor: pointer; line-height: 1.4; }
-        .bubble-me { background: #e895b6; color: #000; border-bottom-right-radius: 4px; }
-        .bubble-them { background: #262626; color: #fff; border-bottom-left-radius: 4px; }
-        .msg-img { max-width: 100%; border-radius: 12px; margin-bottom: 5px; display: block; }
-        
-        /* Time & Reaction (No Overlap) */
-        .msg-footer { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 11px; color: #aaa; }
-        .footer-me { justify-content: flex-end; }
-        .reaction-badge { background: #333; padding: 2px 6px; border-radius: 12px; font-size: 14px; display: none; border: 1px solid #000; }
-        .seen-status { align-self: flex-end; font-size: 11px; color: #888; margin-top: -10px; margin-bottom: 10px; }
-
-        /* Typing Indicator */
-        #typing-indicator { font-size: 12px; color: #888; padding: 0 15px 5px; display: none; }
-
-        /* Input Area */
-        #input-area { padding: 10px 15px calc(var(--safe-bottom) + 10px); background: #000; display: flex; gap: 10px; align-items: center; border-top: 1px solid #262626; }
-        .media-btn { background: #262626; border: none; color: white; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        #chat-input { flex: 1; padding: 12px 18px; background: #262626; border: none; border-radius: 25px; color: #fff; outline: none; }
-        #send-btn { background: none; border: none; color: #e895b6; font-weight: bold; font-size: 16px; cursor: pointer; padding: 5px 10px; }
-
-        /* Reaction Tray */
-        #reaction-tray { display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #262626; padding: 10px; border-radius: 30px; gap: 10px; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .react-emoji { font-size: 24px; cursor: pointer; transition: transform 0.2s; }
-        .react-emoji:active { transform: scale(1.3); }
+        /* Chat Styles */
+        #chat-ui { display: none; flex-direction: column; height: 100%; }
+        #messages { flex: 1; overflow-y: auto; padding: 15px; background: #000; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px 15px; border-radius: 18px; max-width: 80%; font-size: 15px; }
+        .me { align-self: flex-end; background: #007aff; border-bottom-right-radius: 4px; }
+        .them { align-self: flex-start; background: #262626; border-bottom-left-radius: 4px; }
+        #input-area { padding: 10px; display: flex; gap: 10px; border-top: 1px solid #262626; padding-bottom: calc(var(--safe-bottom) + 10px); }
+        #msg-in { flex: 1; padding: 12px; background: #1c1c1e; border: none; border-radius: 20px; color: white; outline: none; }
     </style>
 </head>
 <body>
 
-    <div id="calculator">
-        <div id="secret-trigger" onclick="showLogin()"></div>
-        <div id="calc-display">0</div>
-        <div class="calc-grid">
-            <button class="btn btn-top" onclick="calcNum('0')">AC</button>
-            <button class="btn btn-top">+/-</button>
-            <button class="btn btn-top">%</button>
-            <button class="btn btn-op">÷</button>
-            <button class="btn" onclick="calcNum('7')">7</button>
-            <button class="btn" onclick="calcNum('8')">8</button>
-            <button class="btn" onclick="calcNum('9')">9</button>
-            <button class="btn btn-op">×</button>
-            <button class="btn" onclick="calcNum('4')">4</button>
-            <button class="btn" onclick="calcNum('5')">5</button>
-            <button class="btn" onclick="calcNum('6')">6</button>
-            <button class="btn btn-op">-</button>
-            <button class="btn" onclick="calcNum('1')">1</button>
-            <button class="btn" onclick="calcNum('2')">2</button>
-            <button class="btn" onclick="calcNum('3')">3</button>
-            <button class="btn btn-op">+</button>
-            <button class="btn" style="grid-column: span 2; border-radius: 40px;" onclick="calcNum('0')">0</button>
-            <button class="btn">.</button>
-            <button class="btn btn-op">=</button>
+    <div id="calc-container">
+        <div id="display">0</div>
+        <div class="grid">
+            <button class="btn top" onclick="handleAC()" id="ac-btn">AC</button>
+            <button class="btn top">+/-</button>
+            <button class="btn top">%</button>
+            <button class="btn op" onclick="pressOp('/')">÷</button>
+            <button class="btn num" onclick="pressNum('7')">7</button>
+            <button class="btn num" onclick="pressNum('8')">8</button>
+            <button class="btn num" onclick="pressNum('9')">9</button>
+            <button class="btn op" onclick="pressOp('*')">×</button>
+            <button class="btn num" onclick="pressNum('4')">4</button>
+            <button class="btn num" onclick="pressNum('5')">5</button>
+            <button class="btn num" onclick="pressNum('6')">6</button>
+            <button class="btn op" onclick="pressOp('-')">-</button>
+            <button class="btn num" onclick="pressNum('1')">1</button>
+            <button class="btn num" onclick="pressNum('2')">2</button>
+            <button class="btn num" onclick="pressNum('3')">3</button>
+            <button class="btn op" onclick="pressOp('+')">+</button>
+            <button class="btn num zero" onclick="pressNum('0')">0</button>
+            <button class="btn num" onclick="pressNum('.')">.</button>
+            <button class="btn op" onclick="calculate()">=</button>
         </div>
     </div>
 
-    <div id="login-screen">
-        <div class="login-box">
-            <h2 style="font-weight: 300; margin-bottom: 10px;">Premium Membership</h2>
-            <p style="color: #888; font-size: 14px; margin-bottom: 30px;">Sign in to access your notes</p>
-            <input type="text" id="username" class="login-input" placeholder="Membership ID">
-            <input type="password" id="password" class="login-input" placeholder="PIN Code">
-            <button class="login-btn" onclick="checkLogin()">Sign In</button>
-        </div>
-    </div>
-
-    <div id="chat-app">
-        <div id="sos-btn" onclick="triggerSOS()">SOS</div>
-        
-        <div id="chat-header">
-            <img src="https://ui-avatars.com/api/?name=L&background=random" id="other-pic" class="profile-pic" onclick="changeProfilePic('other')">
-            <div class="header-info">
-                <div class="header-name">lovleenx</div>
-                </div>
-            <button class="icon-btn" onclick="toggleSearch()">🔍</button>
-            <button class="icon-btn" onclick="changeTheme()">🎨</button>
-            <img src="https://ui-avatars.com/api/?name=A&background=random" id="my-pic" class="profile-pic" style="width:30px; height:30px;" onclick="changeProfilePic('me')">
+    <div id="secret-app">
+        <div id="login-screen" class="login-box">
+            <h2 style="font-weight: 300; margin-bottom: 20px;">Premium Membership</h2>
+            <input type="text" id="user" class="input" placeholder="Membership ID">
+            <input type="password" id="pass" class="input" placeholder="Access PIN">
+            <button class="login-btn" onclick="tryLogin()">Unlock</button>
+            <p style="margin-top: 20px; color: #555; font-size: 12px;" onclick="location.reload()">Back to Calculator</p>
         </div>
 
-        <div id="search-bar-container">
-            <input type="text" id="search-input" placeholder="Search in conversation..." oninput="renderMessages()">
-        </div>
-
-        <div id="messages-container">
+        <div id="chat-ui">
+            <div style="padding: 15px; border-bottom: 1px solid #262626; display: flex; justify-content: space-between;">
+                <b>lovleenx</b>
+                <span onclick="location.reload()" style="color: #ff3b30; font-size: 12px;">CLOSE</span>
             </div>
-        
-        <div id="typing-indicator">lovleenx is typing...</div>
-
-        <div id="input-area">
-            <button class="media-btn" onclick="alert('Upload Photo (Trial Mode)')">📷</button>
-            <input type="text" id="chat-input" placeholder="Message..." oninput="simulateTyping()" onkeypress="if(event.key==='Enter') sendMsg()">
-            <button id="send-btn" onclick="sendMsg()">Send</button>
-        </div>
-
-        <div id="reaction-tray">
-            <span class="react-emoji" onclick="setReaction('🥰')">🥰</span>
-            <span class="react-emoji" onclick="setReaction('😘')">😘</span>
-            <span class="react-emoji" onclick="setReaction('🫠')">🫠</span>
-            <span class="react-emoji" onclick="setReaction('🥺')">🥺</span>
-            <span class="react-emoji" onclick="setReaction('😂')">😂</span>
-            <span class="react-emoji" onclick="setReaction('😡')">😡</span>
-            <span class="react-emoji" onclick="setReaction('😔')">😔</span>
-            <span class="react-emoji" onclick="setReaction('😭')">😭</span>
+            <div id="messages"></div>
+            <div id="input-area">
+                <input type="text" id="msg-in" placeholder="Message..." onkeypress="if(event.key==='Enter') send()">
+                <button onclick="send()" style="color: #007aff; background: none; border: none; font-weight: bold;">SEND</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- DATA STATE (MOCK) ---
-        let myId = 'ahrnavsharma';
-        let otherId = 'lovleenx';
-        let activeMsgId = null;
+        // --- CALCULATOR LOGIC ---
+        let current = '0';
+        function updateDisp() { document.getElementById('display').innerText = current; }
+        function pressNum(n) { if(current === '0') current = n; else current += n; updateDisp(); }
+        function pressOp(o) { current += o; updateDisp(); }
+        function calculate() { try { current = eval(current).toString(); updateDisp(); } catch { current = 'Error'; updateDisp(); } }
         
-        let chats = [
-            { id: 1, sender: 'lovleenx', text: 'Hiii!', time: '10:00 AM', reaction: '' },
-            { id: 2, sender: 'ahrnavsharma', text: 'Hey, app test kar raha tha', time: '10:02 AM', reaction: '🥰' }
-        ];
-
-        // --- 1. CALCULATOR & LOGIN LOGIC ---
-        function calcNum(v) { let d = document.getElementById('calc-display'); d.innerText = d.innerText === '0' ? v : d.innerText + v; }
-        
-        function showLogin() { 
-            document.getElementById('calculator').style.display = 'none'; 
-            document.getElementById('login-screen').style.display = 'flex'; 
+        // --- SECRET TRIGGER (Double Tap AC) ---
+        let lastClick = 0;
+        function handleAC() {
+            let now = Date.now();
+            if (now - lastClick < 500) { // Double tap detect
+                document.getElementById('secret-app').style.display = 'flex';
+            }
+            current = '0';
+            updateDisp();
+            lastClick = now;
         }
 
-        function checkLogin() {
-            let u = document.getElementById('username').value;
-            let p = document.getElementById('password').value;
-            // Trial Login Credentials: admin / 1234
+        // --- LOGIN & CHAT ---
+        function tryLogin() {
+            let u = document.getElementById('user').value;
+            let p = document.getElementById('pass').value;
+            // Yahan wahi admin / 1234 use karlo trial ke liye
             if(u === 'admin' && p === '1234') {
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('chat-app').style.display = 'flex';
-                renderMessages();
-            } else {
-                alert("No notes premium subscription found");
-            }
+                document.getElementById('chat-ui').style.display = 'flex';
+                document.getElementById('messages').innerHTML = '<div class="msg them">Premium Membership Active! Type anything...</div>';
+            } else { alert("No active subscription found."); }
         }
 
-        function triggerSOS() {
-            document.getElementById('chat-app').style.display = 'none';
-            document.getElementById('calculator').style.display = 'flex';
-            document.getElementById('calc-display').innerText = '0';
+        function send() {
+            let i = document.getElementById('msg-in');
+            if(!i.value) return;
+            document.getElementById('messages').innerHTML += `<div class="msg me">${i.value}</div>`;
+            i.value = '';
+            let m = document.getElementById('messages'); m.scrollTop = m.scrollHeight;
         }
-
-        // --- 2. UI CUSTOMIZATION ---
-        function changeTheme() {
-            let url = prompt("Enter Image URL for Background Theme (or leave empty for Dark Mode):");
-            if(url) {
-                document.getElementById('chat-app').style.setProperty('--chat-bg', `url('${url}')`);
-            } else {
-                document.getElementById('chat-app').style.setProperty('--chat-bg', '#000');
-            }
-        }
-
-        function changeProfilePic(who) {
-            let url = prompt("Set Profile Picture URL:");
-            if(url && who === 'me') document.getElementById('my-pic').src = url;
-            if(url && who === 'other') document.getElementById('other-pic').src = url;
-        }
-
-        function toggleSearch() {
-            let s = document.getElementById('search-bar-container');
-            s.style.display = s.style.display === 'block' ? 'none' : 'block';
-            document.getElementById('search-input').value = '';
-            renderMessages();
-        }
-
-        // --- 3. CHAT LOGIC ---
-        function renderMessages() {
-            let div = document.getElementById('messages-container');
-            div.innerHTML = '';
-            let q = document.getElementById('search-input').value.toLowerCase();
-
-            chats.forEach((m, index) => {
-                if(q && !m.text.toLowerCase().includes(q)) return; // Filter for search
-
-                let isMe = m.sender === myId;
-                let picId = isMe ? 'my-pic' : 'other-pic';
-                let picSrc = document.getElementById(picId).src;
-
-                // Reaction UI
-                let reactHTML = m.reaction ? `<span class="reaction-badge" style="display:inline-block">${m.reaction}</span>` : '';
-                
-                div.innerHTML += `
-                    <div class="msg-row ${isMe ? 'row-me' : 'row-them'}">
-                        ${!isMe ? `<img src="${picSrc}" class="profile-pic" style="width:28px; height:28px;">` : ''}
-                        <div style="display:flex; flex-direction:column; max-width: 100%;">
-                            <div class="msg-bubble ${isMe ? 'bubble-me' : 'bubble-them'}" onclick="openReactions(${m.id})">
-                                ${m.text}
-                            </div>
-                            <div class="msg-footer ${isMe ? 'footer-me' : ''}">
-                                ${isMe ? reactHTML : ''}
-                                <span>${m.time}</span>
-                                ${!isMe ? reactHTML : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                // Seen Status (Only on the last message sent by me)
-                if(isMe && index === chats.length - 1 && !q) {
-                    div.innerHTML += `<div class="seen-status">Seen just now</div>`;
-                }
-            });
-            div.scrollTop = div.scrollHeight;
-        }
-
-        function sendMsg() {
-            let inp = document.getElementById('chat-input');
-            if(!inp.value.trim()) return;
-            
-            let time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            chats.push({ id: Date.now(), sender: myId, text: inp.value.trim(), time: time, reaction: '' });
-            inp.value = '';
-            renderMessages();
-        }
-
-        // --- 4. TYPING INDICATOR ---
-        let typeTimer;
-        function simulateTyping() {
-            let ind = document.getElementById('typing-indicator');
-            ind.style.display = 'block';
-            clearTimeout(typeTimer);
-            typeTimer = setTimeout(() => { ind.style.display = 'none'; }, 1000);
-        }
-
-        // --- 5. REACTIONS ---
-        function openReactions(id) {
-            activeMsgId = id;
-            document.getElementById('reaction-tray').style.display = 'flex';
-        }
-        function setReaction(emoji) {
-            let msg = chats.find(c => c.id === activeMsgId);
-            if(msg) { msg.reaction = emoji; }
-            document.getElementById('reaction-tray').style.display = 'none';
-            renderMessages();
-        }
-        
-        // Hide tray if clicked outside
-        document.addEventListener('click', function(e) {
-            if(!e.target.closest('.msg-bubble') && !e.target.closest('#reaction-tray')) {
-                document.getElementById('reaction-tray').style.display = 'none';
-            }
-        });
     </script>
 </body>
 </html>
