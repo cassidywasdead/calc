@@ -5,53 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
     <title>Scientific Calculator</title>
     <style>
-        :root { --safe-top: env(safe-area-inset-top, 20px); --safe-bottom: env(safe-area-inset-bottom, 20px); }
+        :root { --safe-top: env(safe-area-inset-top, 20px); --safe-bottom: env(safe-area-inset-bottom, 20px); --theme-bg: #000; }
         * { box-sizing: border-box; font-family: -apple-system, sans-serif; margin: 0; padding: 0; touch-action: manipulation; }
         body { background: #000; color: #fff; height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; position: fixed; width: 100%; }
 
-        /* --- 1. CALCULATOR (THE MASK) --- */
+        /* --- FRONT: CALCULATOR --- */
         #calc-ui { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; height: 100%; background: #000; }
         #display { flex: 1; display: flex; align-items: flex-end; justify-content: flex-end; font-size: 65px; padding: 20px; overflow: hidden; }
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
         .btn { height: 75px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .num { background: #333; color: white; } .op { background: #f1a33c; color: white; } .top { background: #a5a5a5; color: black; } .zero { grid-column: span 2; border-radius: 40px; }
 
-        /* --- 2. SECRET APP CONTAINER --- */
+        /* --- SECRET SYSTEM --- */
         #secret-app { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
         #sos-floating { position: fixed; top: calc(var(--safe-top) + 15px); right: 15px; width: 45px; height: 45px; background: rgba(255, 59, 48, 0.9); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; border: 2px solid rgba(255,255,255,0.2); z-index: 9999; cursor: pointer; }
 
-        /* --- 3. LOGIN SCREEN --- */
+        /* --- A. LOGIN --- */
         #login-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .login-input { width: 85%; padding: 16px; margin-bottom: 12px; background: #1c1c1e; border: 1px solid #333; color: #fff; border-radius: 12px; outline: none; font-size: 16px; }
-        .login-btn { width: 85%; padding: 16px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 16px; }
+        .input-box { width: 85%; padding: 16px; margin-bottom: 12px; background: #1c1c1e; border: 1px solid #333; color: #fff; border-radius: 12px; font-size: 16px; outline: none; }
+        .login-btn { width: 85%; padding: 16px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 16px; margin-top: 10px; }
 
-        /* --- 4. DM LIST --- */
+        /* --- B. DM LIST (INSTA) --- */
         #dm-list-ui { display: none; flex-direction: column; height: 100%; width: 100%; padding-top: var(--safe-top); }
         .dm-header { padding: 15px 20px; font-size: 20px; font-weight: bold; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; }
+        
+        .search-container { padding: 10px 15px; border-bottom: 1px solid #111; }
+        .search-bar { width: 100%; padding: 10px 15px; background: #1c1c1e; border-radius: 15px; border: none; color: white; font-size: 14px; outline: none; }
+
         .dm-item { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; }
         .dm-pfp { width: 55px; height: 55px; border-radius: 50%; background: #333; margin-right: 15px; object-fit: cover; }
         .dm-name { font-size: 16px; font-weight: 600; }
         .dm-preview { font-size: 14px; color: #8e8e93; margin-top: 4px; }
 
-        /* --- 5. CHAT UI --- */
-        #chat-ui { display: none; flex-direction: column; height: 100%; width: 100%; background-color: #000; background-size: cover; background-position: center; }
-        #chat-header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 10; }
+        /* --- C. CHAT UI --- */
+        #chat-ui { display: none; flex-direction: column; height: 100%; width: 100%; background: var(--theme-bg); background-size: cover; background-position: center; }
+        #chat-header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 10; }
         .chat-pfp { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
-        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
         
-        .msg-wrap { display: flex; flex-direction: column; max-width: 80%; }
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        .msg-wrap { display: flex; flex-direction: column; max-width: 80%; position: relative; }
         .me { align-self: flex-end; align-items: flex-end; }
         .them { align-self: flex-start; align-items: flex-start; }
-        .bubble { padding: 10px 16px; border-radius: 20px; font-size: 15px; line-height: 1.4; }
+        .bubble { padding: 10px 16px; border-radius: 20px; font-size: 15px; line-height: 1.4; position: relative; cursor: pointer; }
         .bubble-me { background: #3797f0; border-bottom-right-radius: 4px; }
         .bubble-them { background: #262626; border-bottom-left-radius: 4px; }
-        .time { font-size: 11px; color: #aaa; margin-top: 4px; }
+        
         .chat-img { max-width: 100%; border-radius: 12px; margin-bottom: 5px; }
+        
+        /* Time & Reactions */
+        .msg-footer { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #aaa; margin-top: 4px; }
+        .react-badge { background: #1c1c1e; border: 1px solid #333; padding: 2px 6px; border-radius: 12px; font-size: 13px; display: none; }
+        .seen-text { color: #3797f0; display: none; } /* Hidden by default now */
 
+        /* Typing & Input */
+        #typing-ind { padding: 5px 15px; font-size: 12px; color: #888; background: rgba(0,0,0,0.7); display: none; }
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: rgba(0,0,0,0.9); z-index: 10; align-items: center; }
         #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; font-size: 16px; outline: none; }
 
-        /* --- 6. SETTINGS MODAL --- */
+        /* --- REACTION TRAY --- */
+        #react-tray { display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #262626; padding: 10px 15px; border-radius: 30px; gap: 12px; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .react-emoji { font-size: 24px; cursor: pointer; transition: 0.2s; } .react-emoji:active { transform: scale(1.3); }
+
+        /* --- D. SETTINGS MODAL --- */
         #settings-ui { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .set-box { width: 90%; background: #1c1c1e; padding: 25px; border-radius: 20px; text-align: center; }
     </style>
@@ -70,12 +85,13 @@
     </div>
 
     <div id="secret-app">
+        
         <div id="sos-floating" onclick="forceLogout()">SOS</div>
 
         <div id="login-screen">
-            <h2 style="font-weight: 200; margin-bottom: 20px;">Premium Membership</h2>
-            <input type="text" id="user" class="login-input" placeholder="ID (123)" inputmode="numeric">
-            <input type="password" id="pass" class="login-input" placeholder="PIN (123)" inputmode="numeric">
+            <h2 style="font-weight: 200; margin-bottom: 20px;">Premium Access</h2>
+            <input type="text" id="user" class="input-box" placeholder="ID (123)" inputmode="numeric">
+            <input type="password" id="pass" class="input-box" placeholder="PIN (123)" inputmode="numeric">
             <button class="login-btn" onclick="checkLogin()">Enter</button>
         </div>
 
@@ -84,11 +100,16 @@
                 <span>ahrnavsharma</span>
                 <button onclick="openSettings()" style="background:none; border:none; font-size:24px; cursor:pointer;">⚙️</button>
             </div>
+            
+            <div class="search-container">
+                <input type="text" id="dm-search" class="search-bar" placeholder="Search chats..." oninput="searchMessages()">
+            </div>
+
             <div class="dm-item" onclick="openChat()">
                 <img id="list-pfp" src="https://ui-avatars.com/api/?name=L&background=random" class="dm-pfp">
                 <div style="flex:1;">
                     <div class="dm-name">lovleenx</div>
-                    <div class="dm-preview">Tap to view chat...</div>
+                    <div class="dm-preview" id="last-msg-preview">Tap to view chat...</div>
                 </div>
             </div>
         </div>
@@ -97,43 +118,60 @@
             <div id="chat-header">
                 <button onclick="backToList()" style="background:none; border:none; color:#fff; font-size:26px; padding-right:10px;">‹</button>
                 <img id="chat-pfp" src="https://ui-avatars.com/api/?name=L&background=random" class="chat-pfp">
-                <div style="font-weight:700; font-size:16px; margin-left:10px;">lovleenx</div>
+                <div style="font-weight:700; font-size:16px; margin-left:10px; flex:1;">lovleenx</div>
             </div>
             
             <div id="messages">
-                <div class="msg-wrap them">
-                    <div class="bubble bubble-them">Sab fix ho gaya? Photo bhej ke check kar aur Time dekh.</div>
-                    <div class="time">11:15 PM</div>
                 </div>
-            </div>
+
+            <div id="typing-ind">lovleenx is typing...</div>
 
             <div id="input-bar">
                 <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="sendPhoto(event)">
                 <button onclick="document.getElementById('file-input').click()" style="background:none; border:none; font-size:24px; cursor:pointer;">📷</button>
                 
-                <input type="text" id="msg-in" placeholder="Message..." onkeypress="if(event.key==='Enter') sendMsg()">
+                <input type="text" id="msg-in" placeholder="Message..." oninput="showTyping()" onkeypress="if(event.key==='Enter') sendMsg()">
                 <button onclick="sendMsg()" style="background:none; border:none; color:#3797f0; font-weight:bold; font-size:16px; padding-left:5px;">Send</button>
+            </div>
+
+            <div id="react-tray">
+                <span class="react-emoji" onclick="setReact('🥰')">🥰</span>
+                <span class="react-emoji" onclick="setReact('😘')">😘</span>
+                <span class="react-emoji" onclick="setReact('🫠')">🫠</span>
+                <span class="react-emoji" onclick="setReact('🥺')">🥺</span>
+                <span class="react-emoji" onclick="setReact('😂')">😂</span>
+                <span class="react-emoji" onclick="setReact('😡')">😡</span>
+                <span class="react-emoji" onclick="setReact('😔')">😔</span>
+                <span class="react-emoji" onclick="setReact('😭')">😭</span>
             </div>
         </div>
 
         <div id="settings-ui">
             <div class="set-box">
-                <h3 style="margin-bottom:20px;">Chat Settings</h3>
-                <input type="text" id="set-pfp-url" class="login-input" placeholder="Paste Profile Pic URL">
-                <input type="text" id="set-bg-url" class="login-input" placeholder="Paste Background Image URL">
-                <button class="login-btn" onclick="saveSettings()">Save & Close</button>
+                <h3 style="margin-bottom:20px;">App Settings</h3>
+                <input type="text" id="set-pfp-url" class="input-box" placeholder="Partner DP URL">
+                <input type="text" id="set-bg-url" class="input-box" placeholder="Chat Theme URL">
+                <button class="login-btn" onclick="saveSettings()">Save Changes</button>
+                <p style="margin-top: 20px; color: #ff3b30; font-size: 14px;" onclick="closeSettings()">Cancel</p>
             </div>
         </div>
+
     </div>
 
     <script>
-        // --- CALCULATOR ---
+        // --- DATA MOCK (TRIAL VERSION) ---
+        let chatData = [
+            { id: 1, text: "Hii baby!", sender: "them", time: "11:00 PM", react: "", type: "text" },
+            { id: 2, text: "Checklist done hui?", sender: "me", time: "11:05 PM", react: "", type: "text", seen: true }
+        ];
+        let activeMsgId = null;
+
+        // --- 1. CALCULATOR LOGIC (Triple Tap) ---
         let exp = '0'; let taps = 0; let lastTap = 0;
         function update() { document.getElementById('display').innerText = exp; }
         function press(v) { if(exp === '0') exp = v; else exp += v; update(); }
         function equal() { try { exp = eval(exp).toString(); update(); } catch { exp = 'Error'; update(); } }
         
-        // TRIPLE TAP AC BUTTON
         function handleAC() {
             let now = Date.now();
             if (now - lastTap < 600) taps++; else taps = 1;
@@ -146,16 +184,15 @@
             exp = '0'; update();
         }
 
-        // --- LOGIN & NAVIGATION ---
+        // --- 2. LOGIN & NAVIGATION ---
         function checkLogin() {
             if(document.getElementById('user').value === '123' && document.getElementById('pass').value === '123') {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dm-list-ui').style.display = 'flex';
-                loadSettings();
-            } else alert("Invalid ID");
+                loadSettings(); renderMessages();
+            } else alert("Invalid Code");
         }
-
-        function openChat() { document.getElementById('dm-list-ui').style.display='none'; document.getElementById('chat-ui').style.display='flex'; }
+        function openChat() { document.getElementById('dm-list-ui').style.display='none'; document.getElementById('chat-ui').style.display='flex'; scrollToBottom(); }
         function backToList() { document.getElementById('chat-ui').style.display='none'; document.getElementById('dm-list-ui').style.display='flex'; }
         
         function forceLogout() {
@@ -167,68 +204,112 @@
             document.getElementById('chat-ui').style.display = 'none';
         }
 
-        // --- SETTINGS (THEMES & PFP) ---
+        // --- 3. SETTINGS LOGIC ---
         function openSettings() { document.getElementById('settings-ui').style.display='flex'; }
-        
+        function closeSettings() { document.getElementById('settings-ui').style.display='none'; }
         function saveSettings() {
             const pfp = document.getElementById('set-pfp-url').value;
             const bg = document.getElementById('set-bg-url').value;
             if(pfp) localStorage.setItem('partnerPfp', pfp);
             if(bg) localStorage.setItem('chatBg', bg);
-            loadSettings();
-            document.getElementById('settings-ui').style.display='none';
-            document.getElementById('set-pfp-url').value = '';
-            document.getElementById('set-bg-url').value = '';
+            loadSettings(); closeSettings();
+            document.getElementById('set-pfp-url').value = ''; document.getElementById('set-bg-url').value = '';
         }
-
         function loadSettings() {
             const pfp = localStorage.getItem('partnerPfp');
             const bg = localStorage.getItem('chatBg');
-            if(pfp) { 
-                document.getElementById('list-pfp').src = pfp; 
-                document.getElementById('chat-pfp').src = pfp; 
-            }
-            if(bg) { 
-                document.getElementById('chat-ui').style.backgroundImage = `url('${bg}')`; 
+            if(pfp) { document.getElementById('list-pfp').src = pfp; document.getElementById('chat-pfp').src = pfp; }
+            if(bg) { document.documentElement.style.setProperty('--theme-bg', `url('${bg}')`); }
+        }
+
+        // --- 4. CHAT RENDERING, REACTIONS & SEARCH ---
+        function renderMessages(query = '') {
+            let container = document.getElementById('messages');
+            container.innerHTML = '';
+            
+            let filtered = chatData.filter(m => m.text.toLowerCase().includes(query.toLowerCase()));
+            
+            filtered.forEach((m, index) => {
+                let isMe = m.sender === 'me';
+                let content = m.type === 'img' ? `<img src="${m.text}" class="chat-img">` : m.text;
+                let reactHTML = m.react ? `<span class="react-badge" style="display:inline-block;">${m.react}</span>` : '';
+                
+                // Seen logic: Sirf akhiri "me" message pe aur agar query khali ho
+                let isLastMe = (isMe && index === filtered.length - 1 && !query && m.seen);
+                let seenHTML = isLastMe ? `<span class="seen-text" style="display:inline;">• Seen</span>` : '';
+
+                container.innerHTML += `
+                    <div class="msg-wrap ${isMe ? 'me' : 'them'}">
+                        <div class="bubble ${isMe ? 'bubble-me' : 'bubble-them'}" onclick="openReact(${m.id})">
+                            ${content}
+                        </div>
+                        <div class="msg-footer">
+                            ${isMe ? reactHTML : ''}
+                            <span>${m.time}</span>
+                            ${seenHTML}
+                            ${!isMe ? reactHTML : ''}
+                        </div>
+                    </div>`;
+            });
+            
+            if(filtered.length > 0 && m.type !== 'img') {
+                document.getElementById('last-msg-preview').innerText = filtered[filtered.length-1].text.substring(0, 20) + "...";
             }
         }
 
-        // --- MESSAGING & PHOTOS ---
-        function getTime() {
-            return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        function searchMessages() {
+            let q = document.getElementById('dm-search').value;
+            renderMessages(q);
         }
+
+        // --- 5. SENDING LOGIC (With Time but NO auto-seen) ---
+        function getTime() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
 
         function sendMsg() {
             let i = document.getElementById('msg-in'); if(!i.value.trim()) return;
-            let timeStr = getTime();
-            document.getElementById('messages').innerHTML += `
-                <div class="msg-wrap me">
-                    <div class="bubble bubble-me">${i.value}</div>
-                    <div class="time">${timeStr} • Seen</div>
-                </div>`;
+            // Naya message bheja, toh seen false hoga.
+            chatData.push({ id: Date.now(), text: i.value, sender: "me", time: getTime(), react: "", type: "text", seen: false });
             i.value = ''; 
-            scrollToBottom();
+            renderMessages(); scrollToBottom();
+            
+            // Mock: 3 second baad partner message dekh lega (Trial feel)
+            setTimeout(() => { 
+                chatData[chatData.length-1].seen = true; 
+                if(document.getElementById('dm-search').value === '') renderMessages();
+            }, 3000);
         }
 
         function sendPhoto(event) {
-            const file = event.target.files[0];
-            if(!file) return;
-            // Temporary URL banate hain bina backend ke test karne ke liye
+            const file = event.target.files[0]; if(!file) return;
             const imgUrl = URL.createObjectURL(file);
-            let timeStr = getTime();
-            
-            document.getElementById('messages').innerHTML += `
-                <div class="msg-wrap me">
-                    <img src="${imgUrl}" class="chat-img">
-                    <div class="time">${timeStr} • Seen</div>
-                </div>`;
-            scrollToBottom();
+            chatData.push({ id: Date.now(), text: imgUrl, sender: "me", time: getTime(), react: "", type: "img", seen: false });
+            renderMessages(); scrollToBottom();
         }
 
-        function scrollToBottom() {
-            let m = document.getElementById('messages');
-            m.scrollTop = m.scrollHeight;
+        // --- 6. TYPING INDICATOR ---
+        let typeTimer;
+        function showTyping() {
+            document.getElementById('typing-ind').style.display = 'block';
+            clearTimeout(typeTimer);
+            typeTimer = setTimeout(() => { document.getElementById('typing-ind').style.display = 'none'; }, 1500);
         }
+
+        // --- 7. REACTIONS ---
+        function openReact(id) { activeMsgId = id; document.getElementById('react-tray').style.display = 'flex'; }
+        function setReact(emoji) {
+            let m = chatData.find(x => x.id === activeMsgId);
+            if(m) m.react = emoji;
+            document.getElementById('react-tray').style.display = 'none';
+            renderMessages();
+        }
+
+        // Close reactions if clicked outside
+        window.onclick = (e) => { 
+            if(!e.target.closest('.bubble') && !e.target.closest('#react-tray')) 
+                document.getElementById('react-tray').style.display='none'; 
+        }
+
+        function scrollToBottom() { let m = document.getElementById('messages'); m.scrollTop = m.scrollHeight; }
     </script>
 </body>
 </html>
