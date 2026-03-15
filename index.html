@@ -4,126 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Scientific Calculator</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --safe-top: env(safe-area-inset-top, 20px); --safe-bottom: env(safe-area-inset-bottom, 20px); }
         * { box-sizing: border-box; font-family: -apple-system, sans-serif; margin: 0; padding: 0; }
         body { background: #000; color: #fff; height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 
-        /* --- WORKING CALCULATOR UI --- */
-        #calc-container { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; height: 100%; }
-        #display { flex: 1; display: flex; align-items: flex-end; justify-content: flex-end; font-size: 60px; padding: 20px; overflow: hidden; word-break: break-all; }
+        /* --- CALCULATOR UI --- */
+        #calc-ui { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; height: 100%; }
+        #display { flex: 1; display: flex; align-items: flex-end; justify-content: flex-end; font-size: 65px; padding: 20px; overflow: hidden; }
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-        .btn { height: 75px; border-radius: 50%; border: none; font-size: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.1s; }
-        .btn:active { opacity: 0.7; transform: scale(0.95); }
+        .btn { height: 75px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.1s; }
+        .btn:active { opacity: 0.6; transform: scale(0.92); }
         .num { background: #333; color: white; }
         .op { background: #f1a33c; color: white; }
         .top { background: #a5a5a5; color: black; }
         .zero { grid-column: span 2; border-radius: 40px; }
 
-        /* --- HIDDEN LOGIN & CHAT --- */
+        /* --- SECRET APP CONTAINER --- */
         #secret-app { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
-        .login-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        .input { width: 85%; padding: 16px; margin-bottom: 12px; background: #1c1c1e; border: 1px solid #333; color: #fff; border-radius: 12px; outline: none; }
+
+        /* --- LOGIN SCREEN --- */
+        #login-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .login-input { width: 85%; padding: 16px; margin-bottom: 12px; background: #1c1c1e; border: 1px solid #333; color: #fff; border-radius: 12px; outline: none; font-size: 16px; }
         .login-btn { width: 85%; padding: 16px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-weight: bold; }
 
-        /* Chat Styles */
+        /* --- CHAT UI (INSTA DM STYLE) --- */
         #chat-ui { display: none; flex-direction: column; height: 100%; }
-        #messages { flex: 1; overflow-y: auto; padding: 15px; background: #000; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 10px 15px; border-radius: 18px; max-width: 80%; font-size: 15px; }
-        .me { align-self: flex-end; background: #007aff; border-bottom-right-radius: 4px; }
-        .them { align-self: flex-start; background: #262626; border-bottom-left-radius: 4px; }
-        #input-area { padding: 10px; display: flex; gap: 10px; border-top: 1px solid #262626; padding-bottom: calc(var(--safe-bottom) + 10px); }
-        #msg-in { flex: 1; padding: 12px; background: #1c1c1e; border: none; border-radius: 20px; color: white; outline: none; }
+        #header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; }
+        .pfp { width: 35px; height: 35px; border-radius: 50%; background: #333; }
+        .name { font-weight: 700; font-size: 16px; flex: 1; }
+        #sos-btn { color: #ff3b30; font-size: 12px; font-weight: bold; border: 1px solid #ff3b30; padding: 4px 8px; border-radius: 5px; }
+
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        .msg-wrap { display: flex; flex-direction: column; max-width: 80%; }
+        .me { align-self: flex-end; align-items: flex-end; }
+        .them { align-self: flex-start; align-items: flex-start; }
+        .bubble { padding: 12px 16px; border-radius: 20px; font-size: 15px; line-height: 1.4; }
+        .bubble-me { background: #3797f0; color: #fff; border-bottom-right-radius: 4px; }
+        .bubble-them { background: #262626; color: #fff; border-bottom-left-radius: 4px; }
+        .time { font-size: 10px; color: #8e8e93; margin-top: 5px; }
+
+        #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; }
+        #msg-in { flex: 1; padding: 10px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; outline: none; }
     </style>
 </head>
 <body>
 
-    <div id="calc-container">
+    <div id="calc-ui">
         <div id="display">0</div>
         <div class="grid">
-            <button class="btn top" onclick="handleAC()" id="ac-btn">AC</button>
-            <button class="btn top">+/-</button>
-            <button class="btn top">%</button>
-            <button class="btn op" onclick="pressOp('/')">÷</button>
-            <button class="btn num" onclick="pressNum('7')">7</button>
-            <button class="btn num" onclick="pressNum('8')">8</button>
-            <button class="btn num" onclick="pressNum('9')">9</button>
-            <button class="btn op" onclick="pressOp('*')">×</button>
-            <button class="btn num" onclick="pressNum('4')">4</button>
-            <button class="btn num" onclick="pressNum('5')">5</button>
-            <button class="btn num" onclick="pressNum('6')">6</button>
-            <button class="btn op" onclick="pressOp('-')">-</button>
-            <button class="btn num" onclick="pressNum('1')">1</button>
-            <button class="btn num" onclick="pressNum('2')">2</button>
-            <button class="btn num" onclick="pressNum('3')">3</button>
-            <button class="btn op" onclick="pressOp('+')">+</button>
-            <button class="btn num zero" onclick="pressNum('0')">0</button>
-            <button class="btn num" onclick="pressNum('.')">.</button>
-            <button class="btn op" onclick="calculate()">=</button>
+            <button class="btn top" onclick="handleAC()">AC</button>
+            <button class="btn top">+/-</button><button class="btn top">%</button><button class="btn op" onclick="press('/')">÷</button>
+            <button class="btn num" onclick="press('7')">7</button><button class="btn num" onclick="press('8')">8</button><button class="btn num" onclick="press('9')">9</button><button class="btn op" onclick="press('*')">×</button>
+            <button class="btn num" onclick="press('4')">4</button><button class="btn num" onclick="press('5')">5</button><button class="btn num" onclick="press('6')">6</button><button class="btn op" onclick="press('-')">-</button>
+            <button class="btn num" onclick="press('1')">1</button><button class="btn num" onclick="press('2')">2</button><button class="btn num" onclick="press('3')">3</button><button class="btn op" onclick="press('+')">+</button>
+            <button class="btn num zero" onclick="press('0')">0</button><button class="btn num">.</button><button class="btn op" onclick="equal()">=</button>
         </div>
     </div>
 
     <div id="secret-app">
-        <div id="login-screen" class="login-box">
-            <h2 style="font-weight: 300; margin-bottom: 20px;">Premium Membership</h2>
-            <input type="text" id="user" class="input" placeholder="Membership ID">
-            <input type="password" id="pass" class="input" placeholder="Access PIN">
-            <button class="login-btn" onclick="tryLogin()">Unlock</button>
-            <p style="margin-top: 20px; color: #555; font-size: 12px;" onclick="location.reload()">Back to Calculator</p>
+        <div id="login-screen">
+            <h2 style="font-weight: 200; margin-bottom: 20px;">Premium Membership</h2>
+            <input type="text" id="user" class="login-input" placeholder="Membership ID">
+            <input type="password" id="pass" class="login-input" placeholder="Access Code">
+            <button class="login-btn" onclick="checkLogin()">Sign In</button>
+            <p style="margin-top: 30px; color: #444; font-size: 12px;" onclick="location.reload()">Back to Calculator</p>
         </div>
 
         <div id="chat-ui">
-            <div style="padding: 15px; border-bottom: 1px solid #262626; display: flex; justify-content: space-between;">
-                <b>lovleenx</b>
-                <span onclick="location.reload()" style="color: #ff3b30; font-size: 12px;">CLOSE</span>
+            <div id="header">
+                <div class="pfp"></div>
+                <div class="name">lovleenx</div>
+                <div id="sos-btn" onclick="location.reload()">OFF</div>
             </div>
-            <div id="messages"></div>
-            <div id="input-area">
+            <div id="messages">
+                <div class="msg-wrap them"><div class="bubble bubble-them">Triple tap working! Andar ka system check karle.</div><div class="time">10:30 PM</div></div>
+                <div class="msg-wrap me"><div class="bubble bubble-me">123 123 waala password mast hai.</div><div class="time">10:31 PM • Seen</div></div>
+            </div>
+            <div id="input-bar">
                 <input type="text" id="msg-in" placeholder="Message..." onkeypress="if(event.key==='Enter') send()">
-                <button onclick="send()" style="color: #007aff; background: none; border: none; font-weight: bold;">SEND</button>
+                <button onclick="send()" style="background:none; border:none; color:#3797f0; font-weight:bold;">Send</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- CALCULATOR LOGIC ---
-        let current = '0';
-        function updateDisp() { document.getElementById('display').innerText = current; }
-        function pressNum(n) { if(current === '0') current = n; else current += n; updateDisp(); }
-        function pressOp(o) { current += o; updateDisp(); }
-        function calculate() { try { current = eval(current).toString(); updateDisp(); } catch { current = 'Error'; updateDisp(); } }
-        
-        // --- SECRET TRIGGER (Double Tap AC) ---
-        let lastClick = 0;
+        // --- CALC LOGIC ---
+        let exp = '0';
+        function update() { document.getElementById('display').innerText = exp; }
+        function press(v) { if(exp === '0') exp = v; else exp += v; update(); }
+        function equal() { try { exp = eval(exp).toString(); update(); } catch { exp = 'Error'; update(); } }
+
+        // --- SECRET TRIGGER (Triple Tap AC) ---
+        let taps = 0; let lastTap = 0;
         function handleAC() {
             let now = Date.now();
-            if (now - lastClick < 500) { // Double tap detect
+            if (now - lastTap < 600) { taps++; } else { taps = 1; }
+            lastTap = now;
+
+            if (taps === 3) { // 3 TAPS -> LOGIN SCREEN
                 document.getElementById('secret-app').style.display = 'flex';
+                taps = 0;
             }
-            current = '0';
-            updateDisp();
-            lastClick = now;
+            exp = '0'; update();
         }
 
-        // --- LOGIN & CHAT ---
-        function tryLogin() {
+        // --- LOGIN LOGIC (Pass: 123) ---
+        function checkLogin() {
             let u = document.getElementById('user').value;
             let p = document.getElementById('pass').value;
-            // Yahan wahi admin / 1234 use karlo trial ke liye
-            if(u === 'admin' && p === '1234') {
+            if(u === '123' && p === '123') {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('chat-ui').style.display = 'flex';
-                document.getElementById('messages').innerHTML = '<div class="msg them">Premium Membership Active! Type anything...</div>';
-            } else { alert("No active subscription found."); }
+            } else { alert("No notes premium subscription found."); }
         }
 
+        // --- CHAT SEND ---
         function send() {
-            let i = document.getElementById('msg-in');
-            if(!i.value) return;
-            document.getElementById('messages').innerHTML += `<div class="msg me">${i.value}</div>`;
-            i.value = '';
-            let m = document.getElementById('messages'); m.scrollTop = m.scrollHeight;
+            let i = document.getElementById('msg-in'); if(!i.value.trim()) return;
+            let m = document.getElementById('messages');
+            m.innerHTML += `<div class="msg-wrap me"><div class="bubble bubble-me">${i.value}</div><div class="time">Just Now</div></div>`;
+            i.value = ''; m.scrollTop = m.scrollHeight;
         }
     </script>
 </body>
