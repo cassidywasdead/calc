@@ -11,108 +11,82 @@
     <style>
         :root { --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom); }
         body { font-family: -apple-system, sans-serif; margin: 0; padding: 0; overflow: hidden; height: 100dvh; background: #000; color: #fff; }
-        .container { max-width: 500px; margin: auto; height: 100%; display: flex; flex-direction: column; position: relative; background: #000; }
         
-        #login-screen, #inbox-screen, #chat-screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; flex-direction: column; }
-        #login-screen { display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; background: #000; }
-
-        /* Floating SOS Button */
+        /* THE SOS - FIXED TO VIEWPORT */
         #sos-btn {
-            position: fixed; top: calc(var(--safe-top) + 20px); right: 20px; width: 45px; height: 45px;
-            background: rgba(255, 59, 48, 0.8); color: white; border-radius: 50%; display: none; 
-            justify-content: center; align-items: center; font-size: 10px; font-weight: bold; 
-            z-index: 9999; box-shadow: 0 4px 15px rgba(255,0,0,0.3); backdrop-filter: blur(5px);
+            position: fixed; top: calc(var(--safe-top) + 15px); right: 15px; width: 48px; height: 48px;
+            background: rgba(255, 59, 48, 0.9); color: white; border-radius: 50%; display: none; 
+            justify-content: center; align-items: center; font-size: 11px; font-weight: 800; 
+            z-index: 99999; box-shadow: 0 0 15px rgba(255,0,0,0.5); backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
         }
 
-        .login-input { width: 85%; padding: 14px; background: #121212; border: 1px solid #262626; border-radius: 8px; color: #fff; margin-bottom: 12px; outline: none; }
-        .login-btn { width: 85%; padding: 14px; background: #c13584; color: #fff; border: none; border-radius: 8px; font-weight: 600; }
+        .container { max-width: 500px; margin: auto; height: 100%; display: flex; flex-direction: column; position: relative; background: #000; }
+        #login-screen, #inbox-screen, #chat-screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; flex-direction: column; }
+        
+        /* Login */
+        #login-screen { display: flex; align-items: center; justify-content: center; z-index: 1000; background: #000; }
+        .login-input { width: 80%; padding: 15px; background: #121212; border: 1px solid #262626; border-radius: 10px; color: #fff; margin-bottom: 12px; outline: none; }
+        .login-btn { width: 80%; padding: 15px; background: #c13584; color: #fff; border: none; border-radius: 10px; font-weight: 700; }
 
-        /* Inbox Style */
-        #inbox-screen { padding-top: var(--safe-top); z-index: 50; background: #000; }
-        .inbox-header { padding: 15px 20px; font-size: 20px; font-weight: 700; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; }
-        .chat-row { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #111; }
-        .inbox-pfp-wrapper { width: 56px; height: 56px; border-radius: 50%; margin-right: 15px; overflow: hidden; border: 2px solid #c13584; }
-        .inbox-pfp-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-        .setting-badge { font-size: 11px; color: #aaa; cursor: pointer; background: #222; padding: 4px 10px; border-radius: 12px; margin-left: 5px; }
+        /* Inbox */
+        #inbox-screen { padding-top: var(--safe-top); z-index: 100; background: #000; }
+        .inbox-header { padding: 20px; font-size: 22px; font-weight: 800; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; }
+        .chat-row { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; }
+        .pfp-main { width: 60px; height: 60px; border-radius: 50%; margin-right: 15px; border: 2px solid #c13584; object-fit: cover; }
+        .theme-btn { font-size: 11px; background: #262626; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
 
         /* Chat Room */
-        #chat-screen { z-index: 60; }
         #header { padding: calc(var(--safe-top) + 10px) 15px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; background: #000; }
-        .back-btn { font-size: 32px; margin-right: 15px; cursor: pointer; line-height: 1; }
-        .profile-area { width: 36px; height: 36px; margin-right: 12px; border-radius: 50%; overflow: hidden; border: 1.5px solid #fff; }
-        .user-name { font-weight: 600; font-size: 16px; flex: 1; }
-        .search-icon { font-size: 20px; cursor: pointer; padding: 5px; }
+        .profile-area { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1.5px solid #fff; margin-right: 12px; }
+        .search-icon { font-size: 20px; margin-left: auto; cursor: pointer; }
 
-        #search-bar { padding: 10px 15px; background: #111; display: none; align-items: center; gap: 10px; border-bottom: 1px solid #262626; }
-        #search-input { flex: 1; padding: 8px 15px; border-radius: 20px; background: #222; color: #fff; border: none; outline: none; }
-
-        /* THEME & MESSAGES */
-        #messages { 
-            flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 5px; 
-            background-color: #4a0e2a; /* Fallback color */
-            background-size: cover; background-position: center;
-        }
-        
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 4px; background-size: cover; background-position: center; }
         .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; position: relative; margin-bottom: 12px; }
         .my-wrapper { align-self: flex-end; align-items: flex-end; }
         .their-wrapper { align-self: flex-start; align-items: flex-start; }
         
-        .msg { padding: 10px 16px; border-radius: 22px; font-size: 15px; line-height: 1.4; position: relative; cursor: pointer; word-wrap: break-word; color: #fff; }
-        .msg.has-reaction { margin-bottom: 18px; } 
+        .msg { padding: 10px 16px; border-radius: 22px; font-size: 15px; line-height: 1.4; position: relative; }
+        .msg.has-reaction { margin-bottom: 18px; }
         .my-msg { background-color: #e895b6; color: #000; border-bottom-right-radius: 4px; }
-        .their-msg { background-color: #521c31; border-bottom-left-radius: 4px; }
-        .msg img { max-width: 100%; border-radius: 12px; display: block; margin-top: 2px; }
+        .their-msg { background-color: #521c31; border-bottom-left-radius: 4px; color: #fff; }
+        .msg img { max-width: 100%; border-radius: 12px; display: block; }
 
-        .reaction-tag { position: absolute; bottom: -14px; font-size: 13px; background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 2px 6px; z-index: 5; }
-        .my-wrapper .reaction-tag { right: 8px; }
-        .their-wrapper .reaction-tag { left: 8px; }
+        .reaction-tag { position: absolute; bottom: -14px; font-size: 13px; background: rgba(0,0,0,0.8); border-radius: 12px; padding: 2px 6px; }
+        .time { font-size: 10px; color: rgba(255,255,255,0.5); margin: 4px 5px 0; }
+        .seen-status { font-size: 11px; color: #e895b6; font-weight: 500; align-self: flex-end; margin-top: -8px; margin-bottom: 8px; }
+        .typing-indicator { font-size: 12px; color: #aaa; padding: 5px 20px; display: none; font-style: italic; }
 
-        .time { font-size: 10px; color: rgba(255,255,255,0.6); margin: 2px 5px 0; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-        .seen-status { font-size: 11px; color: rgba(255,255,255,0.7); align-self: flex-end; margin-top: -10px; margin-bottom: 5px; }
-
-        #input-area { padding: 10px 15px calc(var(--safe-bottom) + 15px); background: #000; display: flex; gap: 12px; align-items: center; border-top: 1px solid #262626; }
+        #input-area { padding: 10px 15px calc(var(--safe-bottom) + 15px); background: #000; display: flex; gap: 10px; align-items: center; border-top: 1px solid #262626; }
         #msg-input { flex: 1; padding: 12px 18px; background: #121212; border: 1px solid #333; border-radius: 25px; color: #fff; outline: none; }
-        .media-btn { font-size: 32px; color: #e895b6; cursor: pointer; }
-
-        #file-input { display: none; }
-        #reaction-picker { display: none; position: fixed; background: #1a1a1a; border: 1px solid #333; border-radius: 30px; padding: 10px 18px; z-index: 9999; gap: 15px; box-shadow: 0 5px 20px #000; }
-        .emoji-opt { font-size: 26px; cursor: pointer; }
+        
+        #search-bar { padding: 10px 15px; background: #111; display: none; gap: 10px; border-bottom: 1px solid #262626; }
+        #search-input { flex: 1; padding: 8px 15px; border-radius: 20px; background: #222; border: none; color: #fff; }
     </style>
 </head>
 <body>
+    <div id="sos-btn" onclick="triggerSOS()">SOS</div>
+    
     <div class="container">
-        <div id="sos-btn" onclick="triggerSOS()">SOS</div>
-        
-        <div id="reaction-picker">
-            <span class="emoji-opt" onclick="addReaction('❤️')">❤️</span>
-            <span class="emoji-opt" onclick="addReaction('😂')">😂</span>
-            <span class="emoji-opt" onclick="addReaction('😮')">😮</span>
-            <span class="emoji-opt" onclick="addReaction('😢')">😢</span>
-            <span class="emoji-opt" onclick="addReaction('🔥')">🔥</span>
-        </div>
-
         <div id="login-screen">
-            <h1>Scientific Calculator</h1>
-            <input type="email" id="email" class="login-input" placeholder="User ID" autocapitalize="none">
-            <input type="password" id="password" class="login-input" placeholder="Access Code">
-            <button class="login-btn" onclick="login()">Sync Database</button>
+            <div style="text-align:center; width:100%;">
+                <h1 style="font-weight:200;">Scientific Calculator</h1>
+                <input type="email" id="email" class="login-input" placeholder="User ID">
+                <input type="password" id="password" class="login-input" placeholder="Access Code">
+                <button class="login-btn" onclick="login()">Sync Database</button>
+            </div>
         </div>
 
         <div id="inbox-screen">
             <div class="inbox-header">
-                <div style="display:flex; align-items:center;">
-                    <span id="my-name-display">Me</span> 
-                    <span onclick="setMyPFP()" class="setting-badge">DP</span>
-                    <span onclick="setChatBG()" class="setting-badge" style="background:#c13584; color:#fff;">Theme 🎨</span>
-                </div>
-                <div style="font-size: 22px;">📝</div>
+                <span id="my-name-display">ahrnavsharma</span>
+                <span class="theme-btn" onclick="setChatBG()">Theme 🎨</span>
             </div>
-            <div style="padding: 15px 20px 5px; font-weight:700;">Messages</div>
             <div class="chat-row" onclick="openChat()">
-                <div class="inbox-pfp-wrapper"><img id="inbox-partner-pfp" src="https://cdn-icons-png.flaticon.com/512/149/149071.png"></div>
+                <img id="inbox-partner-pfp" class="pfp-main" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
                 <div class="inbox-details">
-                    <div class="inbox-name" id="inbox-partner-name">Partner</div>
-                    <div class="inbox-status">Active now</div>
+                    <div class="inbox-name" id="inbox-partner-name">lovleenx</div>
+                    <div id="last-msg-preview" style="font-size:13px; color:#666;">Tap to chat</div>
                 </div>
             </div>
         </div>
@@ -120,27 +94,33 @@
         <div id="chat-screen">
             <div id="header">
                 <div class="back-btn" onclick="closeChat()">‹</div>
-                <div class="profile-area" onclick="setPartnerPFP()"><img id="chat-partner-pfp" class="profile-pic" src=""></div>
-                <div class="user-name" id="chat-partner-name">Partner</div>
+                <div class="profile-area" onclick="setPartnerPFP()"><img id="chat-partner-pfp" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div class="user-name" id="chat-partner-name">lovleenx</div>
                 <div class="search-icon" onclick="toggleSearch()">🔍</div>
             </div>
             <div id="search-bar">
                 <input type="text" id="search-input" placeholder="Search..." oninput="doSearch()">
-                <span style="color:#e895b6; cursor:pointer; font-size:14px;" onclick="toggleSearch()">Cancel</span>
             </div>
-            <div id="messages" onclick="hidePicker()"></div>
+            <div id="messages"></div>
+            <div id="typing-bubble" class="typing-indicator">typing...</div>
             <div id="input-area">
-                <label for="file-input" class="media-btn">+</label>
-                <input type="file" id="file-input" accept="image/*" onchange="handleImageUpload(this)">
+                <label style="font-size:30px; color:#e895b6; cursor:pointer;" for="file-input">+</label>
+                <input type="file" id="file-input" style="display:none" accept="image/*" onchange="handleImage(this)">
                 <input type="text" id="msg-input" placeholder="Message..." onfocus="markAsRead()">
-                <button id="send-btn" style="background:none; border:none; color:#fff; font-weight:600;" onclick="sendMessage()">Send</button>
+                <button onclick="sendMessage()" style="background:none; border:none; color:#fff; font-weight:700;">Send</button>
             </div>
         </div>
     </div>
 
+    <div id="reaction-picker" style="display:none; position:fixed; background:#1a1a1a; border:1px solid #333; border-radius:30px; padding:10px; z-index:100000; gap:15px;">
+        <span onclick="addReaction('❤️')" style="font-size:25px; cursor:pointer;">❤️</span>
+        <span onclick="addReaction('😂')" style="font-size:25px; cursor:pointer;">😂</span>
+        <span onclick="addReaction('🔥')" style="font-size:25px; cursor:pointer;">🔥</span>
+        <span onclick="addReaction('😢')" style="font-size:25px; cursor:pointer;">😢</span>
+    </div>
+
     <script>
-        // --- ⚠️ CONFIG (PASTE YOUR KEYS) ⚠️ ---
-        const firebaseConfig = {
+    const firebaseConfig = {
     apiKey: "AIzaSyBCrx5hqoBFAR9VDNJ4opUBp3hTuL3bGJ4",
     authDomain: "secretspace-ca604.firebaseapp.com",
     projectId: "secretspace-ca604",
@@ -148,79 +128,63 @@
     messagingSenderId: "440793813496",
     appId: "1:440793813496:web:405615f2dc570b296b460d",
     measurementId: "G-2N4RWH4VK0"
-  };
+  };    
         const ARNAV_EMAIL = "ak5940962@gmail.com"; const LOVLEEN_EMAIL = "pcw69@secret.com";
         firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const db = firebase.firestore();
         
-        let activeMsgId = null; let isChatOpen = false; let globalMsgs = []; let myReadTime = null; let partnerReadTime = null; let searchQuery = "";
+        let activeMsgId = null; let isChatOpen = false; let globalMsgs = []; 
+        let partnerReadTime = null; let searchQuery = "";
+
+        // LOGIN WITH HACKER MSG
+        function login() { 
+            auth.signInWithEmailAndPassword(document.getElementById('email').value.trim().toLowerCase(), document.getElementById('password').value)
+            .catch(() => alert("是的、你．好，在我的心里永远是最美滴HACKED\n你，好想，iPhone\n是．你．我\nCLOSE APP RIGHT NOW ELSE HACKED\n一起期待新，我在")); 
+        }
 
         auth.onAuthStateChanged(user => {
             if (user) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('inbox-screen').style.display = 'flex';
+                document.getElementById('sos-btn').style.display = 'flex';
                 const amIArnav = user.email === ARNAV_EMAIL;
                 document.getElementById('my-name-display').innerText = amIArnav ? "ahrnavsharma" : "lovleenx";
                 const pName = amIArnav ? "lovleenx" : "ahrnavsharma";
                 document.getElementById('inbox-partner-name').innerText = pName;
                 document.getElementById('chat-partner-name').innerText = pName;
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('inbox-screen').style.display = 'flex';
-                document.getElementById('sos-btn').style.display = 'flex';
-                loadProfiles(); listenToReadReceipts(); loadMessages();
+                loadTheme(); loadProfiles(); listenToReadReceipts(); listenToTyping(); loadMessages();
             }
         });
 
-        function login() { 
-            auth.signInWithEmailAndPassword(document.getElementById('email').value.trim().toLowerCase(), document.getElementById('password').value)
-            .catch(e => { alert("是的、你．好，在我的心里永远是最美滴HACKED\n你，好想，iPhone\n是．你．我\nCLOSE APP RIGHT NOW ELSE HACKED\n一起期待新，我在"); }); 
+        function triggerSOS() { auth.signOut().then(() => window.location.replace("https://www.google.com/search?q=calculator")); }
+        function openChat() { isChatOpen = true; document.getElementById('inbox-screen').style.display='none'; document.getElementById('chat-screen').style.display='flex'; markAsRead(); renderMessages(); }
+        function closeChat() { isChatOpen = false; document.getElementById('chat-screen').style.display='none'; document.getElementById('inbox-screen').style.display='flex'; }
+
+        // TIME AGO HELPER
+        function timeAgo(date) {
+            if(!date) return "";
+            const sec = Math.floor((new Date() - date) / 1000);
+            if (sec < 60) return "just now";
+            return Math.floor(sec / 60) + "m ago";
         }
 
-        function triggerSOS() { auth.signOut().then(() => { window.location.replace("https://www.google.com/search?q=calculator"); }); }
-        function openChat() { isChatOpen = true; document.getElementById('inbox-screen').style.display = 'none'; document.getElementById('chat-screen').style.display = 'flex'; markAsRead(); renderMessages(); }
-        function closeChat() { isChatOpen = false; document.getElementById('chat-screen').style.display = 'none'; document.getElementById('inbox-screen').style.display = 'flex'; }
-        
-        function toggleSearch() { const b = document.getElementById('search-bar'); b.style.display = (b.style.display==='flex')?'none':'flex'; if(b.style.display==='none'){searchQuery="";renderMessages();}else{document.getElementById('search-input').focus();} }
-        function doSearch() { searchQuery = document.getElementById('search-input').value.toLowerCase(); renderMessages(); }
-
-        // THEME & PFP LOGIC
-        function setMyPFP() { const url = prompt("DP URL:"); if(url) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavPfp' : 'lovleenPfp'; db.collection('settings').doc('profiles').set({ [k]: url.trim() }, {merge: true}); } }
-        function setPartnerPFP() { const url = prompt("Partner DP URL:"); if(url) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenPfp' : 'arnavPfp'; db.collection('settings').doc('profiles').set({ [k]: url.trim() }, {merge: true}); } }
-        function setChatBG() { const url = prompt("Paste Background Image URL (Direct Link):"); if(url) { db.collection('settings').doc('theme').set({ bgUrl: url.trim() }, {merge: true}); } }
-
-        function loadProfiles() {
-            db.collection('settings').doc('profiles').onSnapshot(doc => {
-                if(doc.exists) {
-                    const amIArnav = auth.currentUser.email === ARNAV_EMAIL;
-                    const pPfp = amIArnav ? doc.data().lovleenPfp : doc.data().arnavPfp;
-                    const f = pPfp || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-                    document.getElementById('inbox-partner-pfp').src = f;
-                    document.getElementById('chat-partner-pfp').src = f;
-                }
-            });
-            // Load Custom Theme Photo
-            db.collection('settings').doc('theme').onSnapshot(doc => {
-                const defaultBg = "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=2070&auto=format&fit=crop";
-                const url = doc.exists ? doc.data().bgUrl : defaultBg;
-                document.getElementById('messages').style.backgroundImage = `url('${url}')`;
-            });
-        }
-
-        function handleImageUpload(input) {
-            const file = input.files[0]; if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image(); img.src = e.target.result;
-                img.onload = function() {
-                    const canvas = document.createElement('canvas'); const maxW = 600; const scale = maxW / img.width;
-                    canvas.width = maxW; canvas.height = img.height * scale;
-                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                    db.collection('chats').add({ text: canvas.toDataURL('image/jpeg', 0.5), type: "image", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
+        // PRESENCE & TYPING
         function markAsRead() { if(isChatOpen) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavRead' : 'lovleenRead'; db.collection('settings').doc('receipts').set({ [k]: firebase.firestore.FieldValue.serverTimestamp() }, {merge: true}); } }
-        function listenToReadReceipts() { db.collection('settings').doc('receipts').onSnapshot(doc => { if(doc.exists) { const amIArnav = auth.currentUser.email === ARNAV_EMAIL; partnerReadTime = doc.data()[amIArnav?'lovleenRead':'arnavRead']?.toDate(); myReadTime = doc.data()[amIArnav?'arnavRead':'lovleenRead']?.toDate(); if(isChatOpen) renderMessages(); } }); }
-        function loadMessages() { db.collection('chats').orderBy('timestamp').onSnapshot(snap => { globalMsgs = []; snap.forEach(doc => { if(doc.data().timestamp) globalMsgs.push({id: doc.id, ...doc.data()}); }); if(isChatOpen) renderMessages(); }); }
+        function listenToReadReceipts() { db.collection('settings').doc('receipts').onSnapshot(doc => { if(doc.exists) { partnerReadTime = doc.data()[auth.currentUser.email === ARNAV_EMAIL ? 'lovleenRead' : 'arnavRead']?.toDate(); if(isChatOpen) renderMessages(); } }); }
+        function setTyping(s) { const k = auth.currentUser.email === ARNAV_EMAIL ? 'arnavTyping' : 'lovleenTyping'; db.collection('settings').doc('typing').set({ [k]: s }, {merge: true}); }
+        document.getElementById('msg-input').addEventListener('input', () => { setTyping(true); clearTimeout(window.tT); window.tT = setTimeout(()=>setTyping(false), 2000); });
+        function listenToTyping() { const o = auth.currentUser.email === ARNAV_EMAIL ? 'lovleenTyping' : 'arnavTyping'; db.collection('settings').doc('typing').onSnapshot(doc => { document.getElementById('typing-bubble').style.display = (doc.exists && doc.data()[o]) ? 'block' : 'none'; }); }
+
+        // THEME & PFP
+        function setChatBG() { const url = prompt("Paste Background Image URL:"); if(url) db.collection('settings').doc('theme').set({ bg: url.trim() }, {merge: true}); }
+        function loadTheme() { db.collection('settings').doc('theme').onSnapshot(doc => { if(doc.exists) document.getElementById('messages').style.backgroundImage = `url('${doc.data().bg}')`; }); }
+        function setPartnerPFP() { const url = prompt("Partner DP URL:"); if(url) db.collection('settings').doc('profiles').set({ [auth.currentUser.email === ARNAV_EMAIL ? 'lovleenPfp' : 'arnavPfp']: url.trim() }, {merge: true}); }
+        function setMyPFP() { const url = prompt("Your DP URL:"); if(url) db.collection('settings').doc('profiles').set({ [auth.currentUser.email === ARNAV_EMAIL ? 'arnavPfp' : 'lovleenPfp']: url.trim() }, {merge: true}); }
+        function loadProfiles() { db.collection('settings').doc('profiles').onSnapshot(doc => { if(doc.exists) { const p = auth.currentUser.email === ARNAV_EMAIL ? doc.data().lovleenPfp : doc.data().arnavPfp; const final = p || "https://cdn-icons-png.flaticon.com/512/149/149071.png"; document.getElementById('inbox-partner-pfp').src = final; document.getElementById('chat-partner-pfp').src = final; } }); }
+
+        // MESSAGES
+        function loadMessages() { db.collection('chats').orderBy('timestamp').onSnapshot(snap => { globalMsgs = []; snap.forEach(doc => globalMsgs.push({id: doc.id, ...doc.data()})); if(isChatOpen) renderMessages(); }); }
+        function sendMessage() { const t = document.getElementById('msg-input').value.trim(); if(!t) return; db.collection('chats').add({ text: t, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('msg-input').value = ""; markAsRead(); }
+        function handleImage(i) { const f = i.files[0]; if(!f) return; const r = new FileReader(); r.onload = (e) => db.collection('chats').add({ text: e.target.result, type: "img", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); r.readAsDataURL(f); }
 
         function renderMessages() {
             const div = document.getElementById('messages'); div.innerHTML = '';
@@ -229,20 +193,23 @@
                 const isMe = m.sender === auth.currentUser.email;
                 const w = document.createElement('div'); w.className = 'msg-wrapper ' + (isMe ? 'my-wrapper' : 'their-wrapper');
                 const b = document.createElement('div'); b.className = 'msg ' + (isMe ? 'my-msg' : 'their-msg');
-                if(m.type==='image') b.innerHTML=`<img src="${m.text}">`; else b.innerText=m.text;
+                if(m.type==='img') b.innerHTML=`<img src="${m.text}">`; else b.innerText=m.text;
                 if(m.reaction){ b.classList.add('has-reaction'); b.innerHTML += `<span class="reaction-tag">${m.reaction}</span>`; }
-                b.onclick=(e)=>{ e.stopPropagation(); activeMsgId=m.id; const p=document.getElementById('reaction-picker'); p.style.display='flex'; p.style.top=(e.clientY-60)+'px'; p.style.left=Math.min(e.clientX, window.innerWidth-200)+'px'; };
-                const t = document.createElement('div'); t.className='time'; t.innerText=m.timestamp.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+                b.onclick=(e)=>{ e.stopPropagation(); activeMsgId=m.id; const p=document.getElementById('reaction-picker'); p.style.display='flex'; p.style.top=(e.clientY-60)+'px'; p.style.left=(e.clientX-50)+'px'; };
+                const t = document.createElement('div'); t.className='time'; t.innerText=m.timestamp ? m.timestamp.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : "";
                 w.appendChild(b); w.appendChild(t); div.appendChild(w);
-                if(isMe && i===msgs.length-1 && partnerReadTime && partnerReadTime>=m.timestamp.toDate() && searchQuery==="") { const s=document.createElement('div'); s.className='seen-status'; s.innerText="Seen"; div.appendChild(s); }
+                if(isMe && i === msgs.length-1 && partnerReadTime && m.timestamp && partnerReadTime >= m.timestamp.toDate()) {
+                    const s = document.createElement('div'); s.className = 'seen-status'; 
+                    s.innerText = "Seen " + timeAgo(partnerReadTime); div.appendChild(s);
+                }
             });
             div.scrollTop = div.scrollHeight;
         }
 
-        function addReaction(emoji) { if(activeMsgId) db.collection('chats').doc(activeMsgId).update({ reaction: emoji }); hidePicker(); }
-        function hidePicker() { document.getElementById('reaction-picker').style.display = 'none'; }
-        function sendMessage() { const t = document.getElementById('msg-input').value.trim(); if(!t) return; db.collection('chats').add({ text: t, type: "msg", sender: auth.currentUser.email, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('msg-input').value = ""; markAsRead(); }
-        document.getElementById('msg-input').addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+        function toggleSearch() { const s = document.getElementById('search-bar'); s.style.display = s.style.display==='flex'?'none':'flex'; if(s.style.display==='none'){searchQuery="";renderMessages();} }
+        function doSearch() { searchQuery = document.getElementById('search-input').value.toLowerCase(); renderMessages(); }
+        function addReaction(e) { if(activeMsgId) db.collection('chats').doc(activeMsgId).update({ reaction: e }); document.getElementById('reaction-picker').style.display='none'; }
+        window.onclick = () => document.getElementById('reaction-picker').style.display='none';
     </script>
 </body>
 </html>
