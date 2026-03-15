@@ -2,19 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
     <title>Scientific Calculator</title>
     <style>
         :root { --safe-top: env(safe-area-inset-top, 20px); --safe-bottom: env(safe-area-inset-bottom, 20px); }
-        * { box-sizing: border-box; font-family: -apple-system, sans-serif; margin: 0; padding: 0; }
-        body { background: #000; color: #fff; height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        * { box-sizing: border-box; font-family: -apple-system, sans-serif; margin: 0; padding: 0; touch-action: manipulation; }
+        body { background: #000; color: #fff; height: 100dvh; display: flex; align-items: center; justify-content: center; overflow: hidden; position: fixed; width: 100%; }
 
         /* --- CALCULATOR UI --- */
         #calc-ui { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; height: 100%; }
         #display { flex: 1; display: flex; align-items: flex-end; justify-content: flex-end; font-size: 65px; padding: 20px; overflow: hidden; }
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-        .btn { height: 75px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.1s; }
-        .btn:active { opacity: 0.6; transform: scale(0.92); }
+        .btn { height: 75px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
         .num { background: #333; color: white; }
         .op { background: #f1a33c; color: white; }
         .top { background: #a5a5a5; color: black; }
@@ -24,11 +23,12 @@
         #secret-app { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
 
         /* --- LOGIN SCREEN --- */
-        #login-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        #login-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        /* Font-size 16px is MAGIC to stop iPhone zoom */
         .login-input { width: 85%; padding: 16px; margin-bottom: 12px; background: #1c1c1e; border: 1px solid #333; color: #fff; border-radius: 12px; outline: none; font-size: 16px; }
-        .login-btn { width: 85%; padding: 16px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-weight: bold; }
+        .login-btn { width: 85%; padding: 16px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 16px; }
 
-        /* --- CHAT UI (INSTA DM STYLE) --- */
+        /* --- CHAT UI --- */
         #chat-ui { display: none; flex-direction: column; height: 100%; }
         #header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; }
         .pfp { width: 35px; height: 35px; border-radius: 50%; background: #333; }
@@ -44,8 +44,8 @@
         .bubble-them { background: #262626; color: #fff; border-bottom-left-radius: 4px; }
         .time { font-size: 10px; color: #8e8e93; margin-top: 5px; }
 
-        #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; }
-        #msg-in { flex: 1; padding: 10px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; outline: none; }
+        #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: #000; }
+        #msg-in { flex: 1; padding: 10px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; outline: none; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -64,11 +64,11 @@
 
     <div id="secret-app">
         <div id="login-screen">
-            <h2 style="font-weight: 200; margin-bottom: 20px;">Premium Membership</h2>
-            <input type="text" id="user" class="login-input" placeholder="Membership ID">
-            <input type="password" id="pass" class="login-input" placeholder="Access Code">
-            <button class="login-btn" onclick="checkLogin()">Sign In</button>
-            <p style="margin-top: 30px; color: #444; font-size: 12px;" onclick="location.reload()">Back to Calculator</p>
+            <h2 style="font-weight: 200; margin-bottom: 20px;">Membership Login</h2>
+            <input type="text" id="user" class="login-input" placeholder="ID (123)" inputmode="numeric">
+            <input type="password" id="pass" class="login-input" placeholder="PIN (123)" inputmode="numeric">
+            <button class="login-btn" onclick="checkLogin()">Enter</button>
+            <p style="margin-top: 30px; color: #444; font-size: 12px;" onclick="location.reload()">Back</p>
         </div>
 
         <div id="chat-ui">
@@ -78,48 +78,41 @@
                 <div id="sos-btn" onclick="location.reload()">OFF</div>
             </div>
             <div id="messages">
-                <div class="msg-wrap them"><div class="bubble bubble-them">Triple tap working! Andar ka system check karle.</div><div class="time">10:30 PM</div></div>
-                <div class="msg-wrap me"><div class="bubble bubble-me">123 123 waala password mast hai.</div><div class="time">10:31 PM • Seen</div></div>
+                <div class="msg-wrap them"><div class="bubble bubble-them">Ab zoom nahi hoga! Mast test kar.</div><div class="time">10:50 PM</div></div>
             </div>
             <div id="input-bar">
                 <input type="text" id="msg-in" placeholder="Message..." onkeypress="if(event.key==='Enter') send()">
-                <button onclick="send()" style="background:none; border:none; color:#3797f0; font-weight:bold;">Send</button>
+                <button onclick="send()" style="background:none; border:none; color:#3797f0; font-weight:bold; font-size:16px;">Send</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- CALC LOGIC ---
         let exp = '0';
         function update() { document.getElementById('display').innerText = exp; }
         function press(v) { if(exp === '0') exp = v; else exp += v; update(); }
         function equal() { try { exp = eval(exp).toString(); update(); } catch { exp = 'Error'; update(); } }
 
-        // --- SECRET TRIGGER (Triple Tap AC) ---
         let taps = 0; let lastTap = 0;
         function handleAC() {
             let now = Date.now();
             if (now - lastTap < 600) { taps++; } else { taps = 1; }
             lastTap = now;
-
-            if (taps === 3) { // 3 TAPS -> LOGIN SCREEN
+            if (taps === 3) { 
                 document.getElementById('secret-app').style.display = 'flex';
+                document.getElementById('calc-ui').style.display = 'none';
                 taps = 0;
             }
             exp = '0'; update();
         }
 
-        // --- LOGIN LOGIC (Pass: 123) ---
         function checkLogin() {
-            let u = document.getElementById('user').value;
-            let p = document.getElementById('pass').value;
-            if(u === '123' && p === '123') {
+            if(document.getElementById('user').value === '123' && document.getElementById('pass').value === '123') {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('chat-ui').style.display = 'flex';
-            } else { alert("No notes premium subscription found."); }
+            } else { alert("Error"); }
         }
 
-        // --- CHAT SEND ---
         function send() {
             let i = document.getElementById('msg-in'); if(!i.value.trim()) return;
             let m = document.getElementById('messages');
