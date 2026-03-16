@@ -42,48 +42,37 @@
         .search-container { padding: 8px 15px; background: rgba(0,0,0,0.85); border-bottom: 1px solid #262626; z-index: 9; }
         .search-bar { width: 100%; padding: 10px 15px; background: #1c1c1e; border-radius: 15px; border: 1px solid #333; color: white; font-size: 14px; outline: none; }
 
-        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.5); }
+        #messages { flex: 1; overflow-y: auto; padding: 15px 15px; display: flex; flex-direction: column; gap: 6px; background: rgba(0,0,0,0.5); }
         
-        .msg-wrap { display: flex; width: 100%; }
-        .msg-wrap.me { justify-content: flex-end; }
-        .msg-wrap.them { justify-content: flex-start; }
-        
-        .msg-content { display: flex; flex-direction: column; max-width: 75%; }
-        .msg-wrap.me .msg-content { align-items: flex-end; }
-        .msg-wrap.them .msg-content { align-items: flex-start; }
-
         .bubble-box { 
-            padding: 8px 14px; 
-            border-radius: 18px; 
-            font-size: 15px; 
-            line-height: 1.35; 
+            padding: 6px 12px; 
+            border-radius: 15px; 
+            font-size: 14px; 
+            line-height: 1.3; 
             word-break: break-word; 
             white-space: pre-wrap; 
             color: #fff;
             cursor: pointer;
             display: inline-block; 
             text-align: left;
+            position: relative;
             max-width: 100%;
         }
         .bubble-me { background: #3797f0; border-bottom-right-radius: 4px; }
         .bubble-them { background: #262626; border-bottom-left-radius: 4px; }
         
-        .chat-img { max-width: 220px; max-height: 300px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; object-fit: cover; cursor: pointer; border: 1px solid #333; display: block; }
+        .chat-img { max-width: 220px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; object-fit: cover; cursor: pointer; border: 1px solid #333; display: block; }
+        .msg-footer { font-size: 10px; color: #888; margin-top: 3px; display: flex; align-items: center; gap: 6px; }
         
-        /* 🚨 REACTION & TIME ALIGNMENT FIX 🚨 */
-        .msg-footer { 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-            margin-top: 4px;
-        }
-        .time-text { font-size: 11px; color: #aaa; }
-        .react-emoji-display { font-size: 16px; margin-bottom: -2px; }
+        .react-badge { position: absolute; bottom: -10px; background: #1c1c1e; border: 1px solid #333; padding: 1px 5px; border-radius: 10px; font-size: 12px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        .react-me { right: 8px; } 
+        .react-them { left: 8px; }
+        .react-emoji-display { font-size: 14px; }
 
         #typing-ind { padding: 5px 15px; font-size: 12px; color: #aaa; font-style: italic; display: none; background: rgba(0,0,0,0.5); }
         
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: rgba(0,0,0,0.9); z-index: 10; align-items: center; }
-        #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; font-size: 16px; outline: none; }
+        #msg-in { flex: 1; padding: 11px 16px; background: #1c1c1e; border: none; border-radius: 20px; color: #fff; font-size: 16px; outline: none; }
 
         /* IMAGE VIEWER MODAL */
         #image-viewer { display: none; position: fixed; z-index: 100000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); justify-content: center; align-items: center; flex-direction: column; }
@@ -99,7 +88,6 @@
         .set-box { width: 90%; background: #1c1c1e; padding: 25px; border-radius: 20px; border: 1px solid #333; text-align: left; }
         .file-label { color:#aaa; font-size:14px; display:block; margin-bottom:5px; margin-top: 15px; font-weight:bold;}
         .file-upload-btn { width: 100%; padding: 12px; background: #333; color: white; border-radius: 10px; border: none; font-size: 14px; margin-bottom: 5px; }
-        .status-badge { color: #4cd964; font-size: 12px; display: block; text-align: center; }
         .delete-chat-btn { width: 100%; padding: 12px; background: rgba(255, 59, 48, 0.2); border: 1px solid #ff3b30; color: #ff3b30; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 25px; }
     </style>
 </head>
@@ -192,12 +180,12 @@
                 <label class="file-label">Change My PFP:</label>
                 <input type="file" id="set-mypfp-file" style="display:none;" accept="image/*" onchange="window.checkFile(this, 'status-mypfp')">
                 <button class="file-upload-btn" onclick="document.getElementById('set-mypfp-file').click()">📂 Choose PFP</button>
-                <span id="status-mypfp" class="status-badge"></span>
+                <span id="status-mypfp" style="color: #4cd964; font-size: 12px; display: block; text-align: center;"></span>
                 
                 <label class="file-label">Change Theme:</label>
                 <input type="file" id="set-bg-file" style="display:none;" accept="image/*" onchange="window.checkFile(this, 'status-bg')">
                 <button class="file-upload-btn" onclick="document.getElementById('set-bg-file').click()">🖼️ Choose Theme</button>
-                <span id="status-bg" class="status-badge"></span>
+                <span id="status-bg" style="color: #4cd964; font-size: 12px; display: block; text-align: center;"></span>
                 
                 <button class="login-btn" onclick="window.saveSettings()" style="margin-top:20px; background:#3797f0;">Save Settings</button>
                 <button class="delete-chat-btn" onclick="window.confirmDeleteChat()">🗑️ Clear Entire Chat</button>
@@ -264,32 +252,21 @@
             if (data) { window.chatData = data; window.renderMessages(); }
         }
 
-        // 🚨 LIVE SYNC (NO INTERVALS) 🚨
+        // 🚨 100% PURE DATABASE SYNC (NO FAKE MESSAGES) 🚨
         window.setupRealtime = function() {
             window.myChannel = window.supabaseClient.channel('global-chat', { config: { broadcast: { self: false } } });
             
             window.myChannel.on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
                 
-                // PURE REALTIME LOGIC (Super Fast)
-                if (payload.eventType === 'INSERT') {
-                    if (!window.chatData.some(m => m.id === payload.new.id)) { window.chatData.push(payload.new); }
-                    
-                    // Live Seen Mark logic
-                    if (window.isChatOpen && payload.new.sender !== window.currentUser) {
-                        window.supabaseClient.from('messages').update({ seen: true }).eq('id', payload.new.id).then();
-                        let idx = window.chatData.findIndex(m => m.id === payload.new.id);
-                        if (idx > -1) window.chatData[idx].seen = true;
-                    } else if (!window.isChatOpen && payload.new.sender !== window.currentUser) {
-                        document.getElementById('unread-dot').style.display = 'block';
-                    }
-                } else if (payload.eventType === 'UPDATE') {
-                    let idx = window.chatData.findIndex(m => m.id === payload.new.id);
-                    if (idx > -1) { window.chatData[idx] = payload.new; }
-                } else if (payload.eventType === 'DELETE') {
-                    window.chatData = window.chatData.filter(m => m.id !== payload.old.id);
+                // Hamesha database se latest messages fetch karo
+                window.fetchMessages(); 
+                
+                // Seen Status aur Notification Update
+                if(!window.isChatOpen && payload.eventType === 'INSERT' && payload.new.sender !== window.currentUser) {
+                    document.getElementById('unread-dot').style.display = 'block';
+                } else if(window.isChatOpen && payload.eventType === 'INSERT' && payload.new.sender !== window.currentUser) {
+                    window.markMessagesAsSeen(); // Agar chat khuli hai, toh turant seen kar do
                 }
-
-                window.renderMessages(); 
             })
             .on('broadcast', { event: 'typing' }, payload => {
                 if (payload.payload.user !== window.currentUser) {
@@ -316,12 +293,9 @@
             if(!text) return;
             i.value = ''; 
             
-            let tempMsg = { id: Date.now(), text: text, sender: window.currentUser, time: window.getTime(), react: "", type: "text", seen: false };
-            window.chatData.push(tempMsg);
-            window.justSentByMe = true; 
-            window.renderMessages();
-
+            window.justSentByMe = true; // Auto-scroll ke liye
             await window.supabaseClient.from('messages').insert([{ text: text, sender: window.currentUser, time: window.getTime(), react: "", type: "text", seen: false }]);
+            window.fetchMessages(); 
         }
 
         window.sendPhoto = function(event) {
@@ -337,12 +311,9 @@
                     canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                     const base64Img = canvas.toDataURL('image/jpeg', 0.5); 
                     
-                    let tempMsg = { id: Date.now(), text: base64Img, sender: window.currentUser, time: window.getTime(), react: "", type: "img", seen: false };
-                    window.chatData.push(tempMsg);
                     window.justSentByMe = true; 
-                    window.renderMessages();
-
                     await window.supabaseClient.from('messages').insert([{ text: base64Img, sender: window.currentUser, time: window.getTime(), react: "", type: "img", seen: false }]);
+                    window.fetchMessages();
                 }; img.src = e.target.result;
             }; reader.readAsDataURL(file);
         }
@@ -379,7 +350,6 @@
                 let content = m.type === 'img' ? `<img src="${m.text}" class="chat-img" onclick="window.handleImageClick(event, ${m.id}, '${m.text}')">` : m.text;
                 let pfpSrc = !isMe ? (localStorage.getItem(window.partnerUser + '_pfp') || `https://ui-avatars.com/api/?name=${window.partnerUser.charAt(0)}&background=random`) : '';
 
-                // 🚨 PERFECTED ALIGNMENT (Reaction Left Side of Time) 🚨
                 container.innerHTML += `
                     <div style="display: flex; width: 100%; justify-content: ${isMe ? 'flex-end' : 'flex-start'}; margin-bottom: 2px;">
                         ${!isMe ? `<img src="${pfpSrc}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; margin-right:8px; align-self:flex-end; border:1px solid #333;">` : ''}
@@ -426,17 +396,20 @@
         window.unsendActiveMsg = async function() { 
             document.getElementById('react-tray').style.display = 'none'; 
             await window.supabaseClient.from('messages').delete().eq('id', window.activeMsgId); 
+            window.fetchMessages();
         }
         
         window.setReact = async function(emoji) { 
             document.getElementById('react-tray').style.display = 'none'; 
             await window.supabaseClient.from('messages').update({ react: emoji }).eq('id', window.activeMsgId); 
+            window.fetchMessages();
         }
         
         window.confirmDeleteChat = async function() { 
             if(confirm("Delete chat? Yeh wapas nahi aayegi.")) { 
                 await window.supabaseClient.from('messages').delete().neq('id', 0); 
                 window.closeSettings(); 
+                window.fetchMessages();
             } 
         }
         
@@ -444,6 +417,7 @@
             const unseenIds = window.chatData.filter(m => m.sender === window.partnerUser && !m.seen).map(m => m.id);
             if(unseenIds.length > 0) {
                 await window.supabaseClient.from('messages').update({ seen: true }).in('id', unseenIds);
+                window.fetchMessages();
             }
         }
 
