@@ -48,23 +48,21 @@
         .msg-wrap { display: flex; flex-direction: column; width: 100%; }
         .me { align-items: flex-end; } .them { align-items: flex-start; }
         
+        /* 🚨 100% BULLETPROOF SAFARI FIX 🚨 */
         .bubble { 
             padding: 8px 14px; 
             border-radius: 18px; 
-            font-size: 14px; 
-            line-height: 1.3; 
+            font-size: 14.5px; 
+            line-height: 1.35; 
             position: relative; 
             cursor: pointer; 
-            max-width: 75%; 
-            width: fit-content; 
-            display: inline-block;
-            word-wrap: break-word; 
-            overflow-wrap: break-word;
+            word-break: break-word; /* Lamba text break karega, chota nahi! */
+            white-space: pre-wrap; /* Spaces and Enters properly show honge */
         }
         .bubble-me { background: #3797f0; color: #fff; border-bottom-right-radius: 4px; }
         .bubble-them { background: #262626; color: #fff; border-bottom-left-radius: 4px; }
         
-        .chat-img { max-width: 200px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; display: block; }
+        .chat-img { max-width: 220px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; display: block; object-fit: cover; }
         
         .msg-footer { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #aaa; margin-top: 4px; }
         .react-badge { position: absolute; bottom: -12px; background: #1c1c1e; border: 1px solid #333; padding: 2px 6px; border-radius: 12px; font-size: 13px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
@@ -223,7 +221,7 @@
 
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: pass });
 
-            // 🚨 CUSTOM ALERT MESSAGE 🚨
+            // CUSTOM ERROR ALERT
             if (error) { 
                 alert("No Maths premium notes subscription found"); 
                 btn.innerText = "Enter"; 
@@ -321,11 +319,12 @@
                 let reactHTML = m.react ? `<span class="react-badge">${m.react}</span>` : '';
                 let pfpSrc = !isMe ? (localStorage.getItem(partnerUser + '_pfp') || `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`) : '';
 
+                // 🚨 ABSOLUTE FIX FOR SAFARI WORD CRUSHING 🚨
                 container.innerHTML += `
                     <div class="msg-wrap ${isMe ? 'me' : 'them'}">
-                        <div style="display:flex; align-items:flex-end; gap:8px;">
-                            ${!isMe ? `<img src="${pfpSrc}" class="chat-pfp">` : ''}
-                            <div style="position:relative;">
+                        <div style="display:flex; align-items:flex-end; gap:8px; max-width:85%;">
+                            ${!isMe ? `<img src="${pfpSrc}" class="chat-pfp" style="flex-shrink:0;">` : ''}
+                            <div style="display: flex; flex-direction: column; align-items: ${isMe ? 'flex-end' : 'flex-start'}; position: relative;">
                                 <div class="bubble ${isMe ? 'bubble-me' : 'bubble-them'}" style="${m.type === 'img' ? 'background:transparent; padding:0;' : ''}" onclick="openReact(${m.id})">
                                     ${content}
                                 </div>
@@ -429,7 +428,6 @@
         }
 
         function loadSettings() {
-            // 🚨 PFP LOGIC FOR BOTH USERS 🚨
             const partnerPfpData = localStorage.getItem(partnerUser + '_pfp'); 
             const myPfpData = localStorage.getItem(currentUser + '_pfp'); 
             const bgData = localStorage.getItem('chatBg');
