@@ -30,47 +30,49 @@
 
         #dm-list-ui { display: none; flex-direction: column; height: 100%; width: 100%; padding-top: var(--safe-top); }
         .dm-header { padding: 15px 20px; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; position: relative; }
-        .header-name { font-weight: 700; font-size: 20px; margin-bottom: 5px; }
         .settings-btn { background: #1c1c1e; border: 1px solid #333; color: white; padding: 8px 15px; border-radius: 15px; font-size: 14px; cursor: pointer; }
         .search-container { padding: 10px 15px; border-bottom: 1px solid #111; z-index: 9; background: rgba(0,0,0,0.9); }
         .search-bar { width: 100%; padding: 10px 15px; background: #1c1c1e; border-radius: 15px; border: 1px solid #333; color: white; font-size: 14px; outline: none; }
         .dm-item { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #111; }
         .dm-pfp { width: 55px; height: 55px; border-radius: 50%; background: #333; margin-right: 15px; object-fit: cover; }
-        .dm-preview { font-size: 14px; color: #8e8e93; margin-top: 4px; }
         .dm-dot { width: 10px; height: 10px; background: #007aff; border-radius: 50%; display: none; }
 
         /* --- CHAT UI --- */
         #chat-ui { display: none; flex-direction: column; height: 100%; width: 100%; background: var(--theme-bg); background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; }
         #chat-header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 10; justify-content: flex-start; }
-        .chat-pfp { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #333; }
         
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 14px; background: rgba(0,0,0,0.5); }
         
-        /* 🚨 ULTIMATE BUBBLE FIX FOR SAFARI 🚨 */
-        .msg-wrap { display: flex; width: 100%; flex-direction: column; }
-        .me { align-items: flex-end; } 
-        .them { align-items: flex-start; }
+        /* 🚨 SAFARI STRICT BUBBLE FIX 🚨 */
+        .msg-wrap { display: flex; width: 100%; }
+        .msg-wrap.me { justify-content: flex-end; }
+        .msg-wrap.them { justify-content: flex-start; }
         
+        .msg-content { display: flex; flex-direction: column; max-width: 80%; }
+        .msg-wrap.me .msg-content { align-items: flex-end; }
+        .msg-wrap.them .msg-content { align-items: flex-start; }
+
         .bubble { 
             padding: 8px 14px; 
             border-radius: 18px; 
             font-size: 15px; 
             line-height: 1.35; 
-            position: relative; 
-            cursor: pointer; 
-            max-width: 100%; 
-            word-wrap: break-word; 
+            word-break: break-word; 
             white-space: pre-wrap; 
+            display: inline-block; /* Crucial for Safari */
+            cursor: pointer;
+            position: relative;
         }
         .bubble-me { background: #3797f0; color: #fff; border-bottom-right-radius: 4px; }
         .bubble-them { background: #262626; color: #fff; border-bottom-left-radius: 4px; }
         
-        .chat-img { max-width: 220px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); object-fit: cover; }
+        .chat-img { max-width: 220px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; object-fit: cover; }
+        .msg-footer { font-size: 11px; color: #aaa; margin-top: 4px; }
+        
         .react-badge { position: absolute; bottom: -12px; background: #1c1c1e; border: 1px solid #333; padding: 2px 6px; border-radius: 12px; font-size: 13px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
         .react-me { right: 10px; } .react-them { left: 10px; }
 
-        /* TYPING INDICATOR */
-        #typing-ind { padding: 8px 15px; font-size: 12px; color: #aaa; font-style: italic; display: none; background: rgba(0,0,0,0.5); }
+        #typing-ind { padding: 5px 15px; font-size: 12px; color: #aaa; font-style: italic; display: none; background: rgba(0,0,0,0.5); }
         
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: rgba(0,0,0,0.9); z-index: 10; align-items: center; }
         #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; font-size: 16px; outline: none; }
@@ -82,9 +84,7 @@
 
         #settings-ui { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .set-box { width: 90%; background: #1c1c1e; padding: 25px; border-radius: 20px; border: 1px solid #333; text-align: left; }
-        .file-label { color:#aaa; font-size:14px; display:block; margin-bottom:5px; margin-top: 15px; font-weight:bold;}
         .file-upload-btn { width: 100%; padding: 12px; background: #333; color: white; border-radius: 10px; border: none; font-size: 14px; margin-bottom: 5px; }
-        .status-badge { color: #4cd964; font-size: 12px; display: block; text-align: center; }
         .delete-chat-btn { width: 100%; padding: 12px; background: rgba(255, 59, 48, 0.2); border: 1px solid #ff3b30; color: #ff3b30; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 25px; }
     </style>
 </head>
@@ -111,7 +111,7 @@
 
         <div id="dm-list-ui">
             <div class="dm-header">
-                <div class="header-info-group" style="display:flex; align-items:center; gap:10px;">
+                <div style="display:flex; align-items:center; gap:10px;">
                     <img id="my-header-pfp" src="" style="width:32px; height:32px; border-radius:50%; object-fit:cover; background:#333;">
                     <div class="header-name" id="my-username-display" style="margin-bottom:0;">Loading...</div>
                 </div>
@@ -134,11 +134,10 @@
         <div id="chat-ui">
             <div id="chat-header">
                 <button onclick="backToList()" style="background:none; border:none; color:#fff; font-size:26px; padding-right:10px; cursor:pointer;">‹</button>
-                <img id="chat-pfp" src="" class="chat-pfp">
+                <img id="chat-pfp" src="" style="width:35px; height:35px; border-radius:50%; object-fit:cover; border:1px solid #333;">
                 <div style="font-weight:700; font-size:16px; margin-left:10px; flex:1;" id="chat-partner-name">...</div>
                 <div class="sos-btn" onclick="forceLogout()">SOS</div>
             </div>
-            <div class="search-container" style="background: rgba(0,0,0,0.5);"><input type="text" id="chat-search" class="search-bar" placeholder="🔍 Search messages in chat..." oninput="searchMessages()"></div>
             
             <div id="messages"></div>
             <div id="typing-ind">Someone is typing...</div>
@@ -166,12 +165,12 @@
         <div id="settings-ui">
             <div class="set-box">
                 <h3 style="margin-bottom:15px; text-align:center;">App Settings</h3>
-                <label class="file-label" style="color:#aaa; font-size:14px; display:block; margin-bottom:5px;">Change My Display Picture:</label>
+                <label class="file-label" style="color:#aaa; font-size:14px; display:block; margin-bottom:5px;">Change My PFP:</label>
                 <input type="file" id="set-mypfp-file" style="display:none;" accept="image/*" onchange="checkFile(this, 'status-mypfp')">
-                <button class="file-upload-btn" onclick="document.getElementById('set-mypfp-file').click()">📂 Choose DP from Gallery</button>
+                <button class="file-upload-btn" onclick="document.getElementById('set-mypfp-file').click()">📂 Choose PFP</button>
                 <span id="status-mypfp" style="color: #4cd964; font-size: 12px; display: block; text-align: center;"></span>
                 
-                <label class="file-label" style="color:#aaa; font-size:14px; display:block; margin-bottom:5px; margin-top:15px;">Change Background Theme:</label>
+                <label class="file-label" style="color:#aaa; font-size:14px; display:block; margin-bottom:5px; margin-top:15px;">Change Theme:</label>
                 <input type="file" id="set-bg-file" style="display:none;" accept="image/*" onchange="checkFile(this, 'status-bg')">
                 <button class="file-upload-btn" onclick="document.getElementById('set-bg-file').click()">🖼️ Choose Theme</button>
                 <span id="status-bg" style="color: #4cd964; font-size: 12px; display: block; text-align: center;"></span>
@@ -184,7 +183,6 @@
     </div>
 
     <script>
-        // --- CALCULATOR ---
         let exp = '0'; let taps = 0; let lastTap = 0;
         function update() { document.getElementById('display').innerText = exp; }
         function press(v) { if(exp === '0') exp = v; else exp += v; update(); }
@@ -193,24 +191,19 @@
             let now = Date.now();
             if (now - lastTap < 600) { taps++; } else { taps = 1; }
             lastTap = now;
-            if (taps === 3) { 
-                document.getElementById('secret-app').style.display = 'flex'; 
-                document.getElementById('calc-ui').style.display = 'none'; 
-                taps = 0; 
-            }
+            if (taps === 3) { document.getElementById('secret-app').style.display = 'flex'; document.getElementById('calc-ui').style.display = 'none'; taps = 0; }
             exp = '0'; update();
         }
 
-        // --- SUPABASE SETUP ---
         const SUPABASE_URL = "https://qrsgyerhotxwhldmtqec.supabase.co"; 
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyc2d5ZXJob3R4d2hsZG10cWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1Nzc5NzIsImV4cCI6MjA4OTE1Mzk3Mn0.Bw-zuZr4lJ4RaAMyNVbfixZoWpOR5kR4V2LY-zERvfo"; 
         
         let supabaseClient = null;
         let myChannel = null;
-        try { supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) {}
-
-        let chatData = [], activeMsgId = null, currentUser = '', partnerUser = '', isChatOpen = false;
         let typingTimer;
+        let chatData = [], activeMsgId = null, currentUser = '', partnerUser = '', isChatOpen = false;
+
+        try { supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) {}
 
         async function checkLogin() {
             if(!supabaseClient) { alert("Backend load nahi hua."); return; }
@@ -246,23 +239,11 @@
             if (data) { chatData = data; renderMessages(); }
         }
 
-        // 🚨 LIGHTNING FAST SYNC & TYPING INDICATOR 🚨
         function setupRealtime() {
-            myChannel = supabaseClient.channel('custom-all-channel', { config: { broadcast: { self: false } } })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
-                
-                // Sirf jo change hua hai wo update hoga (No full download)
-                if (payload.eventType === 'INSERT') {
-                    if (!chatData.some(m => m.id === payload.new.id)) chatData.push(payload.new);
-                } else if (payload.eventType === 'UPDATE') {
-                    let idx = chatData.findIndex(m => m.id === payload.new.id);
-                    if (idx > -1) chatData[idx] = payload.new;
-                } else if (payload.eventType === 'DELETE') {
-                    chatData = chatData.filter(m => m.id !== payload.old.id);
-                }
-
-                renderMessages(); 
-                
+            myChannel = supabaseClient.channel('global-chat', { config: { broadcast: { self: false } } });
+            
+            myChannel.on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
+                fetchMessages(); 
                 if(!isChatOpen && payload.eventType === 'INSERT' && payload.new.sender !== currentUser) {
                     document.getElementById('unread-dot').style.display = 'block';
                 }
@@ -270,10 +251,10 @@
             .on('broadcast', { event: 'typing' }, payload => {
                 if (payload.payload.user !== currentUser) {
                     let ind = document.getElementById('typing-ind');
-                    ind.innerText = partnerUser + " is typing...";
                     ind.style.display = 'block';
+                    ind.innerText = partnerUser + " is typing...";
                     clearTimeout(typingTimer);
-                    typingTimer = setTimeout(() => { ind.style.display = 'none'; }, 2500);
+                    typingTimer = setTimeout(() => { ind.style.display = 'none'; }, 2000);
                     scrollToBottom();
                 }
             })
@@ -281,9 +262,7 @@
         }
 
         function handleTyping() {
-            if(myChannel) {
-                myChannel.send({ type: 'broadcast', event: 'typing', payload: { user: currentUser } });
-            }
+            if(myChannel) { myChannel.send({ type: 'broadcast', event: 'typing', payload: { user: currentUser } }); }
         }
 
         function getTime() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
@@ -293,9 +272,11 @@
             let text = i.value.trim();
             if(!text) return;
             i.value = ''; 
-            document.getElementById('chat-search').value = ''; 
+            
+            let tempMsg = { id: Date.now(), text: text, sender: currentUser, time: getTime(), react: "", type: "text", seen: false };
+            chatData.push(tempMsg);
+            renderMessages();
 
-            // Seedha DB mein daal, Realtime turant utha lega
             await supabaseClient.from('messages').insert([{ text: text, sender: currentUser, time: getTime(), react: "", type: "text", seen: false }]);
         }
 
@@ -311,11 +292,14 @@
                     if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE/w; w = MAX_SIZE; } } else { if (h > MAX_SIZE) { w *= MAX_SIZE/h; h = MAX_SIZE; } }
                     canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                     const base64Img = canvas.toDataURL('image/jpeg', 0.5); 
+                    
+                    let tempMsg = { id: Date.now(), text: base64Img, sender: currentUser, time: getTime(), react: "", type: "img", seen: false };
+                    chatData.push(tempMsg);
+                    renderMessages();
+
                     await supabaseClient.from('messages').insert([{ text: base64Img, sender: currentUser, time: getTime(), react: "", type: "img", seen: false }]);
-                }; 
-                img.src = e.target.result;
-            }; 
-            reader.readAsDataURL(file);
+                }; img.src = e.target.result;
+            }; reader.readAsDataURL(file);
         }
 
         function renderMessages(query = '') {
@@ -327,24 +311,21 @@
             filtered.forEach((m) => {
                 let isMe = m.sender === currentUser; 
                 let content = m.type === 'img' ? `<img src="${m.text}" class="chat-img">` : m.text;
-                let reactHTML = m.react ? `<span class="react-badge ${isMe ? 'react-me' : 'react-them'}">${m.react}</span>` : '';
+                let reactHTML = m.react ? `<span class="react-badge">${m.react}</span>` : '';
                 let pfpSrc = !isMe ? (localStorage.getItem(partnerUser + '_pfp') || `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`) : '';
 
-                // 🚨 THE REAL SAFARI FIX: "display: inline-block" AND DIV RE-STRUCTURE 🚨
                 container.innerHTML += `
                     <div class="msg-wrap ${isMe ? 'me' : 'them'}">
-                        <div style="display: flex; align-items: flex-end; gap: 8px; max-width: 80%;">
-                            ${!isMe ? `<img src="${pfpSrc}" class="chat-pfp" style="flex-shrink:0;">` : ''}
-                            <div style="display: flex; flex-direction: column; align-items: ${isMe ? 'flex-end' : 'flex-start'}; position: relative;">
+                        <div style="display:flex; align-items:flex-end; gap:8px;">
+                            ${!isMe ? `<img src="${pfpSrc}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; flex-shrink:0;">` : ''}
+                            <div class="msg-content">
                                 <div class="bubble ${isMe ? 'bubble-me' : 'bubble-them'}" style="${m.type === 'img' ? 'background:transparent; padding:0;' : ''}" onclick="openReact(${m.id})">
                                     ${content}
                                 </div>
                                 ${reactHTML}
-                                <div style="font-size: 11px; color: #aaa; margin-top: 6px;">
-                                    ${m.time}${isMe && m.seen ? ' • Seen' : ''}
-                                </div>
                             </div>
                         </div>
+                        <div class="msg-footer">${m.time}${isMe && m.seen ? ' • Seen' : ''}</div>
                     </div>`;
             });
             
@@ -377,49 +358,27 @@
         async function markMessagesAsSeen() {
             const unseenIds = chatData.filter(m => m.sender === partnerUser && !m.seen).map(m => m.id);
             if(unseenIds.length > 0) {
-                // Instant Local Update
                 chatData.forEach(m => { if(unseenIds.includes(m.id)) m.seen = true; });
                 renderMessages();
-                // Background DB Update
                 await supabaseClient.from('messages').update({ seen: true }).in('id', unseenIds);
             }
         }
 
-        function openChat() { 
-            document.getElementById('dm-list-ui').style.display='none'; 
-            document.getElementById('chat-ui').style.display='flex'; 
-            document.getElementById('unread-dot').style.display='none'; 
-            isChatOpen=true; 
-            markMessagesAsSeen(); 
-            scrollToBottom(); 
-        }
-        
-        function backToList() { 
-            document.getElementById('chat-ui').style.display='none'; 
-            document.getElementById('dm-list-ui').style.display='flex'; 
-            isChatOpen = false; 
-        }
-        
-        async function forceLogout() { 
-            if(supabaseClient) await supabaseClient.auth.signOut(); 
-            location.reload(); 
-        }
-
+        function openChat() { document.getElementById('dm-list-ui').style.display='none'; document.getElementById('chat-ui').style.display='flex'; document.getElementById('unread-dot').style.display='none'; isChatOpen=true; markMessagesAsSeen(); scrollToBottom(); }
+        function backToList() { document.getElementById('chat-ui').style.display='none'; document.getElementById('dm-list-ui').style.display='flex'; isChatOpen = false; }
+        async function forceLogout() { if(supabaseClient) await supabaseClient.auth.signOut(); location.reload(); }
         function openSettings() { document.getElementById('settings-ui').style.display='flex'; }
         function closeSettings() { document.getElementById('settings-ui').style.display='none'; }
         function checkFile(input, statusId) { if(input.files && input.files[0]) document.getElementById(statusId).innerText = "✅ Image Selected"; }
 
         function compressAndSave(file, storageKey) {
-            if (!file) return; 
-            const reader = new FileReader();
+            if (!file) return; const reader = new FileReader();
             reader.onload = function(e) {
-                const img = new Image(); 
-                img.onload = function() {
-                    const canvas = document.createElement('canvas'); const MAX_SIZE = 800; 
-                    let w = img.width, h = img.height;
+                const img = new Image(); img.onload = function() {
+                    const canvas = document.createElement('canvas'); const MAX_SIZE = 800; let w = img.width, h = img.height;
                     if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE/w; w = MAX_SIZE; } } else { if (h > MAX_SIZE) { w *= MAX_SIZE/h; h = MAX_SIZE; } }
                     canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    try { localStorage.setItem(storageKey, canvas.toDataURL('image/jpeg', 0.6)); loadSettings(); } catch(err) { alert("Memory full!"); }
+                    try { localStorage.setItem(storageKey, canvas.toDataURL('image/jpeg', 0.6)); loadSettings(); } catch(err) {}
                 }; img.src = e.target.result;
             }; reader.readAsDataURL(file);
         }
@@ -434,14 +393,12 @@
             const partnerPfpData = localStorage.getItem(partnerUser + '_pfp'); 
             const myPfpData = localStorage.getItem(currentUser + '_pfp'); 
             const bgData = localStorage.getItem('chatBg');
-            
             const defaultPartner = `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`;
             const defaultMe = `https://ui-avatars.com/api/?name=${currentUser.charAt(0)}&background=random`;
             
             document.getElementById('list-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
             document.getElementById('chat-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
             document.getElementById('my-header-pfp').src = myPfpData ? myPfpData : defaultMe;
-
             if(bgData) document.documentElement.style.setProperty('--theme-bg', `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${bgData}')`); 
         }
 
