@@ -6,15 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
     <title>Scientific Calculator</title>
     
-    <script>
-        window.onerror = function(msg, url, line) {
-            alert("Bhai code crash hua hai!\nLine: " + line + "\nError: " + msg);
-            return true;
-        };
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
         :root { --safe-top: env(safe-area-inset-top, 20px); --safe-bottom: env(safe-area-inset-bottom, 20px); --theme-bg: #000; }
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; touch-action: manipulation; }
@@ -73,23 +64,24 @@
         .bubble-me { background: #3797f0; color: #fff; border-bottom-right-radius: 4px; }
         .bubble-them { background: #262626; color: #fff; border-bottom-left-radius: 4px; }
         
-        /* IMAGE FIX */
+        /* IMAGE SIZE FIX */
         .chat-img { max-width: 220px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); object-fit: cover; }
         
         .msg-footer { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #aaa; margin-top: 6px; }
         .react-badge { position: absolute; bottom: -12px; background: #1c1c1e; border: 1px solid #333; padding: 2px 6px; border-radius: 12px; font-size: 13px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
         .me .react-badge { right: 10px; } .them .react-badge { left: 10px; }
 
+        #typing-ind { padding: 5px 15px; font-size: 11px; color: #888; display: none; }
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: rgba(0,0,0,0.9); z-index: 10; align-items: center; }
         #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; font-size: 16px; outline: none; }
 
-        /* --- REACTION TRAY --- */
+        /* REACTION TRAY */
         #react-tray { display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #262626; padding: 15px; border-radius: 20px; flex-direction: column; gap: 12px; z-index: 3000; box-shadow: 0 8px 20px rgba(0,0,0,0.6); min-width: 250px; }
         .emoji-row { display: flex; justify-content: space-between; gap: 10px; }
         .react-emoji { font-size: 26px; cursor: pointer; transition: 0.2s; } .react-emoji:active { transform: scale(1.3); }
         .unsend-btn { background: none; border: none; color: #ff3b30; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; border-top: 1px solid #444; padding-top: 12px; }
 
-        /* --- SETTINGS MODAL --- */
+        /* SETTINGS MODAL */
         #settings-ui { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .set-box { width: 90%; background: #1c1c1e; padding: 25px; border-radius: 20px; border: 1px solid #333; text-align: left; }
         .file-label { color:#aaa; font-size:14px; display:block; margin-bottom:5px; margin-top: 15px; font-weight:bold;}
@@ -103,32 +95,52 @@
     <div id="calc-ui">
         <div id="display">0</div>
         <div class="grid">
-            <button class="btn top" onclick="window.handleAC()">AC</button><button class="btn top">+/-</button><button class="btn top">%</button><button class="btn op" onclick="window.press('/')">÷</button>
-            <button class="btn num" onclick="window.press('7')">7</button><button class="btn num" onclick="window.press('8')">8</button><button class="btn num" onclick="window.press('9')">9</button><button class="btn op" onclick="window.press('*')">×</button>
-            <button class="btn num" onclick="window.press('4')">4</button><button class="btn num" onclick="window.press('5')">5</button><button class="btn num" onclick="window.press('6')">6</button><button class="btn op" onclick="window.press('-')">-</button>
-            <button class="btn num" onclick="window.press('1')">1</button><button class="btn num" onclick="window.press('2')">2</button><button class="btn num" onclick="window.press('3')">3</button><button class="btn op" onclick="window.press('+')">+</button>
-            <button class="btn num zero" onclick="window.press('0')">0</button><button class="btn num">.</button><button class="btn op" onclick="window.equal()">=</button>
+            <button class="btn top" onclick="handleAC()">AC</button><button class="btn top">+/-</button><button class="btn top">%</button><button class="btn op" onclick="press('/')">÷</button>
+            <button class="btn num" onclick="press('7')">7</button><button class="btn num" onclick="press('8')">8</button><button class="btn num" onclick="press('9')">9</button><button class="btn op" onclick="press('*')">×</button>
+            <button class="btn num" onclick="press('4')">4</button><button class="btn num" onclick="press('5')">5</button><button class="btn num" onclick="press('6')">6</button><button class="btn op" onclick="press('-')">-</button>
+            <button class="btn num" onclick="press('1')">1</button><button class="btn num" onclick="press('2')">2</button><button class="btn num" onclick="press('3')">3</button><button class="btn op" onclick="press('+')">+</button>
+            <button class="btn num zero" onclick="press('0')">0</button><button class="btn num">.</button><button class="btn op" onclick="equal()">=</button>
         </div>
     </div>
+
+    <script>
+        let exp = '0'; let taps = 0; let lastTap = 0;
+        function update() { document.getElementById('display').innerText = exp; }
+        function press(v) { if(exp === '0') exp = v; else exp += v; update(); }
+        function equal() { try { exp = eval(exp).toString(); update(); } catch (e) { exp = 'Error'; update(); } }
+        function handleAC() {
+            let now = Date.now();
+            if (now - lastTap < 600) { taps++; } else { taps = 1; }
+            lastTap = now;
+            
+            if (taps === 3) { 
+                document.getElementById('secret-app').style.display = 'flex'; 
+                document.getElementById('calc-ui').style.display = 'none'; 
+                taps = 0; 
+            }
+            exp = '0'; 
+            update();
+        }
+    </script>
 
     <div id="secret-app">
         <div id="login-screen">
             <h2 style="font-weight: 200; margin-bottom: 20px;">Premium Access</h2>
             <input type="email" id="user-email" class="input-box" placeholder="Email Address">
             <input type="password" id="user-pass" class="input-box" placeholder="Password">
-            <button class="login-btn" id="login-btn" onclick="window.checkLogin()">Enter</button>
+            <button class="login-btn" id="login-btn" onclick="checkLogin()">Enter</button>
         </div>
 
         <div id="dm-list-ui">
             <div class="dm-header">
                 <div class="header-info-group"><div class="header-name" id="my-username-display">Loading...</div></div>
                 <div style="display:flex; gap:10px;">
-                    <button class="settings-btn" onclick="window.openSettings()">⚙️ Settings</button>
-                    <div class="sos-btn" onclick="window.forceLogout()">SOS</div>
+                    <button class="settings-btn" onclick="openSettings()">⚙️ Settings</button>
+                    <div class="sos-btn" onclick="forceLogout()">SOS</div>
                 </div>
             </div>
-            <div class="search-container"><input type="text" id="dm-search" class="search-bar" placeholder="🔍 Search messages..." oninput="window.searchMessages()"></div>
-            <div class="dm-item" onclick="window.openChat()">
+            <div class="search-container"><input type="text" id="dm-search" class="search-bar" placeholder="🔍 Search messages..." oninput="searchMessages()"></div>
+            <div class="dm-item" onclick="openChat()">
                 <img id="list-pfp" src="" class="dm-pfp">
                 <div style="flex:1;">
                     <div class="dm-name" id="partner-username-display">...</div>
@@ -140,34 +152,293 @@
 
         <div id="chat-ui">
             <div id="chat-header">
-                <button onclick="window.backToList()" style="background:none; border:none; color:#fff; font-size:26px; padding-right:10px; cursor:pointer;">‹</button>
+                <button onclick="backToList()" style="background:none; border:none; color:#fff; font-size:26px; padding-right:10px; cursor:pointer;">‹</button>
                 <img id="chat-pfp" src="" class="chat-pfp">
                 <div style="font-weight:700; font-size:16px; margin-left:10px; flex:1;" id="chat-partner-name">...</div>
-                <div class="sos-btn" onclick="window.forceLogout()">SOS</div>
+                <div class="sos-btn" onclick="forceLogout()">SOS</div>
             </div>
-            <div class="search-container" style="background: rgba(0,0,0,0.5);"><input type="text" id="chat-search" class="search-bar" placeholder="🔍 Search messages in chat..." oninput="window.searchMessages()"></div>
+            <div class="search-container" style="background: rgba(0,0,0,0.5);"><input type="text" id="chat-search" class="search-bar" placeholder="🔍 Search messages in chat..." oninput="searchMessages()"></div>
             <div id="messages"></div>
             <div id="input-bar">
-                <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="window.sendPhoto(event)">
+                <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="sendPhoto(event)">
                 <button onclick="document.getElementById('file-input').click()" style="background:none; border:none; font-size:24px; cursor:pointer;">📷</button>
-                <input type="text" id="msg-in" placeholder="Message..." onkeypress="if(event.key==='Enter') window.sendMsg()">
-                <button onclick="window.sendMsg()" style="background:none; border:none; color:#3797f0; font-weight:bold; font-size:16px; padding-left:5px; cursor:pointer;">Send</button>
+                <input type="text" id="msg-in" placeholder="Message..." onkeypress="if(event.key==='Enter') sendMsg()">
+                <button onclick="sendMsg()" style="background:none; border:none; color:#3797f0; font-weight:bold; font-size:16px; padding-left:5px; cursor:pointer;">Send</button>
             </div>
 
             <div id="react-tray">
                 <div class="emoji-row">
-                    <span class="react-emoji" onclick="window.setReact('🥰')">🥰</span>
-                    <span class="react-emoji" onclick="window.setReact('😘')">😘</span>
-                    <span class="react-emoji" onclick="window.setReact('🫠')">🫠</span>
-                    <span class="react-emoji" onclick="window.setReact('🥺')">🥺</span>
-                    <span class="react-emoji" onclick="window.setReact('😂')">😂</span>
-                    <span class="react-emoji" onclick="window.setReact('😡')">😡</span>
+                    <span class="react-emoji" onclick="setReact('🥰')">🥰</span>
+                    <span class="react-emoji" onclick="setReact('😘')">😘</span>
+                    <span class="react-emoji" onclick="setReact('🫠')">🫠</span>
+                    <span class="react-emoji" onclick="setReact('🥺')">🥺</span>
+                    <span class="react-emoji" onclick="setReact('😂')">😂</span>
+                    <span class="react-emoji" onclick="setReact('😡')">😡</span>
                 </div>
-                <div id="unsend-wrap" style="display:none; text-align:center;"><button class="unsend-btn" onclick="window.unsendActiveMsg()">🗑️ Unsend Message</button></div>
+                <div id="unsend-wrap" style="display:none; text-align:center;"><button class="unsend-btn" onclick="unsendActiveMsg()">🗑️ Unsend Message</button></div>
             </div>
         </div>
 
         <div id="settings-ui">
             <div class="set-box">
                 <h3 style="margin-bottom:15px; text-align:center;">App Settings</h3>
-                <label class="file-label">Change My
+                <label class="file-label">Change My Display Picture:</label>
+                <input type="file" id="set-mypfp-file" style="display:none;" accept="image/*" onchange="checkFile(this, 'status-mypfp')">
+                <button class="file-upload-btn" onclick="document.getElementById('set-mypfp-file').click()">📂 Choose DP from Gallery</button>
+                <span id="status-mypfp" class="status-badge"></span>
+                
+                <label class="file-label">Change Chat Background Theme:</label>
+                <input type="file" id="set-bg-file" style="display:none;" accept="image/*" onchange="checkFile(this, 'status-bg')">
+                <button class="file-upload-btn" onclick="document.getElementById('set-bg-file').click()">🖼️ Choose Theme</button>
+                <span id="status-bg" class="status-badge"></span>
+                
+                <button class="login-btn" onclick="saveSettings()" style="margin-top:20px; background:#3797f0;">Save Settings</button>
+                <button class="delete-chat-btn" onclick="confirmDeleteChat()">🗑️ Clear Entire Chat</button>
+                <p style="margin-top: 20px; color: #aaa; font-size: 14px; cursor:pointer; text-align:center;" onclick="closeSettings()">Cancel</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://qrsgyerhotxwhldmtqec.supabase.co"; 
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyc2d5ZXJob3R4d2hsZG10cWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1Nzc5NzIsImV4cCI6MjA4OTE1Mzk3Mn0.Bw-zuZr4lJ4RaAMyNVbfixZoWpOR5kR4V2LY-zERvfo"; 
+        
+        let supabaseClient = null;
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch(e) {
+            console.error("Supabase load error");
+        }
+
+        let chatData = [], activeMsgId = null, currentUser = '', partnerUser = '', isChatOpen = false;
+
+        async function checkLogin() {
+            if(!supabaseClient) { alert("Backend load nahi hua. Refresh karlo."); return; }
+            let email = document.getElementById('user-email').value.trim().toLowerCase();
+            let pass = document.getElementById('user-pass').value;
+            let btn = document.getElementById('login-btn');
+
+            if(!email || !pass) { alert("Email aur Password daal!"); return; }
+            btn.innerText = "Checking...";
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: pass });
+
+            if (error) { 
+                alert("Galat Email ya Password!"); 
+                btn.innerText = "Enter"; 
+                return; 
+            }
+
+            if (email === "houston@boobie.com") { currentUser = 'ahrnavsharma'; partnerUser = 'lovleenx'; } 
+            else if (email === "pcw69@boobie.com") { currentUser = 'lovleenx'; partnerUser = 'ahrnavsharma'; } 
+            
+            document.getElementById('my-username-display').innerText = currentUser;
+            document.getElementById('partner-username-display').innerText = partnerUser;
+            document.getElementById('chat-partner-name').innerText = partnerUser;
+            
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dm-list-ui').style.display = 'flex';
+            
+            loadSettings(); 
+            fetchMessages(); 
+            setupRealtime(); 
+            btn.innerText = "Enter";
+        }
+
+        async function fetchMessages() {
+            const { data, error } = await supabaseClient.from('messages').select('*').order('created_at', { ascending: true });
+            if (data) { chatData = data; renderMessages(); }
+        }
+
+        function setupRealtime() {
+            supabaseClient.channel('custom-all-channel')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
+                fetchMessages(); 
+                if(!isChatOpen && payload.eventType === 'INSERT' && payload.new.sender !== currentUser) {
+                    document.getElementById('unread-dot').style.display = 'block';
+                }
+            }).subscribe();
+        }
+
+        function getTime() { 
+            return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); 
+        }
+
+        async function sendMsg() {
+            let i = document.getElementById('msg-in'); 
+            if(!i.value.trim()) return;
+            const msgObj = { text: i.value, sender: currentUser, time: getTime(), react: "", type: "text", seen: false };
+            i.value = ''; 
+            document.getElementById('chat-search').value = ''; 
+            await supabaseClient.from('messages').insert([msgObj]);
+        }
+
+        function sendPhoto(event) {
+            const file = event.target.files[0]; 
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = async function() {
+                    const canvas = document.createElement('canvas'); 
+                    const MAX_SIZE = 600; 
+                    let w = img.width, h = img.height;
+                    if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE/w; w = MAX_SIZE; } } 
+                    else { if (h > MAX_SIZE) { w *= MAX_SIZE/h; h = MAX_SIZE; } }
+                    canvas.width = w; canvas.height = h; 
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    const base64Img = canvas.toDataURL('image/jpeg', 0.5); 
+                    await supabaseClient.from('messages').insert([{ text: base64Img, sender: currentUser, time: getTime(), react: "", type: "img", seen: false }]);
+                }; 
+                img.src = e.target.result;
+            }; 
+            reader.readAsDataURL(file);
+        }
+
+        function renderMessages(query = '') {
+            let container = document.getElementById('messages'); 
+            container.innerHTML = '';
+            
+            let filtered = chatData.filter(m => m.type === 'text' ? m.text.toLowerCase().includes(query.toLowerCase()) : true);
+            
+            filtered.forEach((m) => {
+                let isMe = m.sender === currentUser; 
+                let content = m.type === 'img' ? `<img src="${m.text}" class="chat-img">` : m.text;
+                let reactHTML = m.react ? `<span class="react-badge">${m.react}</span>` : '';
+                let pfpSrc = !isMe ? (localStorage.getItem(partnerUser + '_pfp') || `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`) : '';
+
+                container.innerHTML += `
+                    <div class="msg-wrap ${isMe ? 'me' : 'them'}">
+                        <div style="display:flex; align-items:flex-end; gap:8px;">
+                            ${!isMe ? `<img src="${pfpSrc}" class="chat-pfp">` : ''}
+                            <div style="position:relative;">
+                                <div class="bubble ${isMe ? 'bubble-me' : 'bubble-them'}" style="${m.type === 'img' ? 'background:transparent; padding:0;' : ''}" onclick="openReact(${m.id})">
+                                    ${content}
+                                </div>
+                                ${reactHTML}
+                            </div>
+                        </div>
+                        <div class="msg-footer"><span>${m.time}</span>${isMe && m.seen ? ' • Seen' : ''}</div>
+                    </div>`;
+            });
+            
+            if(chatData.length > 0) {
+                let lastMsg = chatData[chatData.length - 1];
+                document.getElementById('last-msg-preview').innerText = lastMsg.type === 'img' ? "📷 Photo" : lastMsg.text.substring(0, 20) + "...";
+            } else {
+                document.getElementById('last-msg-preview').innerText = "Tap to view chat...";
+            }
+            scrollToBottom();
+        }
+
+        async function unsendActiveMsg() { 
+            document.getElementById('react-tray').style.display = 'none'; 
+            await supabaseClient.from('messages').delete().eq('id', activeMsgId); 
+        }
+        
+        async function setReact(emoji) { 
+            document.getElementById('react-tray').style.display = 'none'; 
+            await supabaseClient.from('messages').update({ react: emoji }).eq('id', activeMsgId); 
+        }
+        
+        async function confirmDeleteChat() { 
+            if(confirm("Delete chat? Yeh wapas nahi aayegi.")) { 
+                await supabaseClient.from('messages').delete().neq('id', 0); 
+                closeSettings(); 
+            } 
+        }
+        
+        async function markMessagesAsSeen() {
+            const unseenIds = chatData.filter(m => m.sender === partnerUser && !m.seen).map(m => m.id);
+            if(unseenIds.length > 0) await supabaseClient.from('messages').update({ seen: true }).in('id', unseenIds);
+        }
+
+        function openChat() { 
+            document.getElementById('dm-list-ui').style.display='none'; 
+            document.getElementById('chat-ui').style.display='flex'; 
+            document.getElementById('unread-dot').style.display='none'; 
+            isChatOpen=true; 
+            markMessagesAsSeen(); 
+            scrollToBottom(); 
+        }
+        
+        function backToList() { 
+            document.getElementById('chat-ui').style.display='none'; 
+            document.getElementById('dm-list-ui').style.display='flex'; 
+            isChatOpen = false; 
+        }
+        
+        async function forceLogout() { 
+            if(supabaseClient) await supabaseClient.auth.signOut(); 
+            location.reload(); 
+        }
+
+        function openSettings() { document.getElementById('settings-ui').style.display='flex'; }
+        function closeSettings() { document.getElementById('settings-ui').style.display='none'; }
+        function checkFile(input, statusId) { if(input.files && input.files[0]) document.getElementById(statusId).innerText = "✅ Image Selected"; }
+
+        function compressAndSave(file, storageKey) {
+            if (!file) return; 
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image(); 
+                img.onload = function() {
+                    const canvas = document.createElement('canvas'); 
+                    const MAX_SIZE = 800; 
+                    let w = img.width, h = img.height;
+                    if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE/w; w = MAX_SIZE; } } 
+                    else { if (h > MAX_SIZE) { w *= MAX_SIZE/h; h = MAX_SIZE; } }
+                    canvas.width = w; canvas.height = h; 
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    try { 
+                        localStorage.setItem(storageKey, canvas.toDataURL('image/jpeg', 0.6)); 
+                        loadSettings(); 
+                    } catch(err) { alert("Phone memory full!"); }
+                }; 
+                img.src = e.target.result;
+            }; 
+            reader.readAsDataURL(file);
+        }
+
+        function saveSettings() {
+            if(document.getElementById('set-mypfp-file').files[0]) compressAndSave(document.getElementById('set-mypfp-file').files[0], currentUser + '_pfp');
+            if(document.getElementById('set-bg-file').files[0]) compressAndSave(document.getElementById('set-bg-file').files[0], 'chatBg');
+            closeSettings(); 
+            document.getElementById('set-mypfp-file').value = ''; 
+            document.getElementById('set-bg-file').value = '';
+        }
+
+        function loadSettings() {
+            const partnerPfpData = localStorage.getItem(partnerUser + '_pfp'); 
+            const bgData = localStorage.getItem('chatBg');
+            const defaultPartner = `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`;
+            document.getElementById('list-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
+            document.getElementById('chat-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
+            if(bgData) document.documentElement.style.setProperty('--theme-bg', `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${bgData}')`); 
+        }
+
+        function searchMessages() { 
+            renderMessages(document.getElementById('dm-search').value || document.getElementById('chat-search').value); 
+        }
+        
+        function openReact(id) { 
+            activeMsgId = id; 
+            let m = chatData.find(x => x.id === id); 
+            document.getElementById('unsend-wrap').style.display = (m && m.sender === currentUser) ? 'block' : 'none'; 
+            document.getElementById('react-tray').style.display = 'flex'; 
+        }
+        
+        window.onclick = function(e) { 
+            if(!e.target.closest('.bubble') && !e.target.closest('#react-tray')) {
+                document.getElementById('react-tray').style.display='none'; 
+            }
+        };
+        
+        function scrollToBottom() { 
+            let m = document.getElementById('messages'); 
+            m.scrollTop = m.scrollHeight; 
+        }
+    </script>
+</body>
+</html>
