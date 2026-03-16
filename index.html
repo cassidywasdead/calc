@@ -20,7 +20,7 @@
         .btn { height: 75px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
         .num { background: #333; color: white; } .op { background: #f1a33c; color: white; } .top { background: #a5a5a5; color: black; } .zero { grid-column: span 2; border-radius: 40px; }
 
-        /* --- APP --- */
+        /* --- APP UI --- */
         #secret-app { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
         .sos-btn { width: 45px; height: 45px; background: rgba(255, 59, 48, 0.9); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 2000; }
 
@@ -31,8 +31,6 @@
         #dm-list-ui { display: none; flex-direction: column; height: 100%; width: 100%; padding-top: var(--safe-top); }
         .dm-header { padding: 15px 20px; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; position: relative; }
         .settings-btn { background: #1c1c1e; border: 1px solid #333; color: white; padding: 8px 15px; border-radius: 15px; font-size: 14px; cursor: pointer; }
-        .search-container { padding: 10px 15px; border-bottom: 1px solid #111; z-index: 9; background: rgba(0,0,0,0.9); }
-        .search-bar { width: 100%; padding: 10px 15px; background: #1c1c1e; border-radius: 15px; border: 1px solid #333; color: white; font-size: 14px; outline: none; }
         .dm-item { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #111; }
         .dm-pfp { width: 55px; height: 55px; border-radius: 50%; background: #333; margin-right: 15px; object-fit: cover; }
         .dm-dot { width: 10px; height: 10px; background: #007aff; border-radius: 50%; display: none; }
@@ -41,47 +39,52 @@
         #chat-ui { display: none; flex-direction: column; height: 100%; width: 100%; background: var(--theme-bg); background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; }
         #chat-header { padding: calc(var(--safe-top) + 10px) 15px 12px; border-bottom: 1px solid #262626; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 10; justify-content: flex-start; }
         
-        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: rgba(0,0,0,0.5); }
+        .search-container { padding: 8px 15px; background: rgba(0,0,0,0.85); border-bottom: 1px solid #262626; z-index: 9; }
+        .search-bar { width: 100%; padding: 10px 15px; background: #1c1c1e; border-radius: 15px; border: 1px solid #333; color: white; font-size: 14px; outline: none; }
+
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 16px; background: rgba(0,0,0,0.5); }
         
-        /* 🚨 THE PERFECT, CLEAN LAYOUT (No Hacks, Just Logic) 🚨 */
-        .msg-wrap { display: flex; width: 100%; align-items: flex-end; }
+        /* 🚨 THE 100% PERFECT SAFARI FIT 🚨 */
+        .msg-wrap { display: flex; width: 100%; }
         .msg-wrap.me { justify-content: flex-end; }
         .msg-wrap.them { justify-content: flex-start; }
         
-        .chat-pfp { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; margin-right: 8px; flex-shrink: 0; border: 1px solid #333; }
-
-        .msg-body { display: flex; flex-direction: column; max-width: 75%; }
-        .msg-wrap.me .msg-body { align-items: flex-end; }
-        .msg-wrap.them .msg-body { align-items: flex-start; }
+        .msg-content { display: flex; flex-direction: column; max-width: 75%; }
+        .msg-wrap.me .msg-content { align-items: flex-end; }
+        .msg-wrap.them .msg-content { align-items: flex-start; }
 
         .bubble { 
             padding: 8px 14px; 
             border-radius: 18px; 
             font-size: 15px; 
             line-height: 1.35; 
-            color: #fff;
             word-wrap: break-word; 
             white-space: pre-wrap; 
-            text-align: left; /* Text hamesha sahi direction mein padhne ko milega */
-            position: relative;
+            color: #fff;
             cursor: pointer;
+            position: relative;
+            width: fit-content; 
+            max-width: 100%;
         }
         .bubble-me { background: #3797f0; border-bottom-right-radius: 4px; }
         .bubble-them { background: #262626; border-bottom-left-radius: 4px; }
         
-        .chat-img { max-width: 220px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.4); display: block; }
-        
+        .chat-img { max-width: 220px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; object-fit: cover; cursor: pointer; border: 1px solid #333; }
         .msg-footer { font-size: 11px; color: #aaa; margin-top: 4px; }
         
         .react-badge { position: absolute; bottom: -12px; background: #1c1c1e; border: 1px solid #333; padding: 2px 6px; border-radius: 12px; font-size: 13px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-        .bubble-me .react-badge { right: 10px; } 
-        .bubble-them .react-badge { left: 10px; }
+        .msg-wrap.me .react-badge { right: 10px; } 
+        .msg-wrap.them .react-badge { left: 10px; }
 
-        /* TYPING INDICATOR */
         #typing-ind { padding: 5px 15px; font-size: 12px; color: #aaa; font-style: italic; display: none; background: rgba(0,0,0,0.5); }
         
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: rgba(0,0,0,0.9); z-index: 10; align-items: center; }
         #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; font-size: 16px; outline: none; }
+
+        /* IMAGE VIEWER MODAL */
+        #image-viewer { display: none; position: fixed; z-index: 100000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); justify-content: center; align-items: center; flex-direction: column; }
+        #full-image { max-width: 95%; max-height: 85vh; border-radius: 10px; object-fit: contain; }
+        .close-viewer { position: absolute; top: calc(var(--safe-top) + 10px); right: 20px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; }
 
         #react-tray { display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #262626; padding: 15px; border-radius: 20px; flex-direction: column; gap: 12px; z-index: 3000; box-shadow: 0 8px 20px rgba(0,0,0,0.6); min-width: 250px; }
         .emoji-row { display: flex; justify-content: space-between; gap: 10px; }
@@ -99,12 +102,17 @@
     <div id="calc-ui">
         <div id="display">0</div>
         <div class="grid">
-            <button class="btn top" onclick="handleAC()">AC</button><button class="btn top">+/-</button><button class="btn top">%</button><button class="btn op" onclick="press('/')">÷</button>
-            <button class="btn num" onclick="press('7')">7</button><button class="btn num" onclick="press('8')">8</button><button class="btn num" onclick="press('9')">9</button><button class="btn op" onclick="press('*')">×</button>
-            <button class="btn num" onclick="press('4')">4</button><button class="btn num" onclick="press('5')">5</button><button class="btn num" onclick="press('6')">6</button><button class="btn op" onclick="press('-')">-</button>
-            <button class="btn num" onclick="press('1')">1</button><button class="btn num" onclick="press('2')">2</button><button class="btn num" onclick="press('3')">3</button><button class="btn op" onclick="press('+')">+</button>
-            <button class="btn num zero" onclick="press('0')">0</button><button class="btn num">.</button><button class="btn op" onclick="equal()">=</button>
+            <button class="btn top" onclick="window.handleAC()">AC</button><button class="btn top">+/-</button><button class="btn top">%</button><button class="btn op" onclick="window.press('/')">÷</button>
+            <button class="btn num" onclick="window.press('7')">7</button><button class="btn num" onclick="window.press('8')">8</button><button class="btn num" onclick="window.press('9')">9</button><button class="btn op" onclick="window.press('*')">×</button>
+            <button class="btn num" onclick="window.press('4')">4</button><button class="btn num" onclick="window.press('5')">5</button><button class="btn num" onclick="window.press('6')">6</button><button class="btn op" onclick="window.press('-')">-</button>
+            <button class="btn num" onclick="window.press('1')">1</button><button class="btn num" onclick="window.press('2')">2</button><button class="btn num" onclick="window.press('3')">3</button><button class="btn op" onclick="window.press('+')">+</button>
+            <button class="btn num zero" onclick="window.press('0')">0</button><button class="btn num">.</button><button class="btn op" onclick="window.equal()">=</button>
         </div>
+    </div>
+
+    <div id="image-viewer" onclick="window.closeImage()">
+        <span class="close-viewer">&times;</span>
+        <img id="full-image" src="">
     </div>
 
     <div id="secret-app">
@@ -112,7 +120,7 @@
             <h2 style="font-weight: 200; margin-bottom: 20px;">Premium Access</h2>
             <input type="email" id="user-email" class="input-box" placeholder="Email Address">
             <input type="password" id="user-pass" class="input-box" placeholder="Password">
-            <button class="login-btn" id="login-btn" onclick="checkLogin()">Enter</button>
+            <button class="login-btn" id="login-btn" onclick="window.checkLogin()">Enter</button>
         </div>
 
         <div id="dm-list-ui">
@@ -122,12 +130,11 @@
                     <div class="header-name" id="my-username-display" style="margin-bottom:0;">Loading...</div>
                 </div>
                 <div style="display:flex; gap:10px;">
-                    <button class="settings-btn" onclick="openSettings()">⚙️ Settings</button>
-                    <div class="sos-btn" onclick="forceLogout()">SOS</div>
+                    <button class="settings-btn" onclick="window.openSettings()">⚙️ Settings</button>
+                    <div class="sos-btn" onclick="window.forceLogout()">SOS</div>
                 </div>
             </div>
-            <div class="search-container"><input type="text" id="dm-search" class="search-bar" placeholder="🔍 Search messages..." oninput="searchMessages()"></div>
-            <div class="dm-item" onclick="openChat()">
+            <div class="dm-item" onclick="window.openChat()">
                 <img id="list-pfp" src="" class="dm-pfp">
                 <div style="flex:1;">
                     <div class="dm-name" id="partner-username-display">...</div>
@@ -139,32 +146,36 @@
 
         <div id="chat-ui">
             <div id="chat-header">
-                <button onclick="backToList()" style="background:none; border:none; color:#fff; font-size:26px; padding-right:10px; cursor:pointer;">‹</button>
+                <button onclick="window.backToList()" style="background:none; border:none; color:#fff; font-size:26px; padding-right:10px; cursor:pointer;">‹</button>
                 <img id="chat-pfp" src="" style="width:35px; height:35px; border-radius:50%; object-fit:cover; border:1px solid #333;">
                 <div style="font-weight:700; font-size:16px; margin-left:10px; flex:1;" id="chat-partner-name">...</div>
-                <div class="sos-btn" onclick="forceLogout()">SOS</div>
+                <div class="sos-btn" onclick="window.forceLogout()">SOS</div>
             </div>
             
+            <div class="search-container">
+                <input type="text" id="chat-search" class="search-bar" placeholder="🔍 Search messages in chat..." oninput="window.searchChat()">
+            </div>
+
             <div id="messages"></div>
             <div id="typing-ind">Someone is typing...</div>
 
             <div id="input-bar">
-                <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="sendPhoto(event)">
+                <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="window.sendPhoto(event)">
                 <button onclick="document.getElementById('file-input').click()" style="background:none; border:none; font-size:32px; color:#8e8e93; cursor:pointer; padding:0 8px 4px 0;">+</button>
-                <input type="text" id="msg-in" placeholder="Message..." oninput="handleTyping()" onkeypress="if(event.key==='Enter') sendMsg()">
-                <button onclick="sendMsg()" style="background:#3797f0; border:none; color:#fff; font-weight:bold; font-size:20px; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">↑</button>
+                <input type="text" id="msg-in" placeholder="Message..." oninput="window.handleTyping()" onkeypress="if(event.key==='Enter') window.sendMsg()">
+                <button onclick="window.sendMsg()" style="background:#3797f0; border:none; color:#fff; font-weight:bold; font-size:20px; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">↑</button>
             </div>
 
             <div id="react-tray">
                 <div class="emoji-row">
-                    <span class="react-emoji" onclick="setReact('🥰')">🥰</span>
-                    <span class="react-emoji" onclick="setReact('😘')">😘</span>
-                    <span class="react-emoji" onclick="setReact('🫠')">🫠</span>
-                    <span class="react-emoji" onclick="setReact('🥺')">🥺</span>
-                    <span class="react-emoji" onclick="setReact('😂')">😂</span>
-                    <span class="react-emoji" onclick="setReact('😡')">😡</span>
+                    <span class="react-emoji" onclick="window.setReact('🥰')">🥰</span>
+                    <span class="react-emoji" onclick="window.setReact('😘')">😘</span>
+                    <span class="react-emoji" onclick="window.setReact('🫠')">🫠</span>
+                    <span class="react-emoji" onclick="window.setReact('🥺')">🥺</span>
+                    <span class="react-emoji" onclick="window.setReact('😂')">😂</span>
+                    <span class="react-emoji" onclick="window.setReact('😡')">😡</span>
                 </div>
-                <div id="unsend-wrap" style="display:none; text-align:center;"><button class="unsend-btn" onclick="unsendActiveMsg()">🗑️ Unsend Message</button></div>
+                <div id="unsend-wrap" style="display:none; text-align:center;"><button class="unsend-btn" onclick="window.unsendActiveMsg()">🗑️ Unsend Message</button></div>
             </div>
         </div>
 
@@ -172,48 +183,50 @@
             <div class="set-box">
                 <h3 style="margin-bottom:15px; text-align:center;">App Settings</h3>
                 <label class="file-label" style="color:#aaa; font-size:14px; display:block; margin-bottom:5px;">Change My PFP:</label>
-                <input type="file" id="set-mypfp-file" style="display:none;" accept="image/*" onchange="checkFile(this, 'status-mypfp')">
+                <input type="file" id="set-mypfp-file" style="display:none;" accept="image/*" onchange="window.checkFile(this, 'status-mypfp')">
                 <button class="file-upload-btn" onclick="document.getElementById('set-mypfp-file').click()">📂 Choose PFP</button>
                 <span id="status-mypfp" style="color: #4cd964; font-size: 12px; display: block; text-align: center;"></span>
                 
                 <label class="file-label" style="color:#aaa; font-size:14px; display:block; margin-bottom:5px; margin-top:15px;">Change Theme:</label>
-                <input type="file" id="set-bg-file" style="display:none;" accept="image/*" onchange="checkFile(this, 'status-bg')">
+                <input type="file" id="set-bg-file" style="display:none;" accept="image/*" onchange="window.checkFile(this, 'status-bg')">
                 <button class="file-upload-btn" onclick="document.getElementById('set-bg-file').click()">🖼️ Choose Theme</button>
                 <span id="status-bg" style="color: #4cd964; font-size: 12px; display: block; text-align: center;"></span>
                 
-                <button class="login-btn" onclick="saveSettings()" style="margin-top:20px; background:#3797f0;">Save Settings</button>
-                <button class="delete-chat-btn" onclick="confirmDeleteChat()">🗑️ Clear Entire Chat</button>
-                <p style="margin-top: 20px; color: #aaa; font-size: 14px; cursor:pointer; text-align:center;" onclick="closeSettings()">Cancel</p>
+                <button class="login-btn" onclick="window.saveSettings()" style="margin-top:20px; background:#3797f0;">Save Settings</button>
+                <button class="delete-chat-btn" onclick="window.confirmDeleteChat()">🗑️ Clear Entire Chat</button>
+                <p style="margin-top: 20px; color: #aaa; font-size: 14px; cursor:pointer; text-align:center;" onclick="window.closeSettings()">Cancel</p>
             </div>
         </div>
     </div>
 
     <script>
-        let exp = '0'; let taps = 0; let lastTap = 0;
-        function update() { document.getElementById('display').innerText = exp; }
-        function press(v) { if(exp === '0') exp = v; else exp += v; update(); }
-        function equal() { try { exp = eval(exp).toString(); update(); } catch (e) { exp = 'Error'; update(); } }
-        function handleAC() {
+        // --- 1. CALCULATOR ---
+        window.exp = '0'; window.taps = 0; window.lastTap = 0;
+        window.updateDisplay = function() { document.getElementById('display').innerText = window.exp; }
+        window.press = function(v) { if(window.exp === '0') window.exp = v; else window.exp += v; window.updateDisplay(); }
+        window.equal = function() { try { window.exp = eval(window.exp).toString(); window.updateDisplay(); } catch (e) { window.exp = 'Error'; window.updateDisplay(); } }
+        window.handleAC = function() {
             let now = Date.now();
-            if (now - lastTap < 600) { taps++; } else { taps = 1; }
-            lastTap = now;
-            if (taps === 3) { document.getElementById('secret-app').style.display = 'flex'; document.getElementById('calc-ui').style.display = 'none'; taps = 0; }
-            exp = '0'; update();
+            if (now - window.lastTap < 600) { window.taps++; } else { window.taps = 1; }
+            window.lastTap = now;
+            if (window.taps === 3) { document.getElementById('secret-app').style.display = 'flex'; document.getElementById('calc-ui').style.display = 'none'; window.taps = 0; }
+            window.exp = '0'; window.updateDisplay();
         }
 
-        const SUPABASE_URL = "https://qrsgyerhotxwhldmtqec.supabase.co"; 
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyc2d5ZXJob3R4d2hsZG10cWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1Nzc5NzIsImV4cCI6MjA4OTE1Mzk3Mn0.Bw-zuZr4lJ4RaAMyNVbfixZoWpOR5kR4V2LY-zERvfo"; 
+        // --- 2. SUPABASE & CHAT ---
+        window.SUPABASE_URL = "https://qrsgyerhotxwhldmtqec.supabase.co"; 
+        window.SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyc2d5ZXJob3R4d2hsZG10cWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1Nzc5NzIsImV4cCI6MjA4OTE1Mzk3Mn0.Bw-zuZr4lJ4RaAMyNVbfixZoWpOR5kR4V2LY-zERvfo"; 
         
-        let supabaseClient = null;
-        let myChannel = null;
-        let typingTimer;
-        let syncEngine;
-        let chatData = [], activeMsgId = null, currentUser = '', partnerUser = '', isChatOpen = false;
+        window.supabaseClient = null;
+        window.myChannel = null;
+        window.typingTimer = null;
+        window.syncEngine = null;
+        window.chatData = []; window.activeMsgId = null; window.currentUser = ''; window.partnerUser = ''; window.isChatOpen = false;
 
-        try { supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) {}
+        try { window.supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY); } catch(e) {}
 
-        async function checkLogin() {
-            if(!supabaseClient) { alert("Backend load nahi hua."); return; }
+        window.checkLogin = async function() {
+            if(!window.supabaseClient) { alert("Backend load nahi hua."); return; }
             let email = document.getElementById('user-email').value.trim().toLowerCase();
             let pass = document.getElementById('user-pass').value;
             let btn = document.getElementById('login-btn');
@@ -221,74 +234,74 @@
             if(!email || !pass) { return; }
             btn.innerText = "Checking...";
 
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: pass });
+            const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email: email, password: pass });
 
             if (error) { alert("No Maths premium notes subscription found"); btn.innerText = "Enter"; return; }
 
-            if (email === "houston@boobie.com") { currentUser = 'ahrnavsharma'; partnerUser = 'lovleenx'; } 
-            else if (email === "pcw69@boobie.com") { currentUser = 'lovleenx'; partnerUser = 'ahrnavsharma'; } 
+            if (email === "houston@boobie.com") { window.currentUser = 'ahrnavsharma'; window.partnerUser = 'lovleenx'; } 
+            else if (email === "pcw69@boobie.com") { window.currentUser = 'lovleenx'; window.partnerUser = 'ahrnavsharma'; } 
             
-            document.getElementById('my-username-display').innerText = currentUser;
-            document.getElementById('partner-username-display').innerText = partnerUser;
-            document.getElementById('chat-partner-name').innerText = partnerUser;
+            document.getElementById('my-username-display').innerText = window.currentUser;
+            document.getElementById('partner-username-display').innerText = window.partnerUser;
+            document.getElementById('chat-partner-name').innerText = window.partnerUser;
             
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dm-list-ui').style.display = 'flex';
             
-            loadSettings(); 
-            fetchMessages(); 
-            setupRealtime(); 
+            window.loadSettings(); 
+            window.fetchMessages(); 
+            window.setupRealtime(); 
             btn.innerText = "Enter";
         }
 
-        async function fetchMessages() {
-            const { data, error } = await supabaseClient.from('messages').select('*').order('created_at', { ascending: true });
-            if (data) { chatData = data; renderMessages(); }
+        window.fetchMessages = async function() {
+            const { data, error } = await window.supabaseClient.from('messages').select('*').order('created_at', { ascending: true });
+            if (data) { window.chatData = data; window.renderMessages(); }
         }
 
-        function setupRealtime() {
-            myChannel = supabaseClient.channel('global-chat', { config: { broadcast: { self: false } } });
+        window.setupRealtime = function() {
+            window.myChannel = window.supabaseClient.channel('global-chat', { config: { broadcast: { self: false } } });
             
-            myChannel.on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
-                fetchMessages(); 
-                if(!isChatOpen && payload.eventType === 'INSERT' && payload.new.sender !== currentUser) {
+            window.myChannel.on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
+                window.fetchMessages(); 
+                if(!window.isChatOpen && payload.eventType === 'INSERT' && payload.new.sender !== window.currentUser) {
                     document.getElementById('unread-dot').style.display = 'block';
                 }
             })
             .on('broadcast', { event: 'typing' }, payload => {
-                if (payload.payload.user !== currentUser) {
+                if (payload.payload.user !== window.currentUser) {
                     let ind = document.getElementById('typing-ind');
                     ind.style.display = 'block';
-                    ind.innerText = partnerUser + " is typing...";
-                    clearTimeout(typingTimer);
-                    typingTimer = setTimeout(() => { ind.style.display = 'none'; }, 2500);
-                    scrollToBottom();
+                    ind.innerText = window.partnerUser + " is typing...";
+                    clearTimeout(window.typingTimer);
+                    window.typingTimer = setTimeout(() => { ind.style.display = 'none'; }, 2500);
+                    window.scrollToBottom();
                 }
             })
             .subscribe();
         }
 
-        function handleTyping() {
-            if(myChannel) { myChannel.send({ type: 'broadcast', event: 'typing', payload: { user: currentUser } }); }
+        window.handleTyping = function() {
+            if(window.myChannel) { window.myChannel.send({ type: 'broadcast', event: 'typing', payload: { user: window.currentUser } }); }
         }
 
-        function getTime() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+        window.getTime = function() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
 
-        async function sendMsg() {
+        window.sendMsg = async function() {
             let i = document.getElementById('msg-in'); 
             let text = i.value.trim();
             if(!text) return;
             i.value = ''; 
             
-            let tempMsg = { id: Date.now(), text: text, sender: currentUser, time: getTime(), react: "", type: "text", seen: false };
-            chatData.push(tempMsg);
-            renderMessages();
+            let tempMsg = { id: Date.now(), text: text, sender: window.currentUser, time: window.getTime(), react: "", type: "text", seen: false };
+            window.chatData.push(tempMsg);
+            window.renderMessages();
 
-            await supabaseClient.from('messages').insert([{ text: text, sender: currentUser, time: getTime(), react: "", type: "text", seen: false }]);
-            fetchMessages(); 
+            await window.supabaseClient.from('messages').insert([{ text: text, sender: window.currentUser, time: window.getTime(), react: "", type: "text", seen: false }]);
+            window.fetchMessages(); 
         }
 
-        function sendPhoto(event) {
+        window.sendPhoto = function(event) {
             const file = event.target.files[0]; 
             if(!file) return;
             const reader = new FileReader();
@@ -301,136 +314,166 @@
                     canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                     const base64Img = canvas.toDataURL('image/jpeg', 0.5); 
                     
-                    let tempMsg = { id: Date.now(), text: base64Img, sender: currentUser, time: getTime(), react: "", type: "img", seen: false };
-                    chatData.push(tempMsg);
-                    renderMessages();
+                    let tempMsg = { id: Date.now(), text: base64Img, sender: window.currentUser, time: window.getTime(), react: "", type: "img", seen: false };
+                    window.chatData.push(tempMsg);
+                    window.renderMessages();
 
-                    await supabaseClient.from('messages').insert([{ text: base64Img, sender: currentUser, time: getTime(), react: "", type: "img", seen: false }]);
-                    fetchMessages();
+                    await window.supabaseClient.from('messages').insert([{ text: base64Img, sender: window.currentUser, time: window.getTime(), react: "", type: "img", seen: false }]);
+                    window.fetchMessages();
                 }; img.src = e.target.result;
             }; reader.readAsDataURL(file);
         }
 
-        function renderMessages(query = '') {
+        // --- IMAGE VIEWER LOGIC ---
+        window.openImage = function(src) {
+            document.getElementById('full-image').src = src;
+            document.getElementById('image-viewer').style.display = 'flex';
+        }
+        window.closeImage = function() {
+            document.getElementById('image-viewer').style.display = 'none';
+        }
+
+        window.searchChat = function() { 
+            let q = document.getElementById('chat-search').value;
+            window.renderMessages(q); 
+        }
+
+        window.renderMessages = function(query = '') {
             let container = document.getElementById('messages'); 
             container.innerHTML = '';
             
-            let filtered = chatData.filter(m => m.type === 'text' ? m.text.toLowerCase().includes(query.toLowerCase()) : true);
+            // Text search logic
+            let filtered = window.chatData.filter(m => {
+                if (query === '') return true;
+                if (m.type === 'text') return m.text.toLowerCase().includes(query.toLowerCase());
+                return false; // hide images when searching text
+            });
             
             filtered.forEach((m) => {
-                let isMe = m.sender === currentUser; 
-                let content = m.type === 'img' ? `<img src="${m.text}" class="chat-img">` : m.text;
+                let isMe = m.sender === window.currentUser; 
+                // Double click opens image full screen
+                let content = m.type === 'img' ? `<img src="${m.text}" class="chat-img" ondblclick="window.openImage('${m.text}')">` : m.text;
                 let reactHTML = m.react ? `<span class="react-badge">${m.react}</span>` : '';
-                let pfpSrc = !isMe ? (localStorage.getItem(partnerUser + '_pfp') || `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`) : '';
+                let pfpSrc = !isMe ? (localStorage.getItem(window.partnerUser + '_pfp') || `https://ui-avatars.com/api/?name=${window.partnerUser.charAt(0)}&background=random`) : '';
 
-                // 🚨 PERFECT CLEAN STRUCTURE 🚨
+                // 🚨 BULLETPROOF SAFARI FIX 🚨
                 container.innerHTML += `
                     <div class="msg-wrap ${isMe ? 'me' : 'them'}">
-                        ${!isMe ? `<img src="${pfpSrc}" class="chat-pfp">` : ''}
-                        <div class="msg-body">
-                            <div class="bubble ${isMe ? 'bubble-me' : 'bubble-them'}" style="${m.type === 'img' ? 'background:transparent; padding:0;' : ''}" onclick="openReact(${m.id})">
+                        ${!isMe ? `<img src="${pfpSrc}" class="chat-pfp" style="margin-right:8px;">` : ''}
+                        <div class="msg-content">
+                            <div class="bubble ${isMe ? 'bubble-me' : 'bubble-them'}" style="${m.type === 'img' ? 'background:transparent; padding:0;' : ''}" onclick="window.openReact(${m.id})">
                                 ${content}
-                                ${reactHTML}
                             </div>
+                            ${reactHTML}
                             <div class="msg-footer">${m.time}${isMe && m.seen ? ' • Seen' : ''}</div>
                         </div>
                     </div>`;
             });
             
-            if(chatData.length > 0) {
-                let lastMsg = chatData[chatData.length - 1];
+            if(window.chatData.length > 0) {
+                let lastMsg = window.chatData[window.chatData.length - 1];
                 document.getElementById('last-msg-preview').innerText = lastMsg.type === 'img' ? "📷 Photo" : lastMsg.text.substring(0, 20) + "...";
             } else {
                 document.getElementById('last-msg-preview').innerText = "Tap to view chat...";
             }
-            scrollToBottom();
+            window.scrollToBottom();
         }
 
-        async function unsendActiveMsg() { 
-            document.getElementById('react-tray').style.display = 'none'; 
-            await supabaseClient.from('messages').delete().eq('id', activeMsgId); 
-            fetchMessages();
+        window.openReact = function(id) { 
+            window.activeMsgId = id; 
+            let m = window.chatData.find(x => x.id === id); 
+            document.getElementById('unsend-wrap').style.display = (m && m.sender === window.currentUser) ? 'block' : 'none'; 
+            document.getElementById('react-tray').style.display = 'flex'; 
         }
         
-        async function setReact(emoji) { 
+        window.onclick = function(e) { 
+            if(!e.target.closest('.bubble') && !e.target.closest('#react-tray') && !e.target.closest('.chat-img')) { 
+                document.getElementById('react-tray').style.display='none'; 
+            } 
+        };
+        
+        window.scrollToBottom = function() { let m = document.getElementById('messages'); m.scrollTop = m.scrollHeight; }
+
+        window.unsendActiveMsg = async function() { 
             document.getElementById('react-tray').style.display = 'none'; 
-            await supabaseClient.from('messages').update({ react: emoji }).eq('id', activeMsgId); 
-            fetchMessages();
+            await window.supabaseClient.from('messages').delete().eq('id', window.activeMsgId); 
+            window.fetchMessages();
         }
         
-        async function confirmDeleteChat() { 
+        window.setReact = async function(emoji) { 
+            document.getElementById('react-tray').style.display = 'none'; 
+            await window.supabaseClient.from('messages').update({ react: emoji }).eq('id', window.activeMsgId); 
+            window.fetchMessages();
+        }
+        
+        window.confirmDeleteChat = async function() { 
             if(confirm("Delete chat? Yeh wapas nahi aayegi.")) { 
-                await supabaseClient.from('messages').delete().neq('id', 0); 
-                closeSettings(); 
-                fetchMessages();
+                await window.supabaseClient.from('messages').delete().neq('id', 0); 
+                window.closeSettings(); 
+                window.fetchMessages();
             } 
         }
         
-        async function markMessagesAsSeen() {
-            const unseenIds = chatData.filter(m => m.sender === partnerUser && !m.seen).map(m => m.id);
+        window.markMessagesAsSeen = async function() {
+            const unseenIds = window.chatData.filter(m => m.sender === window.partnerUser && !m.seen).map(m => m.id);
             if(unseenIds.length > 0) {
-                await supabaseClient.from('messages').update({ seen: true }).in('id', unseenIds);
-                fetchMessages();
+                await window.supabaseClient.from('messages').update({ seen: true }).in('id', unseenIds);
+                window.fetchMessages();
             }
         }
 
-        function openChat() { 
+        window.openChat = function() { 
             document.getElementById('dm-list-ui').style.display='none'; 
             document.getElementById('chat-ui').style.display='flex'; 
             document.getElementById('unread-dot').style.display='none'; 
-            isChatOpen=true; 
-            markMessagesAsSeen(); 
-            scrollToBottom(); 
-            syncEngine = setInterval(fetchMessages, 3000); 
+            window.isChatOpen=true; 
+            window.markMessagesAsSeen(); 
+            window.scrollToBottom(); 
+            window.syncEngine = setInterval(window.fetchMessages, 3000); 
         }
         
-        function backToList() { 
+        window.backToList = function() { 
             document.getElementById('chat-ui').style.display='none'; 
             document.getElementById('dm-list-ui').style.display='flex'; 
-            isChatOpen = false; 
-            clearInterval(syncEngine); 
+            window.isChatOpen = false; 
+            clearInterval(window.syncEngine); 
         }
         
-        async function forceLogout() { if(supabaseClient) await supabaseClient.auth.signOut(); location.reload(); }
-        function openSettings() { document.getElementById('settings-ui').style.display='flex'; }
-        function closeSettings() { document.getElementById('settings-ui').style.display='none'; }
-        function checkFile(input, statusId) { if(input.files && input.files[0]) document.getElementById(statusId).innerText = "✅ Image Selected"; }
+        window.forceLogout = async function() { if(window.supabaseClient) await window.supabaseClient.auth.signOut(); location.reload(); }
+        window.openSettings = function() { document.getElementById('settings-ui').style.display='flex'; }
+        window.closeSettings = function() { document.getElementById('settings-ui').style.display='none'; }
+        window.checkFile = function(input, statusId) { if(input.files && input.files[0]) document.getElementById(statusId).innerText = "✅ Selected"; }
 
-        function compressAndSave(file, storageKey) {
+        window.compressAndSave = function(file, storageKey) {
             if (!file) return; const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image(); img.onload = function() {
                     const canvas = document.createElement('canvas'); const MAX_SIZE = 800; let w = img.width, h = img.height;
                     if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE/w; w = MAX_SIZE; } } else { if (h > MAX_SIZE) { w *= MAX_SIZE/h; h = MAX_SIZE; } }
                     canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    try { localStorage.setItem(storageKey, canvas.toDataURL('image/jpeg', 0.6)); loadSettings(); } catch(err) {}
+                    try { localStorage.setItem(storageKey, canvas.toDataURL('image/jpeg', 0.6)); window.loadSettings(); } catch(err) { }
                 }; img.src = e.target.result;
             }; reader.readAsDataURL(file);
         }
 
-        function saveSettings() {
-            if(document.getElementById('set-mypfp-file').files[0]) compressAndSave(document.getElementById('set-mypfp-file').files[0], currentUser + '_pfp');
-            if(document.getElementById('set-bg-file').files[0]) compressAndSave(document.getElementById('set-bg-file').files[0], 'chatBg');
-            closeSettings(); document.getElementById('set-mypfp-file').value = ''; document.getElementById('set-bg-file').value = '';
+        window.saveSettings = function() {
+            if(document.getElementById('set-mypfp-file').files[0]) window.compressAndSave(document.getElementById('set-mypfp-file').files[0], window.currentUser + '_pfp');
+            if(document.getElementById('set-bg-file').files[0]) window.compressAndSave(document.getElementById('set-bg-file').files[0], 'chatBg');
+            window.closeSettings(); document.getElementById('set-mypfp-file').value = ''; document.getElementById('set-bg-file').value = '';
         }
 
-        function loadSettings() {
-            const partnerPfpData = localStorage.getItem(partnerUser + '_pfp'); 
-            const myPfpData = localStorage.getItem(currentUser + '_pfp'); 
+        window.loadSettings = function() {
+            const partnerPfpData = localStorage.getItem(window.partnerUser + '_pfp'); 
+            const myPfpData = localStorage.getItem(window.currentUser + '_pfp'); 
             const bgData = localStorage.getItem('chatBg');
-            const defaultPartner = `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`;
-            const defaultMe = `https://ui-avatars.com/api/?name=${currentUser.charAt(0)}&background=random`;
+            const defaultPartner = `https://ui-avatars.com/api/?name=${window.partnerUser.charAt(0)}&background=random`;
+            const defaultMe = `https://ui-avatars.com/api/?name=${window.currentUser.charAt(0)}&background=random`;
             
             document.getElementById('list-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
             document.getElementById('chat-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
             document.getElementById('my-header-pfp').src = myPfpData ? myPfpData : defaultMe;
             if(bgData) document.documentElement.style.setProperty('--theme-bg', `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${bgData}')`); 
         }
-
-        function searchMessages() { renderMessages(document.getElementById('dm-search').value || document.getElementById('chat-search').value); }
-        function openReact(id) { activeMsgId = id; let m = chatData.find(x => x.id === id); document.getElementById('unsend-wrap').style.display = (m && m.sender === currentUser) ? 'block' : 'none'; document.getElementById('react-tray').style.display = 'flex'; }
-        window.onclick = function(e) { if(!e.target.closest('.bubble') && !e.target.closest('#react-tray')) { document.getElementById('react-tray').style.display='none'; } };
-        function scrollToBottom() { let m = document.getElementById('messages'); m.scrollTop = m.scrollHeight; }
     </script>
 </body>
 </html>
