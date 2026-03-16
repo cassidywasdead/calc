@@ -44,6 +44,7 @@
 
         #messages { flex: 1; overflow-y: auto; padding: 15px 15px; display: flex; flex-direction: column; gap: 6px; background: rgba(0,0,0,0.5); }
         
+        /* 🚨 BUBBLE SIZE FIX 🚨 */
         .bubble-box { 
             padding: 6px 12px; 
             border-radius: 15px; 
@@ -213,8 +214,11 @@
         window.supabaseClient = null;
         window.myChannel = null;
         window.typingTimer = null;
+        window.syncEngine = null;
         window.chatData = []; window.activeMsgId = null; window.currentUser = ''; window.partnerUser = ''; window.isChatOpen = false;
+        
         window.justSentByMe = false; 
+        window.lastChatHash = ''; // 🚨 SMART DOM CACHE 🚨
 
         try { window.supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY); } catch(e) {}
 
@@ -249,23 +253,19 @@
 
         window.fetchMessages = async function() {
             const { data, error } = await window.supabaseClient.from('messages').select('*').order('created_at', { ascending: true });
-            if (data) { window.chatData = data; window.renderMessages(); }
+            if (data) { 
+                window.chatData = data; 
+                window.renderMessages(); 
+            }
         }
 
-        // 🚨 100% PURE DATABASE SYNC (NO FAKE MESSAGES) 🚨
         window.setupRealtime = function() {
             window.myChannel = window.supabaseClient.channel('global-chat', { config: { broadcast: { self: false } } });
             
             window.myChannel.on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
-                
-                // Hamesha database se latest messages fetch karo
                 window.fetchMessages(); 
-                
-                // Seen Status aur Notification Update
                 if(!window.isChatOpen && payload.eventType === 'INSERT' && payload.new.sender !== window.currentUser) {
                     document.getElementById('unread-dot').style.display = 'block';
-                } else if(window.isChatOpen && payload.eventType === 'INSERT' && payload.new.sender !== window.currentUser) {
-                    window.markMessagesAsSeen(); // Agar chat khuli hai, toh turant seen kar do
                 }
             })
             .on('broadcast', { event: 'typing' }, payload => {
@@ -293,7 +293,7 @@
             if(!text) return;
             i.value = ''; 
             
-            window.justSentByMe = true; // Auto-scroll ke liye
+            window.justSentByMe = true; 
             await window.supabaseClient.from('messages').insert([{ text: text, sender: window.currentUser, time: window.getTime(), react: "", type: "text", seen: false }]);
             window.fetchMessages(); 
         }
@@ -334,6 +334,11 @@
         window.searchChat = function() { window.renderMessages(document.getElementById('chat-search').value); }
 
         window.renderMessages = function(query = '') {
+            // 🚨 SMART ENGINE: Don't redraw if data hasn't changed! (Prevents glitchy scrolling) 🚨
+            let currentHash = JSON.stringify(window.chatData) + query;
+            if(window.lastChatHash === currentHash && !window.justSentByMe) return; 
+            window.lastChatHash = currentHash;
+
             let container = document.getElementById('messages'); 
             let isAtBottom = container.scrollTop >= (container.scrollHeight - container.offsetHeight - 100);
             
@@ -416,11 +421,15 @@
         window.markMessagesAsSeen = async function() {
             const unseenIds = window.chatData.filter(m => m.sender === window.partnerUser && !m.seen).map(m => m.id);
             if(unseenIds.length > 0) {
+                // Turant UI update kar dega
+                window.chatData.forEach(m => { if(unseenIds.includes(m.id)) m.seen = true; });
+                window.renderMessages();
+                // Phir Database ko bata dega
                 await window.supabaseClient.from('messages').update({ seen: true }).in('id', unseenIds);
-                window.fetchMessages();
             }
         }
 
+        // 🚨 LIVE BACKGROUND SYNC (HAR 2 SEC MEIN CHECK KAREGA) 🚨
         window.openChat = function() { 
             document.getElementById('dm-list-ui').style.display='none'; 
             document.getElementById('chat-ui').style.display='flex'; 
@@ -428,12 +437,18 @@
             window.isChatOpen=true; 
             window.markMessagesAsSeen(); 
             window.scrollToBottom(); 
+            
+            window.syncEngine = setInterval(() => {
+                window.fetchMessages();
+                if(window.isChatOpen) window.markMessagesAsSeen();
+            }, 2000); 
         }
         
         window.backToList = function() { 
             document.getElementById('chat-ui').style.display='none'; 
             document.getElementById('dm-list-ui').style.display='flex'; 
             window.isChatOpen = false; 
+            clearInterval(window.syncEngine); 
         }
         
         window.forceLogout = async function() { if(window.supabaseClient) await window.supabaseClient.auth.signOut(); location.reload(); }
