@@ -32,7 +32,7 @@
         .dm-header { padding: 15px 20px; border-bottom: 1px solid #262626; display: flex; justify-content: space-between; align-items: center; position: relative; }
         .settings-btn { background: #1c1c1e; border: 1px solid #333; color: white; padding: 8px 15px; border-radius: 15px; font-size: 14px; cursor: pointer; }
         .dm-item { display: flex; align-items: center; padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #111; }
-        .dm-pfp { width: 55px; height: 55px; border-radius: 50%; background: #333; margin-right: 15px; object-fit: cover; }
+        .dm-pfp { width: 55px; height: 55px; border-radius: 50%; background: #333; margin-right: 15px; object-fit: cover; border: 1px solid #222; }
         .dm-dot { width: 10px; height: 10px; background: #007aff; border-radius: 50%; display: none; }
 
         /* --- CHAT UI --- */
@@ -42,39 +42,30 @@
         .search-container { padding: 8px 15px; background: rgba(0,0,0,0.85); border-bottom: 1px solid #262626; z-index: 9; }
         .search-bar { width: 100%; padding: 10px 15px; background: #1c1c1e; border-radius: 15px; border: 1px solid #333; color: white; font-size: 14px; outline: none; }
 
-        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 16px; background: rgba(0,0,0,0.5); }
+        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.5); }
         
-        /* 🚨 THE 100% PERFECT SAFARI FIT 🚨 */
-        .msg-wrap { display: flex; width: 100%; }
-        .msg-wrap.me { justify-content: flex-end; }
-        .msg-wrap.them { justify-content: flex-start; }
-        
-        .msg-content { display: flex; flex-direction: column; max-width: 75%; }
-        .msg-wrap.me .msg-content { align-items: flex-end; }
-        .msg-wrap.them .msg-content { align-items: flex-start; }
-
-        .bubble { 
+        /* 🚨 THE ULTIMATE UNBREAKABLE BUBBLE CSS 🚨 */
+        .bubble-box { 
             padding: 8px 14px; 
             border-radius: 18px; 
             font-size: 15px; 
             line-height: 1.35; 
-            word-wrap: break-word; 
+            word-break: break-word; 
             white-space: pre-wrap; 
             color: #fff;
             cursor: pointer;
+            display: inline-block; /* FORCES BOX TO HUG THE TEXT */
+            text-align: left;
             position: relative;
-            width: fit-content; 
-            max-width: 100%;
         }
         .bubble-me { background: #3797f0; border-bottom-right-radius: 4px; }
         .bubble-them { background: #262626; border-bottom-left-radius: 4px; }
         
-        .chat-img { max-width: 220px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; object-fit: cover; cursor: pointer; border: 1px solid #333; }
-        .msg-footer { font-size: 11px; color: #aaa; margin-top: 4px; }
+        .chat-img { max-width: 220px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; object-fit: cover; cursor: pointer; border: 1px solid #333; display: block; }
         
         .react-badge { position: absolute; bottom: -12px; background: #1c1c1e; border: 1px solid #333; padding: 2px 6px; border-radius: 12px; font-size: 13px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-        .msg-wrap.me .react-badge { right: 10px; } 
-        .msg-wrap.them .react-badge { left: 10px; }
+        .react-me { right: 10px; } 
+        .react-them { left: 10px; }
 
         #typing-ind { padding: 5px 15px; font-size: 12px; color: #aaa; font-style: italic; display: none; background: rgba(0,0,0,0.5); }
         
@@ -83,8 +74,8 @@
 
         /* IMAGE VIEWER MODAL */
         #image-viewer { display: none; position: fixed; z-index: 100000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); justify-content: center; align-items: center; flex-direction: column; }
-        #full-image { max-width: 95%; max-height: 85vh; border-radius: 10px; object-fit: contain; }
-        .close-viewer { position: absolute; top: calc(var(--safe-top) + 10px); right: 20px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; }
+        #full-image { max-width: 95vw; max-height: 85vh; border-radius: 10px; object-fit: contain; }
+        .close-viewer { position: absolute; top: calc(var(--safe-top) + 20px); right: 20px; color: #fff; font-size: 35px; font-weight: bold; cursor: pointer; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
 
         #react-tray { display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #262626; padding: 15px; border-radius: 20px; flex-direction: column; gap: 12px; z-index: 3000; box-shadow: 0 8px 20px rgba(0,0,0,0.6); min-width: 250px; }
         .emoji-row { display: flex; justify-content: space-between; gap: 10px; }
@@ -93,7 +84,9 @@
 
         #settings-ui { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .set-box { width: 90%; background: #1c1c1e; padding: 25px; border-radius: 20px; border: 1px solid #333; text-align: left; }
+        .file-label { color:#aaa; font-size:14px; display:block; margin-bottom:5px; margin-top: 15px; font-weight:bold;}
         .file-upload-btn { width: 100%; padding: 12px; background: #333; color: white; border-radius: 10px; border: none; font-size: 14px; margin-bottom: 5px; }
+        .status-badge { color: #4cd964; font-size: 12px; display: block; text-align: center; }
         .delete-chat-btn { width: 100%; padding: 12px; background: rgba(255, 59, 48, 0.2); border: 1px solid #ff3b30; color: #ff3b30; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 25px; }
     </style>
 </head>
@@ -111,7 +104,7 @@
     </div>
 
     <div id="image-viewer" onclick="window.closeImage()">
-        <span class="close-viewer">&times;</span>
+        <div class="close-viewer">&times;</div>
         <img id="full-image" src="">
     </div>
 
@@ -126,7 +119,7 @@
         <div id="dm-list-ui">
             <div class="dm-header">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <img id="my-header-pfp" src="" style="width:32px; height:32px; border-radius:50%; object-fit:cover; background:#333;">
+                    <img id="my-header-pfp" src="" style="width:32px; height:32px; border-radius:50%; object-fit:cover; background:#333; border:1px solid #444;">
                     <div class="header-name" id="my-username-display" style="margin-bottom:0;">Loading...</div>
                 </div>
                 <div style="display:flex; gap:10px;">
@@ -173,7 +166,7 @@
                     <span class="react-emoji" onclick="window.setReact('🫠')">🫠</span>
                     <span class="react-emoji" onclick="window.setReact('🥺')">🥺</span>
                     <span class="react-emoji" onclick="window.setReact('😂')">😂</span>
-                    <span class="react-emoji" onclick="window.setReact('😡')">😡</span>
+                    <span class="react-emoji" onclick="setReact('😡')">😡</span>
                 </div>
                 <div id="unsend-wrap" style="display:none; text-align:center;"><button class="unsend-btn" onclick="window.unsendActiveMsg()">🗑️ Unsend Message</button></div>
             </div>
@@ -324,11 +317,25 @@
             }; reader.readAsDataURL(file);
         }
 
-        // --- IMAGE VIEWER LOGIC ---
-        window.openImage = function(src) {
-            document.getElementById('full-image').src = src;
-            document.getElementById('image-viewer').style.display = 'flex';
+        // 🚨 CUSTOM DOUBLE TAP ENGINE FOR IMAGES 🚨
+        window.imgClickTimer = null;
+        window.handleImageClick = function(event, id, src) {
+            event.stopPropagation();
+            if (window.imgClickTimer) {
+                // Double Tap (Zoom Image)
+                clearTimeout(window.imgClickTimer);
+                window.imgClickTimer = null;
+                document.getElementById('full-image').src = src;
+                document.getElementById('image-viewer').style.display = 'flex';
+            } else {
+                // Single Tap (Open Reaction Tray)
+                window.imgClickTimer = setTimeout(() => {
+                    window.imgClickTimer = null;
+                    window.openReact(id);
+                }, 300); // 300ms wait to see if second tap happens
+            }
         }
+
         window.closeImage = function() {
             document.getElementById('image-viewer').style.display = 'none';
         }
@@ -342,30 +349,36 @@
             let container = document.getElementById('messages'); 
             container.innerHTML = '';
             
-            // Text search logic
             let filtered = window.chatData.filter(m => {
                 if (query === '') return true;
                 if (m.type === 'text') return m.text.toLowerCase().includes(query.toLowerCase());
-                return false; // hide images when searching text
+                return false; 
             });
             
             filtered.forEach((m) => {
                 let isMe = m.sender === window.currentUser; 
-                // Double click opens image full screen
-                let content = m.type === 'img' ? `<img src="${m.text}" class="chat-img" ondblclick="window.openImage('${m.text}')">` : m.text;
-                let reactHTML = m.react ? `<span class="react-badge">${m.react}</span>` : '';
+                
+                // Magic Click Handler injected into Image
+                let content = m.type === 'img' ? `<img src="${m.text}" class="chat-img" onclick="window.handleImageClick(event, ${m.id}, '${m.text}')">` : m.text;
+                let reactHTML = m.react ? `<span class="react-badge ${isMe ? 'react-me' : 'react-them'}">${m.react}</span>` : '';
                 let pfpSrc = !isMe ? (localStorage.getItem(window.partnerUser + '_pfp') || `https://ui-avatars.com/api/?name=${window.partnerUser.charAt(0)}&background=random`) : '';
 
-                // 🚨 BULLETPROOF SAFARI FIX 🚨
+                // 🚨 100% UNBREAKABLE INLINE FLEX LAYOUT 🚨
                 container.innerHTML += `
-                    <div class="msg-wrap ${isMe ? 'me' : 'them'}">
-                        ${!isMe ? `<img src="${pfpSrc}" class="chat-pfp" style="margin-right:8px;">` : ''}
-                        <div class="msg-content">
-                            <div class="bubble ${isMe ? 'bubble-me' : 'bubble-them'}" style="${m.type === 'img' ? 'background:transparent; padding:0;' : ''}" onclick="window.openReact(${m.id})">
+                    <div style="display: flex; width: 100%; justify-content: ${isMe ? 'flex-end' : 'flex-start'}; margin-bottom: 16px;">
+                        ${!isMe ? `<img src="${pfpSrc}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; margin-right:8px; align-self:flex-end; border:1px solid #333;">` : ''}
+                        
+                        <div style="display: flex; flex-direction: column; align-items: ${isMe ? 'flex-end' : 'flex-start'}; max-width: 75%; position: relative;">
+                            
+                            <div class="bubble-box ${isMe ? 'bubble-me' : 'bubble-them'}" style="${m.type === 'img' ? 'background:transparent; padding:0;' : ''}" onclick="window.openReact(${m.id})">
                                 ${content}
                             </div>
+                            
                             ${reactHTML}
-                            <div class="msg-footer">${m.time}${isMe && m.seen ? ' • Seen' : ''}</div>
+                            
+                            <div style="font-size: 11px; color: #aaa; margin-top: 4px;">
+                                ${m.time}${isMe && m.seen ? ' • Seen' : ''}
+                            </div>
                         </div>
                     </div>`;
             });
@@ -387,7 +400,7 @@
         }
         
         window.onclick = function(e) { 
-            if(!e.target.closest('.bubble') && !e.target.closest('#react-tray') && !e.target.closest('.chat-img')) { 
+            if(!e.target.closest('.bubble-box') && !e.target.closest('#react-tray')) { 
                 document.getElementById('react-tray').style.display='none'; 
             } 
         };
