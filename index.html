@@ -42,35 +42,37 @@
         .search-container { padding: 8px 15px; background: rgba(0,0,0,0.85); border-bottom: 1px solid #262626; z-index: 9; }
         .search-bar { width: 100%; padding: 10px 15px; background: #1c1c1e; border-radius: 15px; border: 1px solid #333; color: white; font-size: 14px; outline: none; }
 
-        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.5); }
+        #messages { flex: 1; overflow-y: auto; padding: 15px 15px; display: flex; flex-direction: column; gap: 6px; background: rgba(0,0,0,0.5); }
         
-        /* 🚨 THE ULTIMATE UNBREAKABLE BUBBLE CSS 🚨 */
+        /* 🚨 THE PERFECT, COMPACT, UNBREAKABLE BUBBLE (max-content HACK) 🚨 */
         .bubble-box { 
-            padding: 8px 14px; 
-            border-radius: 18px; 
-            font-size: 15px; 
-            line-height: 1.35; 
+            padding: 6px 12px; /* 🚨 CHOTA KAR DIYA 🚨 */
+            border-radius: 15px; /* 🚨 SLEEKER LOOK 🚨 */
+            font-size: 14px; /* 🚨 SLIGHTLY SMALLER FONT 🚨 */
+            line-height: 1.3; /* 🚨 TIGHTER LINE SPACING 🚨 */
             word-break: break-word; 
             white-space: pre-wrap; 
             color: #fff;
             cursor: pointer;
-            display: inline-block; /* FORCES BOX TO HUG THE TEXT */
+            display: inline-block; /* Safari Box Squeeze FIX! */
             text-align: left;
             position: relative;
+            max-width: 100%;
         }
         .bubble-me { background: #3797f0; border-bottom-right-radius: 4px; }
         .bubble-them { background: #262626; border-bottom-left-radius: 4px; }
         
         .chat-img { max-width: 220px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; object-fit: cover; cursor: pointer; border: 1px solid #333; display: block; }
+        .msg-footer { font-size: 10px; color: #888; margin-top: 3px; } /* Footer bhi compact */
         
-        .react-badge { position: absolute; bottom: -12px; background: #1c1c1e; border: 1px solid #333; padding: 2px 6px; border-radius: 12px; font-size: 13px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-        .react-me { right: 10px; } 
-        .react-them { left: 10px; }
+        .react-badge { position: absolute; bottom: -10px; background: #1c1c1e; border: 1px solid #333; padding: 1px 5px; border-radius: 10px; font-size: 12px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        .react-me { right: 8px; } 
+        .react-them { left: 8px; }
 
         #typing-ind { padding: 5px 15px; font-size: 12px; color: #aaa; font-style: italic; display: none; background: rgba(0,0,0,0.5); }
         
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: rgba(0,0,0,0.9); z-index: 10; align-items: center; }
-        #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; font-size: 16px; outline: none; }
+        #msg-in { flex: 1; padding: 11px 16px; background: #1c1c1e; border: none; border-radius: 20px; color: #fff; font-size: 16px; outline: none; }
 
         /* IMAGE VIEWER MODAL */
         #image-viewer { display: none; position: fixed; z-index: 100000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); justify-content: center; align-items: center; flex-direction: column; }
@@ -86,7 +88,6 @@
         .set-box { width: 90%; background: #1c1c1e; padding: 25px; border-radius: 20px; border: 1px solid #333; text-align: left; }
         .file-label { color:#aaa; font-size:14px; display:block; margin-bottom:5px; margin-top: 15px; font-weight:bold;}
         .file-upload-btn { width: 100%; padding: 12px; background: #333; color: white; border-radius: 10px; border: none; font-size: 14px; margin-bottom: 5px; }
-        .status-badge { color: #4cd964; font-size: 12px; display: block; text-align: center; }
         .delete-chat-btn { width: 100%; padding: 12px; background: rgba(255, 59, 48, 0.2); border: 1px solid #ff3b30; color: #ff3b30; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 25px; }
     </style>
 </head>
@@ -166,7 +167,7 @@
                     <span class="react-emoji" onclick="window.setReact('🫠')">🫠</span>
                     <span class="react-emoji" onclick="window.setReact('🥺')">🥺</span>
                     <span class="react-emoji" onclick="window.setReact('😂')">😂</span>
-                    <span class="react-emoji" onclick="setReact('😡')">😡</span>
+                    <span class="react-emoji" onclick="window.setReact('😡')">😡</span>
                 </div>
                 <div id="unsend-wrap" style="display:none; text-align:center;"><button class="unsend-btn" onclick="window.unsendActiveMsg()">🗑️ Unsend Message</button></div>
             </div>
@@ -215,6 +216,9 @@
         window.typingTimer = null;
         window.syncEngine = null;
         window.chatData = []; window.activeMsgId = null; window.currentUser = ''; window.partnerUser = ''; window.isChatOpen = false;
+        
+        // 🚨 AUTO-SCROLL FIX FLAG 🚨
+        window.justSentByMe = false; 
 
         try { window.supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY); } catch(e) {}
 
@@ -286,11 +290,13 @@
             if(!text) return;
             i.value = ''; 
             
+            // 🚨 Instant show in UI + Set Scroll Flag 🚨
             let tempMsg = { id: Date.now(), text: text, sender: window.currentUser, time: window.getTime(), react: "", type: "text", seen: false };
             window.chatData.push(tempMsg);
+            window.justSentByMe = true; // 🚨 I sent this, force scroll 🚨
             window.renderMessages();
 
-            await window.supabaseClient.from('messages').insert([{ text: text, sender: window.currentUser, time: window.getTime(), react: "", type: "text", seen: false }]);
+            await window.supabaseClient.from('messages').insert([{ text: text, sender: window.currentUser, time: getTime(), react: "", type: "text", seen: false }]);
             window.fetchMessages(); 
         }
 
@@ -309,15 +315,16 @@
                     
                     let tempMsg = { id: Date.now(), text: base64Img, sender: window.currentUser, time: window.getTime(), react: "", type: "img", seen: false };
                     window.chatData.push(tempMsg);
+                    window.justSentByMe = true; // 🚨 Force scroll for photo 🚨
                     window.renderMessages();
 
-                    await window.supabaseClient.from('messages').insert([{ text: base64Img, sender: window.currentUser, time: window.getTime(), react: "", type: "img", seen: false }]);
+                    await window.supabaseClient.from('messages').insert([{ text: base64Img, sender: window.currentUser, time: getTime(), react: "", type: "img", seen: false }]);
                     window.fetchMessages();
                 }; img.src = e.target.result;
             }; reader.readAsDataURL(file);
         }
 
-        // 🚨 CUSTOM DOUBLE TAP ENGINE FOR IMAGES 🚨
+        // 🚨 DOUBLE TAP ENGINE (Reaction Tray on single, Zoom on double) 🚨
         window.imgClickTimer = null;
         window.handleImageClick = function(event, id, src) {
             event.stopPropagation();
@@ -332,7 +339,7 @@
                 window.imgClickTimer = setTimeout(() => {
                     window.imgClickTimer = null;
                     window.openReact(id);
-                }, 300); // 300ms wait to see if second tap happens
+                }, 2500); // Wait 250ms for second tap
             }
         }
 
@@ -347,6 +354,11 @@
 
         window.renderMessages = function(query = '') {
             let container = document.getElementById('messages'); 
+            
+            // 🚨 AUTO-SCROLL FIX: CHECK SCROLL POSITION BEFORE RENDERING 🚨
+            // Is user already near the bottom (within 100px)?
+            let isAtBottom = container.scrollTop >= (container.scrollHeight - container.offsetHeight - 100);
+            
             container.innerHTML = '';
             
             let filtered = window.chatData.filter(m => {
@@ -358,14 +370,14 @@
             filtered.forEach((m) => {
                 let isMe = m.sender === window.currentUser; 
                 
-                // Magic Click Handler injected into Image
+                // Image Click Handler (custom double tap)
                 let content = m.type === 'img' ? `<img src="${m.text}" class="chat-img" onclick="window.handleImageClick(event, ${m.id}, '${m.text}')">` : m.text;
                 let reactHTML = m.react ? `<span class="react-badge ${isMe ? 'react-me' : 'react-them'}">${m.react}</span>` : '';
                 let pfpSrc = !isMe ? (localStorage.getItem(window.partnerUser + '_pfp') || `https://ui-avatars.com/api/?name=${window.partnerUser.charAt(0)}&background=random`) : '';
 
-                // 🚨 100% UNBREAKABLE INLINE FLEX LAYOUT 🚨
+                // 🚨 ABSOLUTE FIX FOR SAFARI WORD CRUSHING & LAYOUT 🚨
                 container.innerHTML += `
-                    <div style="display: flex; width: 100%; justify-content: ${isMe ? 'flex-end' : 'flex-start'}; margin-bottom: 16px;">
+                    <div style="display: flex; width: 100%; justify-content: ${isMe ? 'flex-end' : 'flex-start'}; margin-bottom: ${m.react ? '20px' : '2px'};">
                         ${!isMe ? `<img src="${pfpSrc}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; margin-right:8px; align-self:flex-end; border:1px solid #333;">` : ''}
                         
                         <div style="display: flex; flex-direction: column; align-items: ${isMe ? 'flex-end' : 'flex-start'}; max-width: 75%; position: relative;">
@@ -376,7 +388,7 @@
                             
                             ${reactHTML}
                             
-                            <div style="font-size: 11px; color: #aaa; margin-top: 4px;">
+                            <div class="msg-footer">
                                 ${m.time}${isMe && m.seen ? ' • Seen' : ''}
                             </div>
                         </div>
@@ -389,7 +401,12 @@
             } else {
                 document.getElementById('last-msg-preview').innerText = "Tap to view chat...";
             }
-            window.scrollToBottom();
+            
+            // 🚨 AUTO-SCROLL FIX: CONDITIONAL SCROLL 🚨
+            if (window.justSentByMe || isAtBottom) {
+                window.scrollToBottom();
+                window.justSentByMe = false; // Reset flag after scrolling
+            }
         }
 
         window.openReact = function(id) { 
@@ -441,7 +458,7 @@
             document.getElementById('unread-dot').style.display='none'; 
             window.isChatOpen=true; 
             window.markMessagesAsSeen(); 
-            window.scrollToBottom(); 
+            window.scrollToBottom(); // Always scroll when opening chat
             window.syncEngine = setInterval(window.fetchMessages, 3000); 
         }
         
@@ -452,7 +469,7 @@
             clearInterval(window.syncEngine); 
         }
         
-        window.forceLogout = async function() { if(window.supabaseClient) await window.supabaseClient.auth.signOut(); location.reload(); }
+        async function forceLogout() { if(window.supabaseClient) await window.supabaseClient.auth.signOut(); location.reload(); }
         window.openSettings = function() { document.getElementById('settings-ui').style.display='flex'; }
         window.closeSettings = function() { document.getElementById('settings-ui').style.display='none'; }
         window.checkFile = function(input, statusId) { if(input.files && input.files[0]) document.getElementById(statusId).innerText = "✅ Selected"; }
