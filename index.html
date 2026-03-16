@@ -48,21 +48,23 @@
         .msg-wrap { display: flex; flex-direction: column; width: 100%; }
         .me { align-items: flex-end; } .them { align-items: flex-start; }
         
-        /* 🚨 SAFARI BUG FIX: BUBBLE SETTINGS 🚨 */
         .bubble { 
-            padding: 10px 16px; 
-            border-radius: 20px; 
-            font-size: 15px; 
-            line-height: 1.4; 
+            padding: 8px 14px; 
+            border-radius: 18px; 
+            font-size: 14px; 
+            line-height: 1.3; 
             position: relative; 
             cursor: pointer; 
-            max-width: 75vw; /* Text box limit fixed for iPhone */
+            max-width: 75%; 
+            width: fit-content; 
+            display: inline-block;
             word-wrap: break-word; 
+            overflow-wrap: break-word;
         }
         .bubble-me { background: #3797f0; color: #fff; border-bottom-right-radius: 4px; }
         .bubble-them { background: #262626; color: #fff; border-bottom-left-radius: 4px; }
         
-        .chat-img { max-width: 200px; border-radius: 12px; margin-bottom: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); object-fit: cover; }
+        .chat-img { max-width: 200px; width: 100%; height: auto; border-radius: 12px; margin-bottom: 2px; display: block; }
         
         .msg-footer { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #aaa; margin-top: 4px; }
         .react-badge { position: absolute; bottom: -12px; background: #1c1c1e; border: 1px solid #333; padding: 2px 6px; border-radius: 12px; font-size: 13px; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
@@ -72,14 +74,18 @@
         #input-bar { padding: 10px 15px calc(var(--safe-bottom) + 10px); display: flex; gap: 10px; border-top: 1px solid #262626; background: rgba(0,0,0,0.9); z-index: 10; align-items: center; }
         #msg-in { flex: 1; padding: 12px 18px; background: #1c1c1e; border: none; border-radius: 25px; color: #fff; font-size: 16px; outline: none; }
 
+        /* REACTION TRAY */
         #react-tray { display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #262626; padding: 15px; border-radius: 20px; flex-direction: column; gap: 12px; z-index: 3000; box-shadow: 0 8px 20px rgba(0,0,0,0.6); min-width: 250px; }
         .emoji-row { display: flex; justify-content: space-between; gap: 10px; }
         .react-emoji { font-size: 26px; cursor: pointer; transition: 0.2s; } .react-emoji:active { transform: scale(1.3); }
         .unsend-btn { background: none; border: none; color: #ff3b30; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; border-top: 1px solid #444; padding-top: 12px; }
 
+        /* SETTINGS MODAL */
         #settings-ui { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .set-box { width: 90%; background: #1c1c1e; padding: 25px; border-radius: 20px; border: 1px solid #333; text-align: left; }
+        .file-label { color:#aaa; font-size:14px; display:block; margin-bottom:5px; margin-top: 15px; font-weight:bold;}
         .file-upload-btn { width: 100%; padding: 12px; background: #333; color: white; border-radius: 10px; border: none; font-size: 14px; margin-bottom: 5px; }
+        .status-badge { color: #4cd964; font-size: 12px; display: block; text-align: center; }
         .delete-chat-btn { width: 100%; padding: 12px; background: rgba(255, 59, 48, 0.2); border: 1px solid #ff3b30; color: #ff3b30; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 25px; }
     </style>
 </head>
@@ -106,7 +112,10 @@
 
         <div id="dm-list-ui">
             <div class="dm-header">
-                <div class="header-info-group"><div class="header-name" id="my-username-display">Loading...</div></div>
+                <div class="header-info-group" style="display:flex; align-items:center; gap:10px;">
+                    <img id="my-header-pfp" src="" style="width:32px; height:32px; border-radius:50%; object-fit:cover; background:#333;">
+                    <div class="header-name" id="my-username-display" style="margin-bottom:0;">Loading...</div>
+                </div>
                 <div style="display:flex; gap:10px;">
                     <button class="settings-btn" onclick="openSettings()">⚙️ Settings</button>
                     <div class="sos-btn" onclick="forceLogout()">SOS</div>
@@ -134,9 +143,9 @@
             <div id="messages"></div>
             <div id="input-bar">
                 <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="sendPhoto(event)">
-                <button onclick="document.getElementById('file-input').click()" style="background:none; border:none; font-size:24px; cursor:pointer;">📷</button>
+                <button onclick="document.getElementById('file-input').click()" style="background:none; border:none; font-size:32px; color:#8e8e93; cursor:pointer; padding:0 8px 4px 0;">+</button>
                 <input type="text" id="msg-in" placeholder="Message..." onkeypress="if(event.key==='Enter') sendMsg()">
-                <button onclick="sendMsg()" style="background:none; border:none; color:#3797f0; font-weight:bold; font-size:16px; padding-left:5px; cursor:pointer;">Send</button>
+                <button onclick="sendMsg()" style="background:#3797f0; border:none; color:#fff; font-weight:bold; font-size:20px; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">↑</button>
             </div>
 
             <div id="react-tray">
@@ -155,7 +164,7 @@
         <div id="settings-ui">
             <div class="set-box">
                 <h3 style="margin-bottom:15px; text-align:center;">App Settings</h3>
-                <label class="file-label" style="color:#aaa; font-size:14px; display:block; margin-bottom:5px;">Change My PFP:</label>
+                <label class="file-label" style="color:#aaa; font-size:14px; display:block; margin-bottom:5px;">Change My Display Picture:</label>
                 <input type="file" id="set-mypfp-file" style="display:none;" accept="image/*" onchange="checkFile(this, 'status-mypfp')">
                 <button class="file-upload-btn" onclick="document.getElementById('set-mypfp-file').click()">📂 Choose DP from Gallery</button>
                 <span id="status-mypfp" style="color: #4cd964; font-size: 12px; display: block; text-align: center;"></span>
@@ -209,13 +218,14 @@
             let pass = document.getElementById('user-pass').value;
             let btn = document.getElementById('login-btn');
 
-            if(!email || !pass) { alert("Email aur Password daal!"); return; }
+            if(!email || !pass) { alert("Please enter Email and Password"); return; }
             btn.innerText = "Checking...";
 
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: pass });
 
+            // 🚨 CUSTOM ALERT MESSAGE 🚨
             if (error) { 
-                alert("Galat Email ya Password!"); 
+                alert("No Maths premium notes subscription found"); 
                 btn.innerText = "Enter"; 
                 return; 
             }
@@ -260,7 +270,6 @@
             let text = i.value.trim();
             if(!text) return;
 
-            // Optimistic UI (Instant show)
             let tempMsg = { id: Date.now(), text: text, sender: currentUser, time: getTime(), react: "", type: "text", seen: false };
             chatData.push(tempMsg);
             renderMessages();
@@ -280,8 +289,7 @@
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = async function() {
-                    const canvas = document.createElement('canvas'); 
-                    const MAX_SIZE = 600; 
+                    const canvas = document.createElement('canvas'); const MAX_SIZE = 600; 
                     let w = img.width, h = img.height;
                     if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE/w; w = MAX_SIZE; } } 
                     else { if (h > MAX_SIZE) { w *= MAX_SIZE/h; h = MAX_SIZE; } }
@@ -313,7 +321,6 @@
                 let reactHTML = m.react ? `<span class="react-badge">${m.react}</span>` : '';
                 let pfpSrc = !isMe ? (localStorage.getItem(partnerUser + '_pfp') || `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`) : '';
 
-                // 🚨 SAFARI FIX: Simple div logic 🚨
                 container.innerHTML += `
                     <div class="msg-wrap ${isMe ? 'me' : 'them'}">
                         <div style="display:flex; align-items:flex-end; gap:8px;">
@@ -422,11 +429,18 @@
         }
 
         function loadSettings() {
+            // 🚨 PFP LOGIC FOR BOTH USERS 🚨
             const partnerPfpData = localStorage.getItem(partnerUser + '_pfp'); 
+            const myPfpData = localStorage.getItem(currentUser + '_pfp'); 
             const bgData = localStorage.getItem('chatBg');
+            
             const defaultPartner = `https://ui-avatars.com/api/?name=${partnerUser.charAt(0)}&background=random`;
+            const defaultMe = `https://ui-avatars.com/api/?name=${currentUser.charAt(0)}&background=random`;
+            
             document.getElementById('list-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
             document.getElementById('chat-pfp').src = partnerPfpData ? partnerPfpData : defaultPartner;
+            document.getElementById('my-header-pfp').src = myPfpData ? myPfpData : defaultMe;
+
             if(bgData) document.documentElement.style.setProperty('--theme-bg', `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${bgData}')`); 
         }
 
